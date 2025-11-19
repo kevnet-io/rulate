@@ -1,0 +1,207 @@
+name: "my_wardrobe"
+schema_ref: "wardrobe_v1"
+description: "My personal wardrobe catalog"
+
+items:
+  # Shirts
+  - id: "shirt_001"
+    name: "Blue Oxford Shirt"
+    attributes:
+      category: "shirt"
+      body_zone: "torso"
+      layer: "base"
+      formality: 4
+      colors: ["blue", "white"]
+      season: "all_season"
+      style: "business"
+
+  - id: "shirt_002"
+    name: "White T-Shirt"
+    attributes:
+      category: "shirt"
+      body_zone: "torso"
+      layer: "base"
+      formality: 1
+      colors: ["white"]
+      season: "all_season"
+      style: "casual"
+
+  - id: "shirt_003"
+    name: "Black Polo"
+    attributes:
+      category: "shirt"
+      body_zone: "torso"
+      layer: "base"
+      formality: 3
+      colors: ["black"]
+      season: "all_season"
+      style: "casual"
+
+  # Pants
+  - id: "pants_001"
+    name: "Dark Denim Jeans"
+    attributes:
+      category: "pants"
+      body_zone: "legs"
+      formality: 2
+      colors: ["blue", "black"]
+      season: "all_season"
+      style: "casual"
+
+  - id: "pants_002"
+    name: "Gray Dress Slacks"
+    attributes:
+      category: "pants"
+      body_zone: "legs"
+      formality: 4
+      colors: ["gray"]
+      season: "all_season"
+      style: "business"
+
+  - id: "pants_003"
+    name: "Khaki Chinos"
+    attributes:
+      category: "pants"
+      body_zone: "legs"
+      formality: 3
+      colors: ["tan", "brown"]
+      season: "all_season"
+      style: "casual"
+
+  # Jackets
+  - id: "jacket_001"
+    name: "Navy Blazer"
+    attributes:
+      category: "jacket"
+      body_zone: "torso"
+      layer: "outer"
+      formality: 5
+      colors: ["navy"]
+      season: "all_season"
+      style: "formal"
+
+  - id: "jacket_002"
+    name: "Denim Jacket"
+    attributes:
+      category: "jacket"
+      body_zone: "torso"
+      layer: "outer"
+      formality: 2
+      colors: ["blue"]
+      season: "spring"
+      style: "casual"
+
+  - id: "jacket_003"
+    name: "Black Leather Jacket"
+    attributes:
+      category: "jacket"
+      body_zone: "torso"
+      layer: "mid"
+      formality: 3
+      colors: ["black"]
+      season: "fall"
+      style: "casual"
+
+  # Shoes
+  - id: "shoes_001"
+    name: "Black Oxford Shoes"
+    attributes:
+      category: "shoes"
+      body_zone: "feet"
+      formality: 5
+      colors: ["black"]
+      season: "all_season"
+      style: "formal"
+
+  - id: "shoes_002"
+    name: "White Sneakers"
+    attributes:
+      category: "shoes"
+      body_zone: "feet"
+      formality: 1
+      colors: ["white"]
+      season: "all_season"
+      style: "casual"
+
+  - id: "shoes_003"
+    name: "Brown Loafers"
+    attributes:
+      category: "shoes"
+      body_zone: "feet"
+      formality: 3
+      colors: ["brown"]
+      season: "all_season"
+      style: "business"
+
+  # Accessories
+  - id: "accessory_001"
+    name: "Red Tie"
+    attributes:
+      category: "accessory"
+      body_zone: "neck"
+      formality: 5
+      colors: ["red"]
+      season: "all_season"
+      style: "formal"
+
+  - id: "accessory_002"
+    name: "Brown Leather Belt"
+    attributes:
+      category: "accessory"
+      body_zone: "waist"
+      formality: 3
+      colors: ["brown"]
+      season: "all_season"
+      style: "casual"
+
+  - id: "accessory_003"
+    name: "Black Belt"
+    attributes:
+      category: "accessory"
+      body_zone: "waist"
+      formality: 4
+      colors: ["black"]
+      season: "all_season"
+      style: "business"
+
+  # Hats
+  - id: "hat_001"
+    name: "Baseball Cap"
+    attributes:
+      category: "hat"
+      body_zone: "head"
+      formality: 1
+      colors: ["blue"]
+      season: "summer"
+      style: "casual"
+
+  - id: "hat_002"
+    name: "Fedora"
+    attributes:
+      category: "hat"
+      body_zone: "head"
+      formality: 4
+      colors: ["gray"]
+      season: "all_season"
+      style: "formal"
+
+  # Socks
+  - id: "socks_001"
+    name: "Black Dress Socks"
+    attributes:
+      category: "socks"
+      body_zone: "feet"
+      formality: 4
+      colors: ["black"]
+      season: "all_season"
+      style: "business"
+
+  - id: "socks_002"
+    name: "White Athletic Socks"
+    attributes:
+      category: "socks"
+      body_zone: "feet"
+      formality: 1
+      colors: ["white"]
+      season: "all_season"
+      style: "athletic"

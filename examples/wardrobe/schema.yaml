@@ -1,0 +1,73 @@
+name: "wardrobe_v1"
+version: "1.0.0"
+description: "Schema for categorizing clothing items and their attributes"
+
+dimensions:
+  - name: "category"
+    type: "enum"
+    required: true
+    description: "Type of clothing item"
+    values:
+      - "shirt"
+      - "pants"
+      - "jacket"
+      - "shoes"
+      - "accessory"
+      - "hat"
+      - "socks"
+
+  - name: "body_zone"
+    type: "enum"
+    required: true
+    description: "Which part of the body this item covers"
+    values:
+      - "head"
+      - "torso"
+      - "legs"
+      - "feet"
+      - "hands"
+      - "neck"
+      - "waist"
+
+  - name: "layer"
+    type: "enum"
+    required: false
+    description: "Layering level for items on the same body zone"
+    values:
+      - "base"
+      - "mid"
+      - "outer"
+
+  - name: "formality"
+    type: "integer"
+    required: false
+    description: "Formality level (1=very casual, 5=very formal)"
+    min: 1
+    max: 5
+
+  - name: "colors"
+    type: "list"
+    item_type: "string"
+    required: false
+    description: "Primary colors in the item"
+
+  - name: "season"
+    type: "enum"
+    required: false
+    description: "Appropriate seasons for wearing"
+    values:
+      - "spring"
+      - "summer"
+      - "fall"
+      - "winter"
+      - "all_season"
+
+  - name: "style"
+    type: "enum"
+    required: false
+    description: "General style category"
+    values:
+      - "casual"
+      - "business"
+      - "athletic"
+      - "formal"
