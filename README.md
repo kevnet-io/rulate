@@ -24,13 +24,15 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Example wardrobe configuration (19 items, 7 dimensions, 4 rules)
 - [x] Comprehensive tests (44 tests, 95% coverage on schema)
 
-**Phase 2: REST API** ✅ COMPLETE
+**Phase 2: REST API & CLI** ✅ COMPLETE
 
 - [x] FastAPI backend with SQLite
 - [x] CRUD endpoints for schemas, rulesets, catalogs, items
 - [x] Evaluation endpoints (pair, matrix, item)
 - [x] Request/response validation with Pydantic
 - [x] Automatic OpenAPI documentation at `/docs`
+- [x] CLI tool with validate, evaluate, and show commands
+- [x] Multiple output formats (summary, json, yaml, csv, table)
 - [x] Successfully tested with wardrobe example
 
 **Phase 3: Web UI** 📅 Coming Next
@@ -79,6 +81,40 @@ print(result.get_summary())
 matrix = evaluate_matrix(catalog, ruleset, schema)
 stats = matrix.get_summary_stats()
 print(f"Compatibility rate: {stats['compatibility_rate']:.1%}")
+```
+
+### Using the CLI
+
+```bash
+# Validate files
+rulate validate schema examples/wardrobe/schema.yaml
+rulate validate catalog examples/wardrobe/catalog.yaml --schema examples/wardrobe/schema.yaml
+
+# Evaluate compatibility
+rulate evaluate pair shirt_001 pants_002 \
+  --catalog examples/wardrobe/catalog.yaml \
+  --rules examples/wardrobe/rules.yaml \
+  --schema examples/wardrobe/schema.yaml
+
+# Generate compatibility matrix
+rulate evaluate matrix \
+  --catalog examples/wardrobe/catalog.yaml \
+  --rules examples/wardrobe/rules.yaml \
+  --format summary
+
+# Find compatible items for a specific item
+rulate evaluate item shirt_001 \
+  --catalog examples/wardrobe/catalog.yaml \
+  --rules examples/wardrobe/rules.yaml
+
+# Show catalog information
+rulate show catalog examples/wardrobe/catalog.yaml
+
+# Export matrix as CSV
+rulate evaluate matrix \
+  --catalog examples/wardrobe/catalog.yaml \
+  --rules examples/wardrobe/rules.yaml \
+  --format csv --output compatibility.csv
 ```
 
 ### Using the REST API

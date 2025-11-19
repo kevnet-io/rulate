@@ -6,7 +6,8 @@
       "Bash(python -c:*)",
       "Bash(pip install:*)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(python -m rulate.cli:*)"
     ],
     "deny": [],
     "ask": []
