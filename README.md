@@ -16,13 +16,25 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 
 ## Project Status
 
-Currently in **Phase 1**: Core Engine Development
+**Phase 1: Core Engine** ✅ COMPLETE
 
-- [x] Project setup
-- [ ] Core models (schema, rules, catalog)
-- [ ] Rule evaluation engine
-- [ ] CLI interface
-- [ ] Example wardrobe configuration
+- [x] Project setup with dependencies (Pydantic, PyYAML, pytest)
+- [x] Core models (Schema, Rule, Catalog, Evaluation)
+- [x] Rule evaluation engine with operators
+- [x] Example wardrobe configuration (19 items, 7 dimensions, 4 rules)
+- [x] Comprehensive tests (44 tests, 95% coverage on schema)
+
+**Phase 2: REST API** 🚧 Coming Next
+
+- [ ] FastAPI backend with SQLite
+- [ ] CRUD endpoints for schemas, rules, catalogs
+- [ ] Import/export via API
+
+**Phase 3: Web UI** 📅 Planned
+
+- [ ] Svelte frontend
+- [ ] Visual rule builder
+- [ ] Compatibility matrix visualization
 
 ## Installation
 
@@ -32,7 +44,7 @@ git clone <repo-url>
 cd rulate
 
 # Create a virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
@@ -41,7 +53,28 @@ pip install -e ".[dev]"
 
 ## Quick Start
 
-Coming soon! The CLI interface is currently under development.
+```python
+from rulate.utils import load_schema, load_ruleset, load_catalog
+from rulate.engine import evaluate_pair, evaluate_matrix
+
+# Load example wardrobe configuration
+schema = load_schema('examples/wardrobe/schema.yaml')
+ruleset = load_ruleset('examples/wardrobe/rules.yaml')
+catalog = load_catalog('examples/wardrobe/catalog.yaml')
+
+# Compare two items
+shirt = catalog.get_item('shirt_001')
+pants = catalog.get_item('pants_002')
+result = evaluate_pair(shirt, pants, ruleset, schema)
+
+print(f"Compatible: {result.compatible}")
+print(result.get_summary())
+
+# Generate full compatibility matrix
+matrix = evaluate_matrix(catalog, ruleset, schema)
+stats = matrix.get_summary_stats()
+print(f"Compatibility rate: {stats['compatibility_rate']:.1%}")
+```
 
 ## Development
 
