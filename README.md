@@ -24,13 +24,16 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Example wardrobe configuration (19 items, 7 dimensions, 4 rules)
 - [x] Comprehensive tests (44 tests, 95% coverage on schema)
 
-**Phase 2: REST API** 🚧 Coming Next
+**Phase 2: REST API** ✅ COMPLETE
 
-- [ ] FastAPI backend with SQLite
-- [ ] CRUD endpoints for schemas, rules, catalogs
-- [ ] Import/export via API
+- [x] FastAPI backend with SQLite
+- [x] CRUD endpoints for schemas, rulesets, catalogs, items
+- [x] Evaluation endpoints (pair, matrix, item)
+- [x] Request/response validation with Pydantic
+- [x] Automatic OpenAPI documentation at `/docs`
+- [x] Successfully tested with wardrobe example
 
-**Phase 3: Web UI** 📅 Planned
+**Phase 3: Web UI** 📅 Coming Next
 
 - [ ] Svelte frontend
 - [ ] Visual rule builder
@@ -53,6 +56,8 @@ pip install -e ".[dev]"
 
 ## Quick Start
 
+### Using the Python Library
+
 ```python
 from rulate.utils import load_schema, load_ruleset, load_catalog
 from rulate.engine import evaluate_pair, evaluate_matrix
@@ -74,6 +79,31 @@ print(result.get_summary())
 matrix = evaluate_matrix(catalog, ruleset, schema)
 stats = matrix.get_summary_stats()
 print(f"Compatibility rate: {stats['compatibility_rate']:.1%}")
+```
+
+### Using the REST API
+
+```bash
+# Start the API server
+uvicorn api.main:app --reload
+
+# API is now available at http://localhost:8000
+# Interactive docs at http://localhost:8000/docs
+
+# Create a schema
+curl -X POST http://localhost:8000/api/v1/schemas \
+  -H "Content-Type: application/json" \
+  -d @examples/wardrobe/schema.json
+
+# Evaluate compatibility between two items
+curl -X POST http://localhost:8000/api/v1/evaluate/pair \
+  -H "Content-Type: application/json" \
+  -d '{
+    "item1_id": "shirt_001",
+    "item2_id": "pants_001",
+    "catalog_name": "my_wardrobe",
+    "ruleset_name": "wardrobe_rules_v1"
+  }'
 ```
 
 ## Development
