@@ -78,6 +78,43 @@ class RuleSetResponse(BaseModel):
         from_attributes = True
 
 
+# ClusterRuleSet models
+class ClusterRuleSetCreate(BaseModel):
+    """Schema for creating a new ClusterRuleSet."""
+
+    name: str
+    version: str
+    description: Optional[str] = None
+    schema_name: str  # References schema by name
+    pairwise_ruleset_name: str  # References pairwise ruleset by name
+    rules: List[Dict[str, Any]]
+
+
+class ClusterRuleSetUpdate(BaseModel):
+    """Schema for updating an existing ClusterRuleSet."""
+
+    version: Optional[str] = None
+    description: Optional[str] = None
+    rules: Optional[List[Dict[str, Any]]] = None
+
+
+class ClusterRuleSetResponse(BaseModel):
+    """Schema for ClusterRuleSet API responses."""
+
+    id: int
+    name: str
+    version: str
+    description: Optional[str]
+    schema_name: str
+    pairwise_ruleset_name: str
+    rules: List[Dict[str, Any]]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # Catalog models
 class CatalogCreate(BaseModel):
     """Schema for creating a new Catalog."""
@@ -169,6 +206,16 @@ class EvaluateItemRequest(BaseModel):
     item_id: str
     catalog_name: str
     ruleset_name: str
+
+
+class EvaluateClustersRequest(BaseModel):
+    """Request schema for cluster evaluation."""
+
+    catalog_name: str
+    ruleset_name: str
+    cluster_ruleset_name: str
+    min_cluster_size: int = Field(default=2, ge=2)
+    max_clusters: Optional[int] = Field(default=None, ge=1)
 
 
 # Import/Export models

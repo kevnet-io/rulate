@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.database.connection import init_db
-from api.routers import catalogs, evaluation, rulesets, schemas
+from api.routers import catalogs, clusters, evaluation, rulesets, schemas
 
 # Initialize database on startup
 @asynccontextmanager
@@ -45,6 +45,7 @@ app.include_router(schemas.router, prefix="/api/v1", tags=["schemas"])
 app.include_router(rulesets.router, prefix="/api/v1", tags=["rulesets"])
 app.include_router(catalogs.router, prefix="/api/v1", tags=["catalogs"])
 app.include_router(evaluation.router, prefix="/api/v1", tags=["evaluation"])
+app.include_router(clusters.router, prefix="/api/v1", tags=["clusters"])
 
 
 @app.get("/")

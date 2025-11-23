@@ -6,8 +6,10 @@
 		{ href: '/catalogs', label: 'Catalogs' },
 		{ href: '/schemas', label: 'Schemas' },
 		{ href: '/rulesets', label: 'RuleSets' },
+		{ href: '/cluster-rulesets', label: 'Cluster RuleSets' },
 		{ href: '/explore', label: 'Explorer' },
-		{ href: '/matrix', label: 'Matrix' }
+		{ href: '/matrix', label: 'Matrix' },
+		{ href: '/clusters', label: 'Clusters' }
 	];
 
 	function isActive(path: string): boolean {

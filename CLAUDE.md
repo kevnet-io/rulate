@@ -33,25 +33,46 @@ The domain-agnostic evaluation engine that processes schemas, rules, and catalog
 
 **Key modules:**
 - `rulate/models/` - Pydantic models for all data structures
-- `rulate/engine/operators.py` - Operator implementations for rule conditions
-- `rulate/engine/condition_evaluator.py` - Parses and evaluates condition dictionaries
-- `rulate/engine/evaluator.py` - Main evaluation orchestrator (evaluate_pair, evaluate_matrix, evaluate_item_against_catalog)
+- `rulate/engine/operators.py` - Operator implementations for rule conditions (pairwise and cluster)
+- `rulate/engine/condition_evaluator.py` - Parses and evaluates pairwise condition dictionaries
+- `rulate/engine/cluster_condition_evaluator.py` - Parses and evaluates cluster condition dictionaries
+- `rulate/engine/evaluator.py` - Main pairwise evaluation orchestrator (evaluate_pair, evaluate_matrix, evaluate_item_against_catalog)
+- `rulate/engine/cluster_evaluator.py` - Cluster finding engine using Bron-Kerbosch algorithm
 - `rulate/utils/` - YAML/JSON loaders and exporters
+
+**Cluster Mechanism:**
+Rulate includes a sophisticated cluster mechanism for finding compatible sets of items beyond pairwise compatibility.
+
+- **Clusters**: Sets of items where all pairs are mutually compatible AND the set satisfies cluster-level rules
+- **Two-Level Rule System**:
+  1. **Pairwise RuleSet**: Determines which items CAN go together (builds compatibility graph)
+  2. **ClusterRuleSet**: Determines which sets FORM valid clusters (set-level constraints)
+- **Algorithm**: Bron-Kerbosch with pivoting for finding all maximal cliques
+- **Cluster Operators** (8 set-level operators in addition to pairwise operators):
+  - `min_cluster_size`, `max_cluster_size` - Size constraints
+  - `unique_values` - Ensure field uniqueness across cluster
+  - `has_item_with` - Require items matching criteria
+  - `count_by_field` - Count distinct field values
+  - `formality_range` - Domain-specific formality consistency
+  - `all`, `any`, `not` - Logical operators for cluster conditions
+- **Relationships**: Automatically detects subset, superset, and overlapping patterns between clusters
 
 ### 2. REST API (`api/`)
 FastAPI backend with SQLite persistence for managing schemas, rulesets, and catalogs via HTTP.
 
 **Database architecture:**
 - SQLAlchemy ORM with SQLite (`api/database/models.py`)
-- Tables: `schemas`, `rulesets`, `catalogs`, `items`
+- Tables: `schemas`, `rulesets`, `cluster_rulesets`, `catalogs`, `items`
 - Complex fields (dimensions, rules, attributes) stored as JSON in TEXT columns
 - Uses getter/setter methods (`get_dimensions()`, `set_dimensions()`) not properties to avoid SQLAlchemy metadata conflicts
+- `ClusterRuleSetDB` model references both schema and pairwise ruleset
 
 **API structure:**
 - `api/main.py` - FastAPI app setup with lifespan events
-- `api/routers/` - Endpoint implementations (schemas, rulesets, catalogs, evaluation)
+- `api/routers/` - Endpoint implementations (schemas, rulesets, catalogs, evaluation, clusters)
 - `api/models/schemas.py` - Pydantic request/response models (distinct from core models)
 - `api/database/connection.py` - Session management with `get_db()` dependency
+- `api/routers/clusters.py` - Cluster evaluation endpoint (`POST /evaluate/clusters`)
 
 **Important conversion pattern:**
 The API routers convert between database models (SQLAlchemy) and core Rulate models (Pydantic) using helper functions like `db_to_rulate_schema()`, `db_to_rulate_catalog()` in `api/routers/evaluation.py`.

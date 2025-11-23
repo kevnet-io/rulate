@@ -65,6 +65,34 @@ class RuleSetDB(Base):
         self.rules_json = json.dumps(value)
 
 
+class ClusterRuleSetDB(Base):
+    """Database model for ClusterRuleSet storage."""
+
+    __tablename__ = "cluster_rulesets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), unique=True, nullable=False, index=True)
+    version = Column(String(50), nullable=False)
+    description = Column(Text, nullable=True)
+    schema_id = Column(Integer, ForeignKey("schemas.id"), nullable=False)
+    pairwise_ruleset_id = Column(Integer, ForeignKey("rulesets.id"), nullable=False)
+    rules_json = Column(Text, nullable=False)  # JSON serialized list of cluster rules
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # Relationships
+    schema = relationship("SchemaDB")
+    pairwise_ruleset = relationship("RuleSetDB")
+
+    def get_rules(self) -> list[Dict[str, Any]]:
+        """Parse cluster rules from JSON."""
+        return json.loads(self.rules_json)
+
+    def set_rules(self, value: list[Dict[str, Any]]) -> None:
+        """Serialize cluster rules to JSON."""
+        self.rules_json = json.dumps(value)
+
+
 class CatalogDB(Base):
     """Database model for Catalog storage."""
 

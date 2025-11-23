@@ -1,12 +1,13 @@
 """
-Operators for evaluating rule conditions against item pairs.
+Operators for evaluating rule conditions against item pairs and clusters.
 
 Operators are the building blocks of rule conditions. They take two items
+(for pairwise operators) or a list of items (for cluster operators)
 and return a boolean result plus an explanation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 from rulate.models.catalog import Item
 
@@ -300,6 +301,337 @@ class NotOperator(Operator):
         return not result, f"NOT {reason}"
 
 
+# Cluster Operators (for set-level evaluation)
+
+
+class ClusterOperator(ABC):
+    """
+    Base class for cluster operators.
+
+    Cluster operators evaluate conditions against a list of items (a cluster)
+    and return a boolean result plus a human-readable explanation.
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the operator with configuration.
+
+        Args:
+            config: Configuration dictionary from the rule condition
+        """
+        self.config = config
+        # Store common config values as attributes for easier access
+        for key, value in config.items():
+            setattr(self, key, value)
+
+    @abstractmethod
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        """
+        Evaluate the condition against a list of items.
+
+        Args:
+            items: List of items forming a cluster
+
+        Returns:
+            Tuple of (result, explanation)
+            - result: True if condition is met, False otherwise
+            - explanation: Human-readable explanation of the result
+        """
+        pass
+
+
+class MinClusterSizeOperator(ClusterOperator):
+    """
+    Require minimum cluster size.
+
+    Config:
+        value: Minimum number of items
+
+    Example:
+        {"min_cluster_size": 3}
+        Returns True if cluster has at least 3 items
+    """
+
+    def __init__(self, config: Any):
+        # For simple operators, config might just be the value
+        if isinstance(config, int):
+            self.value = config
+        elif isinstance(config, dict):
+            self.value = config.get("value", config)
+        else:
+            self.value = config
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        cluster_size = len(items)
+        result = cluster_size >= self.value
+        if result:
+            return True, f"Cluster has {cluster_size} items (min {self.value})"
+        else:
+            return False, f"Cluster has only {cluster_size} items (need {self.value})"
+
+
+class MaxClusterSizeOperator(ClusterOperator):
+    """
+    Enforce maximum cluster size.
+
+    Config:
+        value: Maximum number of items
+
+    Example:
+        {"max_cluster_size": 8}
+        Returns True if cluster has at most 8 items
+    """
+
+    def __init__(self, config: Any):
+        if isinstance(config, int):
+            self.value = config
+        elif isinstance(config, dict):
+            self.value = config.get("value", config)
+        else:
+            self.value = config
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        cluster_size = len(items)
+        result = cluster_size <= self.value
+        if result:
+            return True, f"Cluster has {cluster_size} items (max {self.value})"
+        else:
+            return False, f"Cluster has {cluster_size} items (exceeds max {self.value})"
+
+
+class UniqueValuesOperator(ClusterOperator):
+    """
+    Ensure field values are unique across all items in cluster.
+
+    Config:
+        field: The field name to check
+
+    Example:
+        {"unique_values": {"field": "body_zone"}}
+        Returns True if all items have different body_zone values
+    """
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        field = getattr(self, "field", None)
+        if not field:
+            return False, "No field specified for unique_values operator"
+
+        values = [item.get_attribute(field) for item in items]
+        values = [v for v in values if v is not None]
+
+        if not values:
+            return True, f"No {field} values to check"
+
+        unique_count = len(set(values))
+        total_count = len(values)
+        result = unique_count == total_count
+
+        if result:
+            return True, f"All {total_count} {field} values are unique"
+        else:
+            duplicates = total_count - unique_count
+            return False, f"Found {duplicates} duplicate {field} value(s)"
+
+
+class HasItemWithOperator(ClusterOperator):
+    """
+    Require at least one item matching criteria.
+
+    Config:
+        field: The field name to check
+        value: The required value
+
+    Example:
+        {"has_item_with": {"field": "category", "value": "top"}}
+        Returns True if at least one item has category="top"
+    """
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        field = getattr(self, "field", None)
+        value = getattr(self, "value", None)
+
+        if not field:
+            return False, "No field specified for has_item_with operator"
+        if value is None:
+            return False, "No value specified for has_item_with operator"
+
+        matching = [item for item in items if item.get_attribute(field) == value]
+        result = len(matching) > 0
+
+        if result:
+            return True, f"Found {len(matching)} item(s) with {field}='{value}'"
+        else:
+            return False, f"No items with {field}='{value}'"
+
+
+class CountByFieldOperator(ClusterOperator):
+    """
+    Count distinct values of a field.
+
+    Config:
+        field: The field name to count
+        min: Minimum distinct values (optional)
+        max: Maximum distinct values (optional)
+
+    Example:
+        {"count_by_field": {"field": "body_zone", "min": 3}}
+        Returns True if cluster covers at least 3 different body zones
+    """
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        field = getattr(self, "field", None)
+        if not field:
+            return False, "No field specified for count_by_field operator"
+
+        values = [item.get_attribute(field) for item in items]
+        values = [v for v in values if v is not None]
+
+        if not values:
+            return False, f"No {field} values to count"
+
+        distinct = len(set(values))
+        min_count = getattr(self, "min", None)
+        max_count = getattr(self, "max", None)
+
+        if min_count is not None and distinct < min_count:
+            return False, f"Only {distinct} distinct {field} value(s) (need {min_count})"
+        if max_count is not None and distinct > max_count:
+            return False, f"Too many distinct {field} values ({distinct}, max {max_count})"
+
+        return True, f"{distinct} distinct {field} value(s)"
+
+
+class FormalityRangeOperator(ClusterOperator):
+    """
+    Ensure all items are within a formality range.
+
+    Config:
+        max_diff: Maximum difference between highest and lowest formality
+
+    Example:
+        {"formality_range": {"max_diff": 1}}
+        Returns True if formality levels differ by at most 1
+    """
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        max_diff = getattr(self, "max_diff", None)
+        if max_diff is None:
+            return False, "No max_diff specified for formality_range operator"
+
+        formality_values = []
+        for item in items:
+            val = item.get_attribute("formality")
+            if val is not None:
+                try:
+                    formality_values.append(float(val))
+                except (ValueError, TypeError):
+                    return False, f"Invalid formality value for {item.id}: {val}"
+
+        if not formality_values:
+            return True, "No formality values to check"
+
+        min_val = min(formality_values)
+        max_val = max(formality_values)
+        diff = max_val - min_val
+        result = diff <= max_diff
+
+        if result:
+            return True, f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f}, max={max_diff})"
+        else:
+            return False, f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f} exceeds max {max_diff})"
+
+
+# Cluster Logical Operators
+
+
+class ClusterAllOperator(ClusterOperator):
+    """
+    Logical AND for cluster conditions - all sub-conditions must be true.
+
+    Config:
+        List of sub-condition dictionaries
+
+    Example:
+        {"all": [
+            {"min_cluster_size": 3},
+            {"has_item_with": {"field": "category", "value": "top"}}
+        ]}
+    """
+
+    def __init__(self, config: Any):
+        self.conditions = config if isinstance(config, list) else []
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        if not self.conditions:
+            return False, "No conditions specified for 'all' operator"
+
+        from rulate.engine.cluster_condition_evaluator import evaluate_cluster_condition
+
+        for condition in self.conditions:
+            result, reason = evaluate_cluster_condition(condition, items)
+            if not result:
+                return False, f"AND failed: {reason}"
+
+        return True, "All conditions passed"
+
+
+class ClusterAnyOperator(ClusterOperator):
+    """
+    Logical OR for cluster conditions - at least one sub-condition must be true.
+
+    Config:
+        List of sub-condition dictionaries
+
+    Example:
+        {"any": [
+            {"min_cluster_size": 5},
+            {"has_item_with": {"field": "category", "value": "accessory"}}
+        ]}
+    """
+
+    def __init__(self, config: Any):
+        self.conditions = config if isinstance(config, list) else []
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        if not self.conditions:
+            return False, "No conditions specified for 'any' operator"
+
+        from rulate.engine.cluster_condition_evaluator import evaluate_cluster_condition
+
+        reasons = []
+        for condition in self.conditions:
+            result, reason = evaluate_cluster_condition(condition, items)
+            if result:
+                return True, f"OR succeeded: {reason}"
+            reasons.append(reason)
+
+        return False, f"All OR conditions failed: {'; '.join(reasons)}"
+
+
+class ClusterNotOperator(ClusterOperator):
+    """
+    Logical NOT for cluster conditions - negate a condition.
+
+    Config:
+        Single sub-condition dictionary
+
+    Example:
+        {"not": {"max_cluster_size": 10}}
+    """
+
+    def __init__(self, config: Any):
+        self.condition = config
+
+    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+        if not self.condition:
+            return False, "No condition specified for 'not' operator"
+
+        from rulate.engine.cluster_condition_evaluator import evaluate_cluster_condition
+
+        result, reason = evaluate_cluster_condition(self.condition, items)
+        return not result, f"NOT ({reason})"
+
+
 # Operator registry for lookup
 OPERATOR_REGISTRY = {
     "equals": EqualsOperator,
@@ -311,4 +643,18 @@ OPERATOR_REGISTRY = {
     "any": AnyOperator,
     "or": AnyOperator,  # Alias for 'any'
     "not": NotOperator,
+}
+
+# Cluster operator registry
+CLUSTER_OPERATOR_REGISTRY = {
+    "min_cluster_size": MinClusterSizeOperator,
+    "max_cluster_size": MaxClusterSizeOperator,
+    "unique_values": UniqueValuesOperator,
+    "has_item_with": HasItemWithOperator,
+    "count_by_field": CountByFieldOperator,
+    "formality_range": FormalityRangeOperator,
+    "all": ClusterAllOperator,
+    "any": ClusterAnyOperator,
+    "or": ClusterAnyOperator,  # Alias for 'any'
+    "not": ClusterNotOperator,
 }

@@ -80,6 +80,61 @@ export interface EvaluationMatrix {
 	compatibility_rate: number;
 }
 
+export interface ClusterRule {
+	name: string;
+	type: 'exclusion' | 'requirement';
+	condition: Record<string, any>;
+	enabled?: boolean;
+	description?: string;
+}
+
+export interface ClusterRuleSet {
+	id?: number;
+	name: string;
+	version: string;
+	schema_ref?: string; // For creating
+	schema_name?: string; // From API response
+	pairwise_ruleset_ref?: string; // For creating
+	pairwise_ruleset_name?: string; // From API response
+	rules: ClusterRule[];
+	description?: string;
+	created_at?: string;
+	updated_at?: string;
+}
+
+export interface Cluster {
+	id: string;
+	item_ids: string[];
+	size: number;
+	is_maximal: boolean;
+	is_maximum: boolean;
+	rule_evaluations: RuleEvaluation[];
+	metadata: Record<string, any>;
+}
+
+export interface ClusterRelationship {
+	cluster_id: string;
+	related_cluster_id: string;
+	relationship_type: 'subset' | 'superset' | 'overlapping';
+	shared_items: string[];
+	overlap_size: number;
+}
+
+export interface ClusterAnalysis {
+	catalog_name: string;
+	ruleset_name: string;
+	cluster_ruleset_name: string;
+	schema_name: string;
+	clusters: Cluster[];
+	relationships: ClusterRelationship[];
+	evaluated_at: string;
+	total_clusters: number;
+	max_cluster_size: number;
+	min_cluster_size: number;
+	avg_cluster_size: number;
+	total_items_covered: number;
+}
+
 class ApiClient {
 	private baseUrl: string;
 
@@ -223,6 +278,42 @@ class ApiClient {
 		});
 	}
 
+	// ClusterRuleSet endpoints
+	async getClusterRuleSets(): Promise<ClusterRuleSet[]> {
+		return this.request<ClusterRuleSet[]>('/cluster-rulesets');
+	}
+
+	async getClusterRuleSet(name: string): Promise<ClusterRuleSet> {
+		return this.request<ClusterRuleSet>(`/cluster-rulesets/${name}`);
+	}
+
+	async createClusterRuleSet(clusterRuleset: Omit<ClusterRuleSet, 'id' | 'created_at' | 'updated_at'>): Promise<ClusterRuleSet> {
+		return this.request<ClusterRuleSet>('/cluster-rulesets', {
+			method: 'POST',
+			body: JSON.stringify({
+				name: clusterRuleset.name,
+				version: clusterRuleset.version,
+				description: clusterRuleset.description,
+				schema_name: clusterRuleset.schema_ref,
+				pairwise_ruleset_name: clusterRuleset.pairwise_ruleset_ref,
+				rules: clusterRuleset.rules
+			})
+		});
+	}
+
+	async updateClusterRuleSet(name: string, clusterRuleset: Partial<ClusterRuleSet>): Promise<ClusterRuleSet> {
+		return this.request<ClusterRuleSet>(`/cluster-rulesets/${name}`, {
+			method: 'PUT',
+			body: JSON.stringify(clusterRuleset)
+		});
+	}
+
+	async deleteClusterRuleSet(name: string): Promise<void> {
+		await this.request<void>(`/cluster-rulesets/${name}`, {
+			method: 'DELETE'
+		});
+	}
+
 	// Evaluation endpoints
 	async evaluatePair(
 		item1Id: string,
@@ -265,6 +356,26 @@ class ApiClient {
 				item_id: itemId,
 				catalog_name: catalogName,
 				ruleset_name: rulesetName
+			})
+		});
+	}
+
+	// Cluster evaluation endpoints
+	async evaluateClusters(
+		catalogName: string,
+		rulesetName: string,
+		clusterRulesetName: string,
+		minClusterSize: number = 2,
+		maxClusters?: number
+	): Promise<ClusterAnalysis> {
+		return this.request<ClusterAnalysis>('/evaluate/clusters', {
+			method: 'POST',
+			body: JSON.stringify({
+				catalog_name: catalogName,
+				ruleset_name: rulesetName,
+				cluster_ruleset_name: clusterRulesetName,
+				min_cluster_size: minClusterSize,
+				max_clusters: maxClusters
 			})
 		});
 	}

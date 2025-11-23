@@ -11,6 +11,7 @@ from typing import Any, Dict, Union
 import yaml
 
 from rulate.models.catalog import Catalog
+from rulate.models.cluster import ClusterRuleSet
 from rulate.models.rule import RuleSet
 from rulate.models.schema import Schema
 
@@ -200,3 +201,53 @@ def load_catalog_from_string(content: str, format: str = "yaml") -> Catalog:
         return Catalog(**data)
     except Exception as e:
         raise ValueError(f"Failed to load catalog from string: {e}")
+
+
+def load_cluster_ruleset(file_path: Union[str, Path]) -> ClusterRuleSet:
+    """
+    Load a cluster ruleset from a YAML or JSON file.
+
+    Args:
+        file_path: Path to the cluster ruleset file
+
+    Returns:
+        A validated ClusterRuleSet object
+
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        ValueError: If the file is invalid or cluster ruleset validation fails
+
+    Example:
+        cluster_ruleset = load_cluster_ruleset("examples/wardrobe/cluster_rules.yaml")
+    """
+    data = load_yaml_or_json(file_path)
+    try:
+        return ClusterRuleSet(**data)
+    except Exception as e:
+        raise ValueError(f"Failed to load cluster ruleset from {file_path}: {e}")
+
+
+def load_cluster_ruleset_from_string(content: str, format: str = "yaml") -> ClusterRuleSet:
+    """
+    Load a cluster ruleset from a string.
+
+    Args:
+        content: The cluster ruleset content as a string
+        format: Either "yaml" or "json"
+
+    Returns:
+        A validated ClusterRuleSet object
+
+    Raises:
+        ValueError: If the content is invalid
+    """
+    try:
+        if format == "yaml":
+            data = yaml.safe_load(content)
+        elif format == "json":
+            data = json.loads(content)
+        else:
+            raise ValueError(f"Unsupported format: {format}")
+        return ClusterRuleSet(**data)
+    except Exception as e:
+        raise ValueError(f"Failed to load cluster ruleset from string: {e}")
