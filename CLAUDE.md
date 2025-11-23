@@ -195,6 +195,27 @@ npm run dev
 # Web UI available at http://localhost:5173
 ```
 
+### Git Commit Messages
+
+All commits should include the following footer to attribute Claude Code assistance:
+
+```
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Example commit:**
+```bash
+git commit -m "Add new cluster operator for size constraints
+
+Implements MinClusterSizeOperator to enforce minimum cluster sizes.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
 ## Important Implementation Details
 
 ### Rule Condition Language
@@ -328,4 +349,4 @@ items:
 - Added failed rule names display for incompatible items in the explorer
 - Created accessible matrix visualization with light color palette (emerald-50/rose-50)
 
-See `SPECIFICATION.md` for detailed technical specifications and `TASKS.md` for development roadmap.
+See `docs/SPECIFICATION.md` for complete technical specifications and `docs/FUTURE_TASKS.md` for enhancement roadmap.

@@ -197,9 +197,9 @@ mypy rulate
 
 ## Documentation
 
-See [SPECIFICATION.md](SPECIFICATION.md) for detailed technical specifications.
-
-See [TASKS.md](TASKS.md) for development roadmap and task breakdown.
+- **[CLAUDE.md](CLAUDE.md)** - Development guide for contributors and Claude Code AI assistant
+- **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** - Complete technical specification of the current implementation
+- **[docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md)** - Enhancement backlog and nice-to-have features
 
 ## License
 
@@ -207,4 +207,14 @@ TBD
 
 ## Contributing
 
-This project is currently in early development.
+Rulate is production-ready and welcomes contributions!
+
+Before contributing:
+1. Read the [development guide](CLAUDE.md) for architecture details
+2. Check [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for planned enhancements
+3. Open an issue to discuss your proposed changes
+4. Follow the code style (black, ruff, mypy)
+5. Add tests for new features
+6. Update documentation as needed
+
+See [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for a prioritized list of enhancements we'd love help with!
