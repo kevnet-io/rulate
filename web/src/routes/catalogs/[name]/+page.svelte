@@ -19,6 +19,7 @@
 	let error: string | null = null;
 
 	$: catalogName = $page.params.name;
+	$: pageTitle = `${catalogName} - Catalog - Rulate`;
 
 	async function loadData() {
 		try {
@@ -51,6 +52,10 @@
 
 	onMount(loadData);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6">

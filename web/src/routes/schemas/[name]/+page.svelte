@@ -17,6 +17,7 @@
 	let error: string | null = null;
 
 	$: schemaName = $page.params.name;
+	$: pageTitle = `${schemaName} - Schema - Rulate`;
 
 	async function loadSchema() {
 		try {
@@ -32,6 +33,10 @@
 
 	onMount(loadSchema);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6">

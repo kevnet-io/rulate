@@ -19,6 +19,7 @@
 
 	$: catalogName = $page.params.name;
 	$: itemId = $page.params.itemId;
+	$: pageTitle = `${itemId} - ${catalogName} - Rulate`;
 
 	async function loadItem() {
 		try {
@@ -41,6 +42,10 @@
 
 	onMount(loadItem);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6">

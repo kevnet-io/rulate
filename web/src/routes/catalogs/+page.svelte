@@ -1,3 +1,7 @@
+<svelte:head>
+	<title>Catalogs - Rulate</title>
+</svelte:head>
+
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api/client';

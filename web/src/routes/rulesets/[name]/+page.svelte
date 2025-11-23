@@ -17,6 +17,7 @@
 	let error: string | null = null;
 
 	$: rulesetName = $page.params.name;
+	$: pageTitle = `${rulesetName} - RuleSet - Rulate`;
 
 	async function loadRuleSet() {
 		try {
@@ -56,6 +57,10 @@
 
 	onMount(loadRuleSet);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6">
