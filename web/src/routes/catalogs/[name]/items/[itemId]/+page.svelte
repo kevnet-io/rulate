@@ -73,8 +73,13 @@
 		<div class="space-y-6">
 			<Card>
 				<CardHeader>
-					<CardTitle class="text-3xl">{item.name}</CardTitle>
-					<CardDescription>{item.item_id}</CardDescription>
+					<div class="flex items-start justify-between">
+						<div>
+							<CardTitle class="text-3xl">{item.name}</CardTitle>
+							<CardDescription>{item.item_id}</CardDescription>
+						</div>
+						<Button href="/catalogs/{catalogName}/items/{itemId}/edit">Edit Item</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
 					{#if item.created_at}

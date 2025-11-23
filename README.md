@@ -41,7 +41,10 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 
 - [x] SvelteKit 2.0 frontend with TypeScript
 - [x] Dashboard with overview statistics
-- [x] CRUD interfaces for schemas, rulesets, and catalogs
+- [x] Full CRUD operations for schemas, rulesets, catalogs, and items
+  - [x] Create forms with validation and schema-driven dynamic fields
+  - [x] Edit forms for updating items
+  - [x] List and detail views with delete functionality
 - [x] Interactive compatibility explorer with clickable graph navigation
 - [x] Compatibility matrix visualization with detailed rule evaluations
 - [x] Responsive design with Tailwind CSS and accessible color palette
@@ -163,10 +166,13 @@ npm run dev
 ```
 
 The Web UI provides:
-- **Dashboard**: Overview of schemas, rulesets, and catalogs
+- **Dashboard**: Overview of schemas, rulesets, and catalogs with statistics
+- **Schema Management**: Create schemas with dynamic dimension builder supporting all 6 types (string, integer, float, boolean, enum, list)
+- **RuleSet Management**: Create rulesets with JSON condition editor and rule builder
+- **Catalog Management**: Create catalogs and manage items with schema-driven forms
+- **Item Editor**: Create and edit items with dynamic forms based on schema definitions
 - **Explorer**: Interactive compatibility exploration - click through items to see what they're compatible/incompatible with
-- **Matrix**: Visual grid showing all pairwise compatibility results
-- **Management**: Create and view schemas, rulesets, catalogs, and items
+- **Matrix**: Visual grid showing all pairwise compatibility results with detailed rule evaluations
 
 ## Development
 

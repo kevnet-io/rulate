@@ -34,6 +34,7 @@
 		variant?: Variant;
 		size?: Size;
 		href?: string;
+		type?: 'button' | 'submit' | 'reset';
 		onclick?: (event: MouseEvent) => void;
 	};
 
@@ -41,6 +42,7 @@
 	export let variant: $$Props['variant'] = 'default';
 	export let size: $$Props['size'] = 'default';
 	export let href: string | undefined = undefined;
+	export let type: $$Props['type'] = 'button';
 	export let onclick: ((event: MouseEvent) => void) | undefined = undefined;
 	export { className as class };
 </script>
@@ -51,10 +53,10 @@
 	</a>
 {:else}
 	<button
+		{type}
 		class={cn(buttonVariants({ variant, size }), className)}
 		{onclick}
 		{...$$restProps}
-		type="button"
 	>
 		<slot />
 	</button>

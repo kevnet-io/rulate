@@ -74,8 +74,14 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 **Key pages:**
 - `web/src/routes/+page.svelte` - Dashboard with overview statistics
 - `web/src/routes/schemas/` - Schema list and detail views
+- `web/src/routes/schemas/new/` - Schema creation form with dynamic dimension management
 - `web/src/routes/rulesets/` - RuleSet list and detail views
+- `web/src/routes/rulesets/new/` - RuleSet creation form with rule builder
 - `web/src/routes/catalogs/` - Catalog list, detail, and item views
+- `web/src/routes/catalogs/new/` - Catalog creation form
+- `web/src/routes/catalogs/[name]/items/new/` - Item creation form with schema-driven fields
+- `web/src/routes/catalogs/[name]/items/[itemId]/` - Item detail view
+- `web/src/routes/catalogs/[name]/items/[itemId]/edit/` - Item edit form
 - `web/src/routes/explore/+page.svelte` - Interactive compatibility explorer
 - `web/src/routes/matrix/+page.svelte` - Compatibility matrix visualization
 
@@ -87,7 +93,9 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 **Svelte 5 syntax notes:**
 - Event handlers use `onclick` prop instead of `on:click` directive
 - Button component is polymorphic - renders `<a>` when `href` prop provided, `<button>` otherwise
+- Button component accepts `type` prop ('button'|'submit'|'reset') to control form submission behavior
 - Use `{@const}` blocks inside conditional/loop blocks for derived values
+- Object mutations don't trigger reactivity - reassign the object to trigger updates: `obj = obj`
 
 ## Development Commands
 
@@ -286,6 +294,14 @@ items:
 - **Phase 3 (Complete)**: SvelteKit web UI with interactive explorer and matrix visualization
 
 ### Recent Changes
+- **Web UI CRUD Operations**: Added complete create/edit functionality
+  - Schema creation form with dynamic dimension builder supporting all 6 dimension types
+  - RuleSet creation form with JSON condition editor and rule management
+  - Catalog creation form with schema selection
+  - Item creation and edit forms with schema-driven dynamic fields
+  - All forms include validation, error handling, and proper navigation
+- **Button Component Fix**: Fixed Button component to properly handle `type="submit"` for form submissions
+- **Svelte Reactivity**: Implemented proper reactivity patterns for object mutations in forms
 - Fixed `RuleEvaluation.passed` field for exclusion rules to correctly invert the condition result
 - Implemented interactive compatibility explorer with clickable navigation
 - Added failed rule names display for incompatible items in the explorer
