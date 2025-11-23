@@ -69,10 +69,11 @@ FastAPI backend with SQLite persistence for managing schemas, rulesets, and cata
 
 **API structure:**
 - `api/main.py` - FastAPI app setup with lifespan events
-- `api/routers/` - Endpoint implementations (schemas, rulesets, catalogs, evaluation, clusters)
+- `api/routers/` - Endpoint implementations (schemas, rulesets, catalogs, evaluation, clusters, import_export)
 - `api/models/schemas.py` - Pydantic request/response models (distinct from core models)
 - `api/database/connection.py` - Session management with `get_db()` dependency
 - `api/routers/clusters.py` - Cluster evaluation endpoint (`POST /evaluate/clusters`)
+- `api/routers/import_export.py` - Bulk import/export endpoints for data backup and migration
 
 **Important conversion pattern:**
 The API routers convert between database models (SQLAlchemy) and core Rulate models (Pydantic) using helper functions like `db_to_rulate_schema()`, `db_to_rulate_catalog()` in `api/routers/evaluation.py`.
@@ -105,6 +106,7 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 - `web/src/routes/catalogs/[name]/items/[itemId]/edit/` - Item edit form
 - `web/src/routes/explore/+page.svelte` - Interactive compatibility explorer
 - `web/src/routes/matrix/+page.svelte` - Compatibility matrix visualization
+- `web/src/routes/import-export/+page.svelte` - Bulk import/export page for data backup and migration
 
 **Important components:**
 - `web/src/lib/api/client.ts` - TypeScript API client with type definitions
@@ -336,6 +338,11 @@ items:
 - **Phase 3 (Complete)**: SvelteKit web UI with interactive explorer and matrix visualization
 
 ### Recent Changes
+- **Import/Export Functionality**: Added comprehensive bulk data import/export capabilities
+  - API endpoints for exporting all data types (schemas, rulesets, cluster rulesets, catalogs) in JSON format
+  - API endpoints for importing data with validation and skip_existing flag to prevent duplicates
+  - Web UI page with file upload/download for backup and migration workflows
+  - Automatic dependency handling in "Import All" operation (Schemas → RuleSets → Cluster RuleSets → Catalogs)
 - **Web UI CRUD Operations**: Added complete create/edit functionality
   - Schema creation form with dynamic dimension builder supporting all 6 dimension types
   - RuleSet creation form with JSON condition editor and rule management

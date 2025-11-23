@@ -379,6 +379,79 @@ class ApiClient {
 			})
 		});
 	}
+
+	// Export endpoints
+	async exportSchemas(): Promise<any[]> {
+		return this.request<any[]>('/export/schemas');
+	}
+
+	async exportSchema(name: string): Promise<any> {
+		return this.request<any>(`/export/schemas/${name}`);
+	}
+
+	async exportRuleSets(): Promise<any[]> {
+		return this.request<any[]>('/export/rulesets');
+	}
+
+	async exportRuleSet(name: string): Promise<any> {
+		return this.request<any>(`/export/rulesets/${name}`);
+	}
+
+	async exportClusterRuleSets(): Promise<any[]> {
+		return this.request<any[]>('/export/cluster-rulesets');
+	}
+
+	async exportClusterRuleSet(name: string): Promise<any> {
+		return this.request<any>(`/export/cluster-rulesets/${name}`);
+	}
+
+	async exportCatalog(name: string): Promise<any> {
+		return this.request<any>(`/export/catalogs/${name}`);
+	}
+
+	async exportCatalogs(): Promise<any[]> {
+		return this.request<any[]>('/export/catalogs');
+	}
+
+	async exportAll(): Promise<any> {
+		return this.request<any>('/export/all');
+	}
+
+	// Import endpoints
+	async importSchemas(schemas: any[], skipExisting: boolean = false): Promise<{ message: string; detail?: string }> {
+		return this.request<{ message: string; detail?: string }>(`/import/schemas?skip_existing=${skipExisting}`, {
+			method: 'POST',
+			body: JSON.stringify(schemas)
+		});
+	}
+
+	async importRuleSets(rulesets: any[], skipExisting: boolean = false): Promise<{ message: string; detail?: string }> {
+		return this.request<{ message: string; detail?: string }>(`/import/rulesets?skip_existing=${skipExisting}`, {
+			method: 'POST',
+			body: JSON.stringify(rulesets)
+		});
+	}
+
+	async importClusterRuleSets(clusterRulesets: any[], skipExisting: boolean = false): Promise<{ message: string; detail?: string }> {
+		return this.request<{ message: string; detail?: string }>(`/import/cluster-rulesets?skip_existing=${skipExisting}`, {
+			method: 'POST',
+			body: JSON.stringify(clusterRulesets)
+		});
+	}
+
+	async importCatalogs(catalogs: any[], skipExisting: boolean = false): Promise<{ message: string; detail?: string }> {
+		return this.request<{ message: string; detail?: string }>(`/import/catalogs?skip_existing=${skipExisting}`, {
+			method: 'POST',
+			body: JSON.stringify(catalogs)
+		});
+	}
+
+	async importAll(data: any, skipExisting: boolean = false): Promise<{ message: string; detail?: string }> {
+		return this.request<{ message: string; detail?: string }>(`/import/all?skip_existing=${skipExisting}`, {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
 }
 
 // Export a singleton instance

@@ -14,6 +14,7 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - **REST API**: FastAPI backend with SQLite persistence
 - **Web UI**: Interactive SvelteKit frontend for visual exploration
 - **CLI Interface**: Command-line tools for validation and evaluation
+- **Import/Export**: Bulk data import and export in JSON format for backup and migration
 - **Extensible**: Easy to add custom rule types and operators
 
 ## Project Status
@@ -173,6 +174,7 @@ The Web UI provides:
 - **Item Editor**: Create and edit items with dynamic forms based on schema definitions
 - **Explorer**: Interactive compatibility exploration - click through items to see what they're compatible/incompatible with
 - **Matrix**: Visual grid showing all pairwise compatibility results with detailed rule evaluations
+- **Import/Export**: Bulk import and export of all data types (schemas, rulesets, cluster rulesets, catalogs) with JSON file download and upload
 
 ## Development
 

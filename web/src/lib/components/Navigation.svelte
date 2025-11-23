@@ -9,7 +9,8 @@
 		{ href: '/cluster-rulesets', label: 'Cluster RuleSets' },
 		{ href: '/explore', label: 'Explorer' },
 		{ href: '/matrix', label: 'Matrix' },
-		{ href: '/clusters', label: 'Clusters' }
+		{ href: '/clusters', label: 'Clusters' },
+		{ href: '/import-export', label: 'Import/Export' }
 	];
 
 	function isActive(path: string): boolean {
