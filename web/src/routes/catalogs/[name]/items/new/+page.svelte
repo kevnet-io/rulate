@@ -13,6 +13,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
 	$: catalogName = $page.params.name;
+	$: pageTitle = `Add Item - ${catalogName} - Rulate`;
 
 	let catalog: Catalog | null = null;
 	let schema: Schema | null = null;
@@ -157,6 +158,10 @@
 
 	onMount(loadData);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+</svelte:head>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
 	<div class="mb-6">
