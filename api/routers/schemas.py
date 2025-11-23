@@ -100,7 +100,7 @@ def list_schemas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
             name=s.name,
             version=s.version,
             description=s.description,
-            dimensions=s.dimensions,
+            dimensions=s.get_dimensions(),
             created_at=s.created_at,
             updated_at=s.updated_at,
         )

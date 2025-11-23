@@ -53,7 +53,10 @@ def evaluate_pair(
     for rule in ruleset.get_exclusion_rules():
         try:
             result, reason = evaluate_condition(rule.condition, item1, item2)
-            rule_eval = RuleEvaluation(rule_name=rule.name, passed=result, reason=reason)
+            # For exclusion rules: condition TRUE means exclusion applies (rule FAILS)
+            # So passed should be the inverse of the condition result
+            rule_passed = not result
+            rule_eval = RuleEvaluation(rule_name=rule.name, passed=rule_passed, reason=reason)
             rule_evaluations.append(rule_eval)
 
             # For exclusion rules, if condition is TRUE, items are INCOMPATIBLE

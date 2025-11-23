@@ -62,6 +62,33 @@ Click-based command-line interface with three command groups:
 - `evaluate` - Run compatibility evaluations (pair, matrix, item)
 - `show` - Display information about schemas and catalogs
 
+### 4. Web UI (`web/`)
+SvelteKit 2.0 frontend with TypeScript providing interactive visualization and management.
+
+**Technology stack:**
+- SvelteKit 2.0 with Svelte 5 syntax (runes, event handlers)
+- TypeScript for type safety
+- Tailwind CSS for styling with custom design system
+- Vite dev server with API proxy
+
+**Key pages:**
+- `web/src/routes/+page.svelte` - Dashboard with overview statistics
+- `web/src/routes/schemas/` - Schema list and detail views
+- `web/src/routes/rulesets/` - RuleSet list and detail views
+- `web/src/routes/catalogs/` - Catalog list, detail, and item views
+- `web/src/routes/explore/+page.svelte` - Interactive compatibility explorer
+- `web/src/routes/matrix/+page.svelte` - Compatibility matrix visualization
+
+**Important components:**
+- `web/src/lib/api/client.ts` - TypeScript API client with type definitions
+- `web/src/lib/components/Navigation.svelte` - Main navigation bar
+- `web/src/lib/components/ui/` - Reusable UI components (Button, Card, Badge, etc.)
+
+**Svelte 5 syntax notes:**
+- Event handlers use `onclick` prop instead of `on:click` directive
+- Button component is polymorphic - renders `<a>` when `href` prop provided, `<button>` otherwise
+- Use `{@const}` blocks inside conditional/loop blocks for derived values
+
 ## Development Commands
 
 ### Setup
@@ -126,6 +153,19 @@ rulate evaluate matrix \
   --format summary  # or json, yaml, csv
 ```
 
+### Running the Web UI
+```bash
+# Terminal 1: Start the API server
+uvicorn api.main:app --reload --port 8000
+
+# Terminal 2: Start the web frontend
+cd web
+npm install  # First time only
+npm run dev
+
+# Web UI available at http://localhost:5173
+```
+
 ## Important Implementation Details
 
 ### Rule Condition Language
@@ -168,6 +208,21 @@ All items in a catalog must validate against their schema's dimensions. The Sche
 3. Validates enum values are in allowed list
 4. Validates numeric values are within min/max ranges
 5. Validates list item types
+
+### RuleEvaluation Passed Field
+The `RuleEvaluation.passed` field indicates whether a rule allowed compatibility:
+
+**For exclusion rules** (in `rulate/engine/evaluator.py:51-65`):
+- Condition TRUE → exclusion applies → items incompatible → `passed=False`
+- Condition FALSE → exclusion doesn't apply → `passed=True`
+- Implementation: `passed = not result` (inverted from condition result)
+
+**For requirement rules** (in `rulate/engine/evaluator.py:72-90`):
+- Condition TRUE → requirement met → `passed=True`
+- Condition FALSE → requirement not met → `passed=False`
+- Implementation: `passed = result` (same as condition result)
+
+This ensures that compatible items always show all rules as passed (4/4), and incompatible items show at least one failed rule.
 
 ### Example Configuration Structure
 The `examples/wardrobe/` directory contains a complete working example:
@@ -228,6 +283,12 @@ items:
 
 - **Phase 1 (Complete)**: Core engine with 9 operators, comprehensive tests
 - **Phase 2 (Complete)**: REST API with SQLite, CLI tool with multiple output formats
-- **Phase 3 (Planned)**: Web UI with Svelte
+- **Phase 3 (Complete)**: SvelteKit web UI with interactive explorer and matrix visualization
+
+### Recent Changes
+- Fixed `RuleEvaluation.passed` field for exclusion rules to correctly invert the condition result
+- Implemented interactive compatibility explorer with clickable navigation
+- Added failed rule names display for incompatible items in the explorer
+- Created accessible matrix visualization with light color palette (emerald-50/rose-50)
 
 See `SPECIFICATION.md` for detailed technical specifications and `TASKS.md` for development roadmap.

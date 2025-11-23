@@ -170,8 +170,16 @@ def evaluate_matrix_endpoint(request: EvaluateMatrixRequest, db: Session = Depen
     # Evaluate
     matrix = evaluate_matrix(catalog, ruleset, schema, include_self=request.include_self)
 
-    # Return as dict
-    return matrix.model_dump(mode="python")
+    # Return as dict with summary stats
+    result = matrix.model_dump(mode="python")
+    result["total_comparisons"] = len(matrix.results)
+    result["compatible_count"] = len(matrix.get_compatible_pairs())
+    result["compatibility_rate"] = (
+        result["compatible_count"] / result["total_comparisons"]
+        if result["total_comparisons"] > 0
+        else 0.0
+    )
+    return result
 
 
 @router.post("/evaluate/item")

@@ -11,6 +11,8 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - **Schema Definition**: Define dimensions and attributes for your domain
 - **Declarative Rules**: Express compatibility logic in YAML/JSON
 - **Type Safety**: Built with Pydantic for robust validation
+- **REST API**: FastAPI backend with SQLite persistence
+- **Web UI**: Interactive SvelteKit frontend for visual exploration
 - **CLI Interface**: Command-line tools for validation and evaluation
 - **Extensible**: Easy to add custom rule types and operators
 
@@ -35,11 +37,15 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Multiple output formats (summary, json, yaml, csv, table)
 - [x] Successfully tested with wardrobe example
 
-**Phase 3: Web UI** 📅 Coming Next
+**Phase 3: Web UI** ✅ COMPLETE
 
-- [ ] Svelte frontend
-- [ ] Visual rule builder
-- [ ] Compatibility matrix visualization
+- [x] SvelteKit 2.0 frontend with TypeScript
+- [x] Dashboard with overview statistics
+- [x] CRUD interfaces for schemas, rulesets, and catalogs
+- [x] Interactive compatibility explorer with clickable graph navigation
+- [x] Compatibility matrix visualization with detailed rule evaluations
+- [x] Responsive design with Tailwind CSS and accessible color palette
+- [x] Real-time evaluation against REST API backend
 
 ## Installation
 
@@ -141,6 +147,26 @@ curl -X POST http://localhost:8000/api/v1/evaluate/pair \
     "ruleset_name": "wardrobe_rules_v1"
   }'
 ```
+
+### Using the Web UI
+
+```bash
+# Terminal 1: Start the API server
+uvicorn api.main:app --reload --port 8000
+
+# Terminal 2: Start the web frontend
+cd web
+npm install  # First time only
+npm run dev
+
+# Web UI is now available at http://localhost:5173
+```
+
+The Web UI provides:
+- **Dashboard**: Overview of schemas, rulesets, and catalogs
+- **Explorer**: Interactive compatibility exploration - click through items to see what they're compatible/incompatible with
+- **Matrix**: Visual grid showing all pairwise compatibility results
+- **Management**: Create and view schemas, rulesets, catalogs, and items
 
 ## Development
 

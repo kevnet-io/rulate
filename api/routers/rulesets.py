@@ -69,7 +69,7 @@ def list_rulesets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
             version=r.version,
             description=r.description,
             schema_name=r.schema.name,
-            rules=r.rules,
+            rules=r.get_rules(),
             created_at=r.created_at,
             updated_at=r.updated_at,
         )

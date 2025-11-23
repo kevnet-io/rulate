@@ -7,7 +7,13 @@
       "Bash(pip install:*)",
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(python -m rulate.cli:*)"
+      "Bash(python -m rulate.cli:*)",
+      "Bash(tree:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(cat:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(uvicorn:*)"
     ],
     "deny": [],
     "ask": []
