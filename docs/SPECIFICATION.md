@@ -36,10 +36,12 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 - **Dual Evaluation Modes**: Pairwise compatibility and cluster finding
 - **Two-Level Rule System**: Pairwise rules + cluster-level constraints
 - **19 Built-in Operators**: 9 pairwise + 8 cluster + 2 logical base classes
-- **REST API**: 28 endpoints with automatic OpenAPI documentation
-- **Web UI**: 18 pages with interactive visualization
+- **REST API**: 42 endpoints with automatic OpenAPI documentation
+- **Web UI**: 19 pages with interactive visualization
 - **CLI**: Comprehensive command-line interface
 - **Database Persistence**: SQLite with SQLAlchemy ORM
+- **Import/Export**: Bulk data import/export for backup and migration
+- **Comprehensive Testing**: 480 backend tests (94% coverage) + 671 frontend tests (100% production code coverage)
 
 ---
 
@@ -131,10 +133,11 @@ rulate/
 │       ├── rulesets.py      # RuleSet CRUD (5 endpoints)
 │       ├── catalogs.py      # Catalog + Item CRUD (9 endpoints)
 │       ├── evaluation.py    # Pairwise evaluation (3 endpoints)
-│       └── clusters.py      # Cluster evaluation + CRUD (6 endpoints)
+│       ├── clusters.py      # Cluster evaluation + CRUD (6 endpoints)
+│       └── import_export.py # Bulk import/export (14 endpoints)
 ├── web/                      # SvelteKit Web UI
 │   ├── src/
-│   │   ├── routes/          # 18 pages
+│   │   ├── routes/          # 19 pages
 │   │   │   ├── +page.svelte              # Dashboard
 │   │   │   ├── schemas/                  # Schema list/detail/create
 │   │   │   ├── rulesets/                 # RuleSet list/detail/create
@@ -143,14 +146,26 @@ rulate/
 │   │   │   ├── cluster-rulesets/         # ClusterRuleSet list/detail
 │   │   │   ├── explore/                  # Interactive explorer
 │   │   │   ├── matrix/                   # Compatibility matrix
-│   │   │   └── clusters/                 # Cluster visualization
+│   │   │   ├── clusters/                 # Cluster visualization
+│   │   │   └── import-export/            # Bulk import/export
 │   │   └── lib/
 │   │       ├── api/client.ts             # TypeScript API client
 │   │       └── components/               # 9 UI components
 ├── tests/                    # Test suite
-│   ├── unit/
-│   │   └── test_schema.py   # 44 tests (95% coverage)
-│   └── integration/
+│   ├── unit/                # 11 test files with 480 tests
+│   │   ├── test_schema.py
+│   │   ├── test_rule.py
+│   │   ├── test_catalog.py
+│   │   ├── test_operators.py
+│   │   ├── test_evaluator.py
+│   │   ├── test_cluster_evaluator.py
+│   │   ├── test_condition_evaluator.py
+│   │   ├── test_evaluation.py
+│   │   ├── test_loaders.py
+│   │   ├── test_exporters.py
+│   │   └── test_cli.py
+│   ├── integration/         # Integration test infrastructure
+│   └── conftest.py          # Shared test fixtures
 ├── examples/                 # Example configurations
 │   └── wardrobe/
 │       ├── schema.yaml      # 7 dimensions
@@ -799,6 +814,44 @@ POST   /evaluate/clusters
   }
 ```
 
+### Import/Export (14 endpoints)
+
+**Export Endpoints (9):**
+```
+GET    /export/schemas
+GET    /export/schemas/{schema_name}
+GET    /export/rulesets
+GET    /export/rulesets/{ruleset_name}
+GET    /export/cluster-rulesets
+GET    /export/cluster-rulesets/{cluster_ruleset_name}
+GET    /export/catalogs
+GET    /export/catalogs/{catalog_name}
+GET    /export/all
+```
+
+**Import Endpoints (5):**
+```
+POST   /import/schemas
+  Body: {"schemas": [...]}
+
+POST   /import/rulesets
+  Body: {"rulesets": [...]}
+
+POST   /import/cluster-rulesets
+  Body: {"cluster_rulesets": [...]}
+
+POST   /import/catalogs
+  Body: {"catalogs": [...]}
+
+POST   /import/all
+  Body: {
+    "schemas": [...],
+    "rulesets": [...],
+    "cluster_rulesets": [...],
+    "catalogs": [...]
+  }
+```
+
 ---
 
 ## CLI Reference
@@ -863,7 +916,7 @@ rulate show catalog <file>
 
 **URL**: `http://localhost:5173` (dev server)
 
-### Pages (18 total)
+### Pages (19 total)
 
 #### Management Pages
 - `/` - Dashboard with overview statistics
@@ -890,6 +943,9 @@ rulate show catalog <file>
 - `/cluster-rulesets` - ClusterRuleSet list
 - `/cluster-rulesets/{name}` - ClusterRuleSet detail
 - `/clusters` - Cluster visualization
+
+#### Data Management
+- `/import-export` - Bulk import/export for backup and migration
 
 ### Key Features
 
@@ -944,9 +1000,44 @@ rulate show catalog <file>
 
 ### Testing
 
-**Current Coverage**:
-- `tests/unit/test_schema.py`: 44 tests, 95% coverage on schema validation
-- Tests cover: dimension types, validation, edge cases, error handling
+**Backend Testing** (`tests/`):
+- **480 tests** across 11 test files with **94% overall code coverage**
+- **Test Files**:
+  - `test_schema.py` - Schema validation and dimension types
+  - `test_rule.py` - Rule definitions and validation
+  - `test_catalog.py` - Catalog and item models
+  - `test_operators.py` - All 19 operators (pairwise and cluster)
+  - `test_evaluator.py` - Pairwise evaluation logic
+  - `test_cluster_evaluator.py` - Cluster finding algorithm (Bron-Kerbosch)
+  - `test_condition_evaluator.py` - Condition parsing and evaluation
+  - `test_evaluation.py` - Evaluation result models
+  - `test_loaders.py` - YAML/JSON loading
+  - `test_exporters.py` - YAML/JSON exporting
+  - `test_cli.py` - CLI commands and output formats
+- **Coverage by Module**:
+  - Core models: 98-100% coverage
+  - Engine (operators, evaluators): 91-98% coverage
+  - Utils (loaders, exporters): 90-100% coverage
+  - CLI: 91% coverage
+
+**Frontend Testing** (`web/src/`):
+- **671 tests** across 22 test files with **100% production code coverage**
+- **Unit Tests**:
+  - API client: All 42 endpoints tested (100% coverage)
+  - Form utilities: 37 tests for all 6 dimension types
+  - UI components: Badge, Button, Card, Skeleton, Navigation
+  - Page components: All 19 pages tested
+- **E2E Tests** (`web/e2e/`):
+  - 72 tests across 3 browsers (Chromium, Firefox, WebKit)
+  - Schema management workflow
+  - Catalog and item CRUD operations
+  - Interactive compatibility explorer
+  - Navigation and routing
+- **Test Infrastructure**:
+  - Vitest 4.0 for unit tests
+  - Playwright for E2E testing
+  - happy-dom environment for Svelte 5
+  - Coverage reports with @vitest/coverage-v8
 
 **Test Data**:
 - `examples/wardrobe/`: Complete working example
@@ -954,6 +1045,20 @@ rulate show catalog <file>
   - 4 pairwise rules
   - Cluster rules
   - 19 clothing items
+
+**Running Tests**:
+```bash
+# Backend tests
+uv run pytest                    # Run all tests
+uv run pytest --cov=rulate       # With coverage report
+
+# Frontend tests
+cd web
+npm test                         # Run unit tests
+npm run test:coverage            # With coverage report
+npm run test:e2e                 # Run E2E tests
+npm run test:e2e:ui              # E2E tests with UI
+```
 
 ### Performance Considerations
 
@@ -968,24 +1073,27 @@ rulate show catalog <file>
 - **Python Files**: 30+ files
 - **Lines of Code**: ~10,000+ lines
 - **Operators**: 19 total (9 pairwise + 8 cluster + 2 base)
-- **API Endpoints**: 28 endpoints across 6 routers
-- **Web UI Pages**: 18 pages
+- **API Endpoints**: 42 endpoints across 6 routers
+- **Web UI Pages**: 19 pages
 - **UI Components**: 9 reusable components
-- **Tests**: 44 tests (95% schema coverage)
-- **Dependencies**: Pydantic, FastAPI, SQLAlchemy, Click, SvelteKit
+- **Backend Tests**: 480 tests (94% coverage)
+- **Frontend Tests**: 671 tests (100% production code coverage)
+- **Total Test Count**: 1,151 tests
+- **Dependencies**: Pydantic, FastAPI, SQLAlchemy, Click, SvelteKit, Vitest, Playwright
 
 ---
 
 ## Version History
 
-**v0.1.0** (November 2025)
+**v0.1.0** (November-December 2025)
 - Initial production-ready release
 - Complete pairwise and cluster evaluation
 - Full-stack implementation (Core + API + Web UI)
-- 28 API endpoints
-- 18 Web UI pages
-- 19 operators
+- 42 API endpoints with import/export
+- 19 Web UI pages including data management
+- 19 operators (9 pairwise + 8 cluster + 2 base)
 - Comprehensive wardrobe example
+- 1,151 total tests with high coverage (94% backend, 100% frontend production code)
 
 ---
 
