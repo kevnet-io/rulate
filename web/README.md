@@ -33,6 +33,30 @@ npm run build
 npm run preview
 ```
 
+## Testing
+
+```bash
+# Run all unit tests
+npm test
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+
+# Run E2E tests in debug mode
+npm run test:e2e:debug
+```
+
+**Test Coverage**: 671 tests with 100% coverage on production TypeScript code
+- **Unit Tests**: 22 test files covering API client, components, pages, and form logic
+- **E2E Tests**: 72 tests across 3 browsers validating critical user workflows
+- **Test Infrastructure**: Vitest 4.0, Playwright for E2E, happy-dom environment for Svelte 5
+
 ## Project Structure
 
 ```
