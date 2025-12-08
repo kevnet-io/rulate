@@ -68,3 +68,8 @@ build/
 
 # Claude local
 .claude/settings.local.json
+
+# Test reports
+playwright-report/
+test-results/
+coverage/
