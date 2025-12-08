@@ -69,7 +69,7 @@ Ensure the API server is running:
 
 ```bash
 # From project root
-source venv/bin/activate
+source .venv/bin/activate
 uvicorn api.main:app --reload --port 8000
 ```
 

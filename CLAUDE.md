@@ -124,8 +124,8 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 
 ### Setup
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
