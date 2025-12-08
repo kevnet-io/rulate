@@ -11,7 +11,9 @@
 		"lint": "eslint .",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"test:ui": "vitest --ui"
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest run --coverage",
+		"test:coverage:ui": "vitest --ui --coverage"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -20,6 +22,7 @@
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.2.9",
 		"@types/eslint": "^9.6.0",
+		"@vitest/coverage-v8": "^4.0.13",
 		"@vitest/ui": "^4.0.13",
 		"autoprefixer": "^10.4.16",
 		"eslint": "^9.0.0",
