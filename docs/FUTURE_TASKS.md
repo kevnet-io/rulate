@@ -20,55 +20,7 @@ The following major tasks have been completed:
 
 ---
 
-## Priority 1: Testing & Quality Assurance
-
-### ✅ COMPLETED: Comprehensive Test Suite
-**Status**: ✅ **COMPLETE**
-**Completion Date**: December 2025
-
-**Backend Testing** - FULLY IMPLEMENTED:
-- [x] 480 automated tests across 11 test files
-- [x] 94% overall code coverage
-- [x] All core modules tested (models, operators, evaluators, loaders, exporters, CLI)
-- [x] Test CRUD operations for each resource type
-- [x] Test error cases and validation failures
-- [x] Test evaluation endpoints with various rule combinations
-- [x] Test cluster evaluation and relationships
-- [x] Comprehensive test fixtures and shared configuration
-
-**Frontend Testing** - FULLY IMPLEMENTED:
-- [x] 671 tests across 22 test files
-- [x] 100% production code coverage (API client, forms, utilities)
-- [x] Vitest 4.0 with @vitest/coverage-v8
-- [x] @testing-library/svelte for component testing
-- [x] All 42 API endpoints tested in client
-- [x] Form validation logic for all 6 dimension types (37 tests)
-- [x] UI component tests (Badge, Button, Card, Skeleton, Navigation)
-- [x] All 19 page components tested
-
-**E2E Testing** - FULLY IMPLEMENTED:
-- [x] Playwright setup with 72 E2E tests
-- [x] Cross-browser testing (Chromium, Firefox, WebKit)
-- [x] Critical user flows:
-  - [x] Schema management workflow
-  - [x] Catalog and item CRUD operations
-  - [x] Interactive compatibility explorer
-  - [x] Navigation and routing
-- [x] Mobile responsive layout testing
-
-**Test Infrastructure**:
-- [x] pytest with coverage reporting
-- [x] Vitest 4.0 for frontend unit tests
-- [x] Playwright for E2E testing
-- [x] happy-dom environment for Svelte 5
-- [x] Comprehensive test fixtures and utilities
-- [x] Test code excluded from coverage metrics (standard practice)
-
-**Total Achievement**: 1,151 tests with excellent coverage across all layers.
-
----
-
-## Priority 2: User Experience Polish
+## Priority 1: User Experience Polish
 
 ### Toast Notifications
 **Status**: Not implemented (using browser alerts)
@@ -124,37 +76,7 @@ The following major tasks have been completed:
 
 ---
 
-### ✅ COMPLETED: Import/Export Functionality
-**Status**: ✅ **COMPLETE**
-**Completion Date**: December 2025
-
-**API Endpoints** - FULLY IMPLEMENTED:
-- [x] 14 import/export endpoints in `api/routers/import_export.py`
-- [x] Export individual resources (schemas, rulesets, cluster-rulesets, catalogs)
-- [x] Export all data types in single request
-- [x] Import with automatic dependency validation
-- [x] Import individual or bulk data
-- [x] JSON format support
-
-**Web UI** - FULLY IMPLEMENTED:
-- [x] Dedicated `/import-export` page
-- [x] File upload for JSON imports
-- [x] Download buttons for JSON exports
-- [x] Export all data or individual resource types
-- [x] Import validation with error reporting
-- [x] Clear user feedback for success/failure
-
-**Features**:
-- [x] Backup and restore workflows
-- [x] Data migration between instances
-- [x] Dependency handling (e.g., catalogs reference schemas)
-- [x] Comprehensive error messages
-
-**Note**: Drag-and-drop and YAML format could be added as enhancements, but JSON upload/download is fully functional.
-
----
-
-## Priority 3: DevOps & Deployment
+## Priority 2: DevOps & Deployment
 
 ### Docker Configuration
 **Status**: Not implemented
@@ -252,7 +174,7 @@ async def health_check():
 
 ---
 
-## Priority 4: Features & Enhancements
+## Priority 3: Features & Enhancements
 
 ### API Features
 
@@ -417,7 +339,7 @@ condition:
 
 ---
 
-## Priority 5: Documentation
+## Priority 4: Documentation
 
 ### API Documentation Improvements
 **Effort**: Low
@@ -476,7 +398,7 @@ Create example configurations for other domains:
 
 ---
 
-## Priority 6: Performance & Scalability
+## Priority 5: Performance & Scalability
 
 ### Database Optimization
 **Effort**: Medium
@@ -517,7 +439,7 @@ Create example configurations for other domains:
 
 ---
 
-## Priority 7: Security
+## Priority 6: Security
 
 ### Authentication & Authorization
 **Effort**: High
@@ -563,36 +485,31 @@ Create example configurations for other domains:
 
 ### Recommended Order
 
-1. ~~**Testing** (Priority 1)~~ - ✅ **COMPLETE**
-   - ~~Start with API tests~~ ✅
-   - ~~Add integration tests~~ ✅
-   - ~~Web UI tests last~~ ✅
-
-2. **DevOps** (Priority 3) - Enable easy deployment (NEXT PRIORITY)
+1. **DevOps** (Priority 2) - Enable easy deployment ⭐ **NEXT PRIORITY**
    - Docker first
    - Health checks
    - Deployment guide
 
-3. **UX Polish** (Priority 2) - Improve user experience
+2. **UX Polish** (Priority 1) - Improve user experience
    - Toast notifications
    - Modal dialogs
-   - ~~File upload/download~~ ✅ **COMPLETE** (Import/Export implemented)
+   - Visual rule builder (optional)
 
-4. **Documentation** (Priority 5) - Help users succeed
+3. **Documentation** (Priority 4) - Help users succeed
    - User guide
    - Domain examples
 
-5. **Features** (Priority 4) - Enhance capabilities
+4. **Features** (Priority 3) - Enhance capabilities
    - Caching for performance
    - Scoring system
    - Context support
 
-6. **Security** (Priority 7) - For production deployment
+5. **Security** (Priority 6) - For production deployment
    - Input sanitization audit
    - HTTPS setup
    - Authentication (if multi-user needed)
 
-7. **Scalability** (Priority 6) - As needed
+6. **Scalability** (Priority 5) - As needed
    - PostgreSQL migration
    - Async processing
 
@@ -631,4 +548,4 @@ Want to tackle one of these tasks? Great!
 - Value estimates are subjective and based on typical use cases
 - Priorities may shift based on user feedback and real-world usage
 
-Last Updated: November 2025
+Last Updated: December 2025
