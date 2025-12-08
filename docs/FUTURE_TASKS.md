@@ -24,37 +24,53 @@ The following major tasks have been completed:
 
 ### Recommended Order
 
-Since Rulate is in **build/innovation mode**, the priority is on enhancing capabilities and user experience before deployment concerns:
+Since Rulate is in **build/innovation mode**, the priority is on enhancing capabilities and user experience. However, **developer experience improvements** (CI/CD, pre-commit) should come early as they compound benefits:
 
-1. **UX Polish** - Make it delightful ⭐ **NEXT PRIORITY**
+1. **Quick Wins (Developer Experience)** - Do these first! ⚡
+   - GitHub Actions CI/CD (30 min) - Automated testing
+   - Pre-commit hooks (15 min) - Automatic code quality
+   - Issue/PR templates (20 min) - Better collaboration
+   - CONTRIBUTING.md (30 min) - Onboarding guide
+
+2. **UX Polish** - Make it delightful ⭐
    - Toast notifications
    - Modal dialogs
    - Visual rule builder
 
-2. **Features & Enhancements** - Add innovative capabilities
+3. **Features & Enhancements** - Add innovative capabilities
    - Scoring system
    - Context support
    - Advanced visualizations
    - AI/ML integrations (see ideas below)
 
-3. **Documentation** - Drive adoption
-   - User guide
-   - Domain examples
-   - Video tutorials
+4. **Documentation** - Drive adoption
+   - More domain examples (show versatility)
+   - Architecture diagrams (visual understanding)
+   - User guide and tutorials
 
-4. **DevOps** - Enable deployment (when ready to share)
+5. **DevOps** - Enable deployment (when ready to share)
    - Docker
    - Health checks
    - Deployment guide
 
-5. **Security** - Harden for production
+6. **Security** - Harden for production
    - Input sanitization audit
    - HTTPS setup
    - Authentication (if multi-user)
 
-6. **Scalability** - Handle growth (as needed)
+7. **Scalability** - Handle growth (as needed)
    - PostgreSQL migration
    - Async processing
+
+### Why CI/CD First?
+
+Even in innovation mode, **CI/CD pays for itself immediately**:
+- ✅ Catch bugs before you forget context
+- ✅ Safe refactoring (tests run automatically)
+- ✅ Build badge shows quality signal
+- ✅ ~2 hours setup saves hours of debugging later
+
+**Recommendation**: Spend 1-2 hours on CI/CD + pre-commit, then focus on features/UX.
 
 ---
 
@@ -115,6 +131,74 @@ Since Rulate is in **build/innovation mode**, the priority is on enhancing capab
 ---
 
 ## DevOps & Deployment
+
+### Continuous Integration (CI/CD)
+**Status**: Not implemented
+**Effort**: Low
+**Value**: Very High
+
+- [ ] **GitHub Actions workflows** - Automated testing on every commit
+  ```yaml
+  # .github/workflows/test.yml
+  - Backend: pytest with coverage reporting
+  - Frontend: Vitest unit tests + Playwright E2E
+  - Run on push and pull_request events
+  ```
+- [ ] **Build status badges** - Show test status in README
+- [ ] **Branch protection rules** - Require passing tests before merge
+- [ ] **Test result artifacts** - Upload coverage reports
+- [ ] **Matrix testing** - Test across Python versions (3.10, 3.11, 3.12)
+
+**Benefits**: Catch bugs early, prevent regressions, visible quality signal
+
+**ROI**: ⭐⭐⭐⭐⭐ (Essential for collaborative development)
+
+---
+
+### Pre-commit Hooks
+**Status**: Not implemented
+**Effort**: Low
+**Value**: High
+
+- [ ] Install pre-commit framework
+- [ ] Configure `.pre-commit-config.yaml`:
+  - Black (code formatting)
+  - Ruff (linting with auto-fix)
+  - Mypy (type checking)
+  - Trailing whitespace removal
+  - YAML/JSON validation
+- [ ] Add to development setup instructions
+- [ ] Optional: Commit message linting (conventional commits)
+
+**Benefits**: Automatic code quality, consistent style, faster code reviews
+
+**Setup**:
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+**ROI**: ⭐⭐⭐⭐ (Saves time in code reviews)
+
+---
+
+### Automated Dependency Updates
+**Status**: Not implemented
+**Effort**: Very Low
+**Value**: Medium
+
+- [ ] **Dependabot configuration** (`.github/dependabot.yml`)
+  - Weekly dependency updates for Python (pip)
+  - Weekly dependency updates for Node.js (npm)
+  - Security vulnerability alerts
+- [ ] Automated PR creation for updates
+- [ ] Configure auto-merge for minor/patch versions (optional)
+
+**Benefits**: Security patches, stay current with ecosystem, reduce technical debt
+
+**ROI**: ⭐⭐⭐ (Set and forget security)
+
+---
 
 ### Docker Configuration
 **Status**: Not implemented
@@ -716,6 +800,105 @@ Native mobile experience:
 
 ## Documentation
 
+### Contributing Guide
+**Status**: Not implemented
+**Effort**: Low
+**Value**: High
+
+- [ ] Create `CONTRIBUTING.md` with:
+  - Development setup instructions
+  - How to run tests
+  - Code style guidelines (Black, Ruff, Mypy)
+  - Commit message conventions
+  - PR submission process
+  - Code of conduct reference
+- [ ] Link from README
+- [ ] Include architecture overview
+
+**Benefits**: Easier onboarding, consistent contributions, clear expectations
+
+**Template**: Use GitHub's standard CONTRIBUTING.md as starting point
+
+**ROI**: ⭐⭐⭐⭐ (Essential for open-source projects)
+
+---
+
+### Issue & PR Templates
+**Status**: Not implemented
+**Effort**: Very Low
+**Value**: Medium
+
+- [ ] **Bug report template** (`.github/ISSUE_TEMPLATE/bug_report.md`)
+  - Steps to reproduce
+  - Expected vs actual behavior
+  - Environment details
+  - Screenshots/logs
+- [ ] **Feature request template** (`.github/ISSUE_TEMPLATE/feature_request.md`)
+  - Use case description
+  - Proposed solution
+  - Alternatives considered
+- [ ] **Pull request template** (`.github/pull_request_template.md`)
+  - Description of changes
+  - Testing performed
+  - Related issues
+  - Checklist (tests added, docs updated)
+
+**Benefits**: High-quality issues, consistent PR descriptions, less back-and-forth
+
+**ROI**: ⭐⭐⭐ (Improves collaboration quality)
+
+---
+
+### Architecture Documentation
+**Status**: Basic in SPECIFICATION.md
+**Effort**: Medium
+**Value**: High
+
+- [ ] **Visual architecture diagrams**
+  - System architecture (layers, components)
+  - Data flow diagrams (request → response)
+  - Database ERD (entity relationships)
+  - Evaluation algorithm flowchart
+- [ ] **Format options**:
+  - Mermaid.js (renders in GitHub markdown)
+  - Excalidraw (hand-drawn style)
+  - Draw.io/diagrams.net
+  - ASCII art (simple, always visible)
+- [ ] Add to `docs/ARCHITECTURE.md`
+- [ ] Link from README
+
+**Benefits**: Faster onboarding, easier to understand system design, reference for changes
+
+**ROI**: ⭐⭐⭐⭐ (High value for new contributors)
+
+---
+
+### More Domain Examples
+**Status**: Only wardrobe example exists
+**Effort**: Medium
+**Value**: High
+
+Add examples to demonstrate domain-agnostic nature:
+
+- [ ] **Recipe ingredients** (`examples/recipes/`)
+  - Schema: ingredient type, cuisine, dietary restrictions, flavor profile
+  - Rules: Flavor compatibility, dietary constraints
+  - Catalog: 15-20 ingredients
+
+- [ ] **Course prerequisites** (`examples/education/`)
+  - Schema: subject, level, credits, semester
+  - Rules: Prerequisite chains, scheduling conflicts
+  - Catalog: 10-15 courses
+
+- [ ] **Team skills matching** (`examples/teams/`)
+  - Schema: role, skills, experience level, availability
+  - Rules: Complementary skills, team size
+  - Catalog: 10-12 team members
+
+**Benefits**: Demonstrate domain-agnostic nature, provide templates.
+
+---
+
 ### API Documentation Improvements
 **Effort**: Medium
 **Value**: Medium
@@ -752,6 +935,57 @@ Native mobile experience:
 - [ ] Connection pooling with SQLAlchemy
 
 **Current State**: SQLite only.
+
+---
+
+### Developer Experience Tools
+**Status**: Not implemented
+**Effort**: Low
+**Value**: Low-Medium
+
+#### EditorConfig
+**Effort**: Very Low | **Value**: Low
+
+- [ ] Create `.editorconfig` for consistent formatting across editors
+  ```ini
+  [*]
+  indent_style = space
+  indent_size = 4
+  end_of_line = lf
+  charset = utf-8
+  trim_trailing_whitespace = true
+
+  [*.{yml,yaml,json}]
+  indent_size = 2
+  ```
+
+**Benefits**: Consistent formatting regardless of IDE/editor
+
+---
+
+#### Dev Container
+**Effort**: Low | **Value**: Medium
+
+- [ ] Create `.devcontainer/devcontainer.json` for VS Code Remote Containers
+- [ ] Include all development dependencies
+- [ ] Pre-configured Python + Node.js environment
+- [ ] Automatic extension recommendations
+
+**Benefits**: Instant development environment, consistent across team
+
+---
+
+#### Changelog Automation
+**Effort**: Medium | **Value**: Low
+
+- [ ] Use conventional commit messages
+- [ ] Integrate `conventional-changelog` or `release-please`
+- [ ] Automatic CHANGELOG.md generation
+- [ ] Semantic versioning based on commit types
+
+**Benefits**: Clear release notes, automatic versioning
+
+**Note**: Low priority until ready for frequent releases
 
 ---
 

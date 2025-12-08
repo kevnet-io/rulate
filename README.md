@@ -25,7 +25,7 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Core models (Schema, Rule, Catalog, Evaluation)
 - [x] Rule evaluation engine with operators
 - [x] Example wardrobe configuration (19 items, 7 dimensions, 4 rules)
-- [x] Comprehensive tests (44 tests, 95% coverage on schema)
+- [x] Comprehensive test coverage across all core modules
 
 **Phase 2: REST API & CLI** ✅ COMPLETE
 
@@ -50,6 +50,13 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Compatibility matrix visualization with detailed rule evaluations
 - [x] Responsive design with Tailwind CSS and accessible color palette
 - [x] Real-time evaluation against REST API backend
+
+**Phases 4-7: Testing & Data Management** ✅ COMPLETE
+
+- [x] Comprehensive test suite (backend unit, frontend unit, E2E)
+- [x] High test coverage across all layers
+- [x] Import/export functionality for data backup and migration
+- [x] Bulk operations via API and Web UI
 
 ## Installation
 
@@ -177,8 +184,17 @@ The Web UI provides:
 ### Running Tests
 
 ```bash
-pytest
+# Backend tests
+uv run pytest
+uv run pytest --cov=rulate  # With coverage
+
+# Frontend tests
+cd web
+npm test                    # Unit tests
+npm run test:e2e           # E2E tests
 ```
+
+For detailed testing information, see [docs/SPECIFICATION.md](docs/SPECIFICATION.md#testing).
 
 ### Code Quality
 
