@@ -38,7 +38,8 @@ export default defineConfig({
 			exclude: [
 				'src/**/*.test.ts',
 				'src/**/*.spec.ts',
-				'src/test-setup.ts'
+				'src/test-setup.ts',
+				'src/lib/test-utils/**'  // Test infrastructure, not production code
 			],
 			thresholds: {
 				statements: 30,  // Realistic for Svelte + TS codebase
