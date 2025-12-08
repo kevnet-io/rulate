@@ -124,42 +124,51 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 
 ### Setup
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+uv sync --dev
 ```
+
+This command:
+- Creates a virtual environment in `.venv/`
+- Installs all project dependencies
+- Installs all dev dependencies (pytest, black, ruff, mypy, etc.)
 
 ### Testing
 ```bash
 # Run all tests
-pytest
+uv run pytest
 
 # Run specific test file
-pytest tests/unit/test_schema.py
+uv run pytest tests/unit/test_schema.py
 
 # Run specific test
-pytest tests/unit/test_schema.py::TestSchema::test_create_simple_schema
+uv run pytest tests/unit/test_schema.py::TestSchema::test_create_simple_schema
 
 # Run with coverage
-pytest --cov=rulate --cov-report=html
+uv run pytest --cov=rulate --cov-report=html
+```
+
+Alternatively, activate the virtual environment first:
+```bash
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pytest
 ```
 
 ### Code Quality
 ```bash
 # Format code
-black .
+uv run black .
 
 # Lint
-ruff check .
+uv run ruff check .
 
 # Type check
-mypy rulate
+uv run mypy rulate
 ```
 
 ### Running the API
 ```bash
 # Start server
-uvicorn api.main:app --reload
+uv run uvicorn api.main:app --reload
 
 # API available at http://localhost:8000
 # Interactive docs at http://localhost:8000/docs
@@ -168,17 +177,17 @@ uvicorn api.main:app --reload
 ### Using the CLI
 ```bash
 # Validate files
-rulate validate schema examples/wardrobe/schema.yaml
-rulate validate catalog examples/wardrobe/catalog.yaml --schema examples/wardrobe/schema.yaml
+uv run rulate validate schema examples/wardrobe/schema.yaml
+uv run rulate validate catalog examples/wardrobe/catalog.yaml --schema examples/wardrobe/schema.yaml
 
 # Evaluate compatibility
-rulate evaluate pair shirt_001 pants_002 \
+uv run rulate evaluate pair shirt_001 pants_002 \
   --catalog examples/wardrobe/catalog.yaml \
   --rules examples/wardrobe/rules.yaml \
   --schema examples/wardrobe/schema.yaml
 
 # Generate compatibility matrix
-rulate evaluate matrix \
+uv run rulate evaluate matrix \
   --catalog examples/wardrobe/catalog.yaml \
   --rules examples/wardrobe/rules.yaml \
   --format summary  # or json, yaml, csv
@@ -187,7 +196,7 @@ rulate evaluate matrix \
 ### Running the Web UI
 ```bash
 # Terminal 1: Start the API server
-uvicorn api.main:app --reload --port 8000
+uv run uvicorn api.main:app --reload --port 8000
 
 # Terminal 2: Start the web frontend
 cd web

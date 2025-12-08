@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "rulate"
@@ -30,7 +30,7 @@ dependencies = [
     "sqlalchemy>=2.0.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
@@ -44,10 +44,6 @@ dev = [
 
 [project.scripts]
 rulate = "rulate.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["rulate*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

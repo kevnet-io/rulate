@@ -58,12 +58,8 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 git clone <repo-url>
 cd rulate
 
-# Create a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -e ".[dev]"
+# Install dependencies (creates virtual environment automatically)
+uv sync --dev
 ```
 
 ## Quick Start
