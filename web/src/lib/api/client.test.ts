@@ -914,6 +914,82 @@ describe('API Client', () => {
 			});
 		});
 
+	describe('exportSchema', () => {
+		it('exports a single schema', async () => {
+			const mockExport = { name: 'Wardrobe', dimensions: [] };
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockExport
+			});
+
+			const result = await apiClient.exportSchema('Wardrobe');
+
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining('/export/schemas/Wardrobe'),
+				expect.any(Object)
+			);
+			expect(result).toEqual(mockExport);
+		});
+	});
+
+	describe('exportRuleSet', () => {
+		it('exports a single ruleset', async () => {
+			const mockExport = { name: 'Compat', schema_ref: 'Wardrobe', rules: [] };
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockExport
+			});
+
+			const result = await apiClient.exportRuleSet('Compat');
+
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining('/export/rulesets/Compat'),
+				expect.any(Object)
+			);
+			expect(result).toEqual(mockExport);
+		});
+	});
+
+	describe('exportClusterRuleSet', () => {
+		it('exports a single cluster ruleset', async () => {
+			const mockExport = { name: 'ClusterRules', rules: [] };
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockExport
+			});
+
+			const result = await apiClient.exportClusterRuleSet('ClusterRules');
+
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining('/export/cluster-rulesets/ClusterRules'),
+				expect.any(Object)
+			);
+			expect(result).toEqual(mockExport);
+		});
+	});
+
+	describe('exportCatalog', () => {
+		it('exports a single catalog', async () => {
+			const mockExport = { name: 'Wardrobe', schema_ref: 'Schema', items: [] };
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockExport
+			});
+
+			const result = await apiClient.exportCatalog('Wardrobe');
+
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining('/export/catalogs/Wardrobe'),
+				expect.any(Object)
+			);
+			expect(result).toEqual(mockExport);
+		});
+	});
+
 		describe('importSchemas', () => {
 			it('imports schemas', async () => {
 				const mockImportData = { schemas: [] };

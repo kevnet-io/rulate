@@ -3,11 +3,5 @@
  * Re-exports all test utilities for convenient importing
  */
 
-// Fixtures
+// Fixtures - Mock data builders for tests
 export * from './fixtures';
-
-// Mocks
-export * from './mocks';
-
-// Render helpers
-export * from './render-helpers';
