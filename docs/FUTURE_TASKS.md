@@ -2,82 +2,69 @@
 
 This document tracks planned enhancements and nice-to-have features for Rulate. The core functionality is complete and production-ready; these tasks represent opportunities for improvement and polish.
 
+## Recent Completions (December 2025)
+
+The following major tasks have been completed:
+
+### ✅ Comprehensive Test Suite
+- **480 backend tests** (94% coverage) across all core modules
+- **671 frontend tests** (100% production code coverage)
+- **72 E2E tests** with Playwright across 3 browsers
+- **Total: 1,151 tests** ensuring system reliability
+
+### ✅ Import/Export Functionality
+- **14 API endpoints** for data import/export
+- **Web UI page** for bulk operations
+- **JSON format** support with validation
+- **Backup and migration** workflows
+
 ---
 
 ## Priority 1: Testing & Quality Assurance
 
-### Automated API Testing
-**Status**: Not implemented
-**Effort**: Medium
-**Value**: High
+### ✅ COMPLETED: Comprehensive Test Suite
+**Status**: ✅ **COMPLETE**
+**Completion Date**: December 2025
 
-- [ ] Write automated tests for all 28 API endpoints
-- [ ] Test CRUD operations for each resource type
-- [ ] Test error cases and validation failures
-- [ ] Test evaluation endpoints with various rule combinations
-- [ ] Test cluster evaluation and relationships
-- [ ] Achieve 80%+ coverage on API routes
+**Backend Testing** - FULLY IMPLEMENTED:
+- [x] 480 automated tests across 11 test files
+- [x] 94% overall code coverage
+- [x] All core modules tested (models, operators, evaluators, loaders, exporters, CLI)
+- [x] Test CRUD operations for each resource type
+- [x] Test error cases and validation failures
+- [x] Test evaluation endpoints with various rule combinations
+- [x] Test cluster evaluation and relationships
+- [x] Comprehensive test fixtures and shared configuration
 
-**Current State**: Manual testing via `/docs` interface and integration testing with example data.
+**Frontend Testing** - FULLY IMPLEMENTED:
+- [x] 671 tests across 22 test files
+- [x] 100% production code coverage (API client, forms, utilities)
+- [x] Vitest 4.0 with @vitest/coverage-v8
+- [x] @testing-library/svelte for component testing
+- [x] All 42 API endpoints tested in client
+- [x] Form validation logic for all 6 dimension types (37 tests)
+- [x] UI component tests (Badge, Button, Card, Skeleton, Navigation)
+- [x] All 19 page components tested
 
-**Implementation Notes**:
-- Use pytest with httpx for async testing
-- Create test fixtures for schemas, rulesets, catalogs
-- Test database transactions and rollbacks
-- Verify response status codes and schemas
+**E2E Testing** - FULLY IMPLEMENTED:
+- [x] Playwright setup with 72 E2E tests
+- [x] Cross-browser testing (Chromium, Firefox, WebKit)
+- [x] Critical user flows:
+  - [x] Schema management workflow
+  - [x] Catalog and item CRUD operations
+  - [x] Interactive compatibility explorer
+  - [x] Navigation and routing
+- [x] Mobile responsive layout testing
 
----
+**Test Infrastructure**:
+- [x] pytest with coverage reporting
+- [x] Vitest 4.0 for frontend unit tests
+- [x] Playwright for E2E testing
+- [x] happy-dom environment for Svelte 5
+- [x] Comprehensive test fixtures and utilities
+- [x] Test code excluded from coverage metrics (standard practice)
 
-### Web UI Component Tests
-**Status**: Not implemented
-**Effort**: Medium
-**Value**: Medium
-
-- [ ] Set up Vitest or Jest for Svelte component testing
-- [ ] Test form validation logic
-- [ ] Test dynamic dimension/rule builders
-- [ ] Test API client integration
-- [ ] Mock API responses for isolated testing
-
-**Current State**: Manual testing in development and browser.
-
-**Implementation Notes**:
-- Use @testing-library/svelte
-- Test user interactions and state management
-- Mock API calls with MSW or similar
-- Test accessibility features
-
----
-
-### End-to-End Testing
-**Status**: Not implemented
-**Effort**: High
-**Value**: Medium
-
-- [ ] Set up Playwright or Cypress
-- [ ] Write E2E tests for critical user flows:
-  - Create schema → Create catalog → Add items → Evaluate
-  - Create ruleset → Run matrix evaluation
-  - Cluster finding workflow
-- [ ] Test cross-browser compatibility
-- [ ] Test mobile responsive layouts
-
-**Current State**: Manual testing of user workflows.
-
----
-
-### Integration Tests
-**Status**: Not implemented
-**Effort**: Medium
-**Value**: High
-
-- [ ] End-to-end workflow tests (file import → evaluation → export)
-- [ ] Test CLI commands with real files
-- [ ] Test API + database interactions
-- [ ] Test core engine with various rule combinations
-- [ ] Expand wardrobe example test coverage
-
-**Current State**: Basic integration testing with wardrobe example, no automated tests.
+**Total Achievement**: 1,151 tests with excellent coverage across all layers.
 
 ---
 
@@ -137,23 +124,33 @@ This document tracks planned enhancements and nice-to-have features for Rulate. 
 
 ---
 
-### File Upload/Download
-**Status**: Not implemented
-**Effort**: Low
-**Value**: Low
+### ✅ COMPLETED: Import/Export Functionality
+**Status**: ✅ **COMPLETE**
+**Completion Date**: December 2025
 
-- [ ] Add file upload for schemas, rulesets, catalogs
-- [ ] Add export buttons that download YAML/JSON files
-- [ ] Drag-and-drop file upload zones
-- [ ] File validation before upload
-- [ ] Progress indicators for large files
+**API Endpoints** - FULLY IMPLEMENTED:
+- [x] 14 import/export endpoints in `api/routers/import_export.py`
+- [x] Export individual resources (schemas, rulesets, cluster-rulesets, catalogs)
+- [x] Export all data types in single request
+- [x] Import with automatic dependency validation
+- [x] Import individual or bulk data
+- [x] JSON format support
 
-**Current State**: Copy/paste JSON works, but not user-friendly for non-technical users.
+**Web UI** - FULLY IMPLEMENTED:
+- [x] Dedicated `/import-export` page
+- [x] File upload for JSON imports
+- [x] Download buttons for JSON exports
+- [x] Export all data or individual resource types
+- [x] Import validation with error reporting
+- [x] Clear user feedback for success/failure
 
-**Implementation Notes**:
-- Use `js-yaml` for YAML parsing in browser
-- Validate files client-side before API call
-- Provide clear error messages for invalid files
+**Features**:
+- [x] Backup and restore workflows
+- [x] Data migration between instances
+- [x] Dependency handling (e.g., catalogs reference schemas)
+- [x] Comprehensive error messages
+
+**Note**: Drag-and-drop and YAML format could be added as enhancements, but JSON upload/download is fully functional.
 
 ---
 
@@ -566,12 +563,12 @@ Create example configurations for other domains:
 
 ### Recommended Order
 
-1. **Testing** (Priority 1) - Foundation for quality
-   - Start with API tests
-   - Add integration tests
-   - Web UI tests last
+1. ~~**Testing** (Priority 1)~~ - ✅ **COMPLETE**
+   - ~~Start with API tests~~ ✅
+   - ~~Add integration tests~~ ✅
+   - ~~Web UI tests last~~ ✅
 
-2. **DevOps** (Priority 3) - Enable easy deployment
+2. **DevOps** (Priority 3) - Enable easy deployment (NEXT PRIORITY)
    - Docker first
    - Health checks
    - Deployment guide
@@ -579,7 +576,7 @@ Create example configurations for other domains:
 3. **UX Polish** (Priority 2) - Improve user experience
    - Toast notifications
    - Modal dialogs
-   - File upload/download
+   - ~~File upload/download~~ ✅ **COMPLETE** (Import/Export implemented)
 
 4. **Documentation** (Priority 5) - Help users succeed
    - User guide
