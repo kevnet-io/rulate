@@ -7,7 +7,6 @@ them against cluster-level rules.
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional, Set
 
 from rulate.engine.cluster_condition_evaluator import evaluate_cluster_condition
 from rulate.engine.evaluator import evaluate_matrix
@@ -28,9 +27,9 @@ def find_clusters(
     catalog: Catalog,
     pairwise_ruleset: RuleSet,
     cluster_ruleset: ClusterRuleSet,
-    schema: Optional[Schema] = None,
+    schema: Schema | None = None,
     min_cluster_size: int = 2,
-    max_clusters: Optional[int] = None,
+    max_clusters: int | None = None,
 ) -> ClusterAnalysis:
     """
     Find all valid clusters using two-level rule evaluation.
@@ -62,7 +61,7 @@ def find_clusters(
     adjacency = _build_adjacency_from_matrix(matrix)
 
     # PHASE 2: Find all maximal cliques (candidate clusters)
-    candidate_cliques: List[Set[str]] = []
+    candidate_cliques: list[set[str]] = []
     all_item_ids = set(item.id for item in catalog.items)
 
     _bron_kerbosch(
@@ -74,15 +73,15 @@ def find_clusters(
     )
 
     # PHASE 3: Validate each clique against cluster rules
-    valid_clusters: List[Cluster] = []
+    valid_clusters: list[Cluster] = []
 
     for clique in candidate_cliques:
         if len(clique) < min_cluster_size:
             continue
 
         # Get items for this clique
-        items = [catalog.get_item(item_id) for item_id in clique]
-        items = [item for item in items if item is not None]  # Filter out None values
+        items_maybe_none = [catalog.get_item(item_id) for item_id in clique]
+        items: list[Item] = [item for item in items_maybe_none if item is not None]
 
         if len(items) < min_cluster_size:
             continue
@@ -151,8 +150,8 @@ def find_clusters(
 
 
 def validate_cluster(
-    items: List[Item], cluster_ruleset: ClusterRuleSet
-) -> tuple[bool, List[RuleEvaluation]]:
+    items: list[Item], cluster_ruleset: ClusterRuleSet
+) -> tuple[bool, list[RuleEvaluation]]:
     """
     Validate a set of items against cluster rules.
 
@@ -165,7 +164,7 @@ def validate_cluster(
         - is_valid: True if all rules pass
         - rule_evaluations: List of RuleEvaluation objects
     """
-    rule_evaluations: List[RuleEvaluation] = []
+    rule_evaluations: list[RuleEvaluation] = []
 
     # Evaluate exclusion rules (any TRUE → invalid cluster)
     for rule in cluster_ruleset.get_exclusion_rules():
@@ -210,7 +209,7 @@ def validate_cluster(
     return True, rule_evaluations
 
 
-def _build_adjacency_from_matrix(matrix: EvaluationMatrix) -> Dict[str, Set[str]]:
+def _build_adjacency_from_matrix(matrix: EvaluationMatrix) -> dict[str, set[str]]:
     """
     Build an adjacency list representation of the compatibility graph.
 
@@ -220,7 +219,7 @@ def _build_adjacency_from_matrix(matrix: EvaluationMatrix) -> Dict[str, Set[str]
     Returns:
         Dictionary mapping item_id to set of compatible item_ids
     """
-    adjacency: Dict[str, Set[str]] = {}
+    adjacency: dict[str, set[str]] = {}
 
     # Initialize with empty sets for all items
     all_items = set()
@@ -241,11 +240,11 @@ def _build_adjacency_from_matrix(matrix: EvaluationMatrix) -> Dict[str, Set[str]
 
 
 def _bron_kerbosch(
-    R: Set[str],
-    P: Set[str],
-    X: Set[str],
-    adjacency: Dict[str, Set[str]],
-    cliques: List[Set[str]],
+    R: set[str],
+    P: set[str],
+    X: set[str],
+    adjacency: dict[str, set[str]],
+    cliques: list[set[str]],
 ) -> None:
     """
     Bron-Kerbosch algorithm with pivoting for finding all maximal cliques.
@@ -293,7 +292,7 @@ def _bron_kerbosch(
         X = X | {v}
 
 
-def _choose_pivot(P: Set[str], X: Set[str], adjacency: Dict[str, Set[str]]) -> Optional[str]:
+def _choose_pivot(P: set[str], X: set[str], adjacency: dict[str, set[str]]) -> str | None:
     """
     Choose a pivot vertex to minimize branching in Bron-Kerbosch.
 
@@ -324,7 +323,7 @@ def _choose_pivot(P: Set[str], X: Set[str], adjacency: Dict[str, Set[str]]) -> O
     return pivot
 
 
-def _find_relationships(clusters: List[Cluster]) -> List[ClusterRelationship]:
+def _find_relationships(clusters: list[Cluster]) -> list[ClusterRelationship]:
     """
     Analyze and identify relationships between clusters.
 
@@ -336,7 +335,7 @@ def _find_relationships(clusters: List[Cluster]) -> List[ClusterRelationship]:
     Returns:
         List of ClusterRelationship objects
     """
-    relationships: List[ClusterRelationship] = []
+    relationships: list[ClusterRelationship] = []
 
     for i, cluster1 in enumerate(clusters):
         for cluster2 in clusters[i + 1 :]:

@@ -8,22 +8,18 @@ and managing catalogs.
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 import click
 import yaml
 
 from rulate.engine import evaluate_item_against_catalog, evaluate_matrix, evaluate_pair
 from rulate.engine.cluster_evaluator import find_clusters
-from rulate.models.catalog import Catalog
-from rulate.models.rule import RuleSet
-from rulate.models.schema import Schema
 from rulate.utils import load_catalog, load_cluster_ruleset, load_ruleset, load_schema
 
 
 @click.group()
 @click.version_option(version="0.1.0")
-def main():
+def main() -> None:
     """
     Rulate - Rule-based comparison engine CLI.
 
@@ -38,14 +34,14 @@ def main():
 
 
 @main.group()
-def validate():
+def validate() -> None:
     """Validate schema, rule, and catalog files."""
     pass
 
 
 @validate.command(name="schema")
 @click.argument("file", type=click.Path(exists=True))
-def validate_schema(file: str):
+def validate_schema(file: str) -> None:
     """Validate a schema file."""
     try:
         schema = load_schema(file)
@@ -58,7 +54,7 @@ def validate_schema(file: str):
 
         sys.exit(0)
     except Exception as e:
-        click.secho(f"✗ Schema validation failed:", fg="red", err=True)
+        click.secho("✗ Schema validation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -66,7 +62,7 @@ def validate_schema(file: str):
 @validate.command(name="rules")
 @click.argument("file", type=click.Path(exists=True))
 @click.option("--schema", type=click.Path(exists=True), help="Schema file to validate against")
-def validate_rules(file: str, schema: Optional[str]):
+def validate_rules(file: str, schema: str | None) -> None:
     """Validate a ruleset file."""
     try:
         ruleset = load_ruleset(file)
@@ -89,7 +85,7 @@ def validate_rules(file: str, schema: Optional[str]):
 
         sys.exit(0)
     except Exception as e:
-        click.secho(f"✗ RuleSet validation failed:", fg="red", err=True)
+        click.secho("✗ RuleSet validation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -97,7 +93,7 @@ def validate_rules(file: str, schema: Optional[str]):
 @validate.command(name="catalog")
 @click.argument("file", type=click.Path(exists=True))
 @click.option("--schema", type=click.Path(exists=True), help="Schema file to validate against")
-def validate_catalog(file: str, schema: Optional[str]):
+def validate_catalog(file: str, schema: str | None) -> None:
     """Validate a catalog file."""
     try:
         catalog = load_catalog(file)
@@ -132,7 +128,7 @@ def validate_catalog(file: str, schema: Optional[str]):
 
         sys.exit(0)
     except Exception as e:
-        click.secho(f"✗ Catalog validation failed:", fg="red", err=True)
+        click.secho("✗ Catalog validation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -143,7 +139,7 @@ def validate_catalog(file: str, schema: Optional[str]):
 
 
 @main.group()
-def evaluate():
+def evaluate() -> None:
     """Evaluate compatibility between items."""
     pass
 
@@ -155,7 +151,7 @@ def evaluate():
 @click.option("--rules", "-r", required=True, type=click.Path(exists=True), help="Rules file")
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
-def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, schema: Optional[str], format: str):
+def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, schema: str | None, format: str) -> None:
     """Evaluate compatibility between two items."""
     try:
         # Load files
@@ -199,7 +195,7 @@ def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, sc
         sys.exit(0 if result.compatible else 1)
 
     except Exception as e:
-        click.secho(f"✗ Evaluation failed:", fg="red", err=True)
+        click.secho("✗ Evaluation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -210,7 +206,7 @@ def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, sc
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml", "csv"]), default="summary")
 @click.option("--output", "-o", type=click.Path(), help="Output file (default: stdout)")
-def evaluate_matrix_cmd(catalog: str, rules: str, schema: Optional[str], format: str, output: Optional[str]):
+def evaluate_matrix_cmd(catalog: str, rules: str, schema: str | None, format: str, output: str | None) -> None:
     """Generate compatibility matrix for all items in a catalog."""
     try:
         # Load files
@@ -219,12 +215,13 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: Optional[str], format:
         schema_obj = load_schema(schema) if schema else None
 
         # Evaluate
+        progress_length = len(catalog_obj.items) * (len(catalog_obj.items) - 1) // 2
         with click.progressbar(
-            length=len(catalog_obj.items) * (len(catalog_obj.items) - 1) // 2,
+            length=progress_length,
             label="Evaluating pairs"
         ) as bar:
             matrix = evaluate_matrix(catalog_obj, ruleset, schema_obj)
-            bar.update(bar.length)
+            bar.update(progress_length)
 
         # Prepare output
         if format == "json":
@@ -271,7 +268,8 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: Optional[str], format:
                 for result in compatible:
                     item1 = catalog_obj.get_item(result.item1_id)
                     item2 = catalog_obj.get_item(result.item2_id)
-                    output_lines.append(f"  ✓ {item1.name} + {item2.name}")
+                    if item1 and item2:
+                        output_lines.append(f"  ✓ {item1.name} + {item2.name}")
 
             output_text = "\n".join(output_lines)
 
@@ -285,7 +283,7 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: Optional[str], format:
         sys.exit(0)
 
     except Exception as e:
-        click.secho(f"✗ Matrix evaluation failed:", fg="red", err=True)
+        click.secho("✗ Matrix evaluation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -296,7 +294,7 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: Optional[str], format:
 @click.option("--rules", "-r", required=True, type=click.Path(exists=True), help="Rules file")
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
-def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: Optional[str], format: str):
+def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: str | None, format: str) -> None:
     """Find all items compatible with a specific item."""
     try:
         # Load files
@@ -331,18 +329,20 @@ def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: Optional[s
                 click.echo("\nCompatible items:")
                 for result in compatible:
                     other_item = catalog_obj.get_item(result.item2_id)
-                    click.secho(f"  ✓ {other_item.name}", fg="green")
+                    if other_item:
+                        click.secho(f"  ✓ {other_item.name}", fg="green")
 
             if incompatible and len(incompatible) <= 10:
                 click.echo("\nIncompatible items:")
                 for result in incompatible:
                     other_item = catalog_obj.get_item(result.item2_id)
-                    click.secho(f"  ✗ {other_item.name}", fg="red")
+                    if other_item:
+                        click.secho(f"  ✗ {other_item.name}", fg="red")
 
         sys.exit(0)
 
     except Exception as e:
-        click.secho(f"✗ Evaluation failed:", fg="red", err=True)
+        click.secho("✗ Evaluation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -360,12 +360,12 @@ def evaluate_clusters_cmd(
     catalog: str,
     rules: str,
     cluster_rules: str,
-    schema: Optional[str],
+    schema: str | None,
     min_size: int,
-    max_clusters: Optional[int],
+    max_clusters: int | None,
     format: str,
-    output: Optional[str]
-):
+    output: str | None
+) -> None:
     """Find all compatible clusters (sets of items) in a catalog."""
     try:
         # Load files
@@ -430,7 +430,7 @@ def evaluate_clusters_cmd(
                         # Show relationships
                         rels = analysis.get_relationships_for_cluster(cluster.id)
                         if rels:
-                            rel_summary = {}
+                            rel_summary: dict[str, int] = {}
                             for rel in rels:
                                 rel_type = rel.relationship_type
                                 rel_summary[rel_type] = rel_summary.get(rel_type, 0) + 1
@@ -462,7 +462,7 @@ def evaluate_clusters_cmd(
         sys.exit(0)
 
     except Exception as e:
-        click.secho(f"✗ Cluster evaluation failed:", fg="red", err=True)
+        click.secho("✗ Cluster evaluation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         import traceback
         traceback.print_exc()
@@ -475,7 +475,7 @@ def evaluate_clusters_cmd(
 
 
 @main.group()
-def show():
+def show() -> None:
     """Display information about schemas, catalogs, and items."""
     pass
 
@@ -483,7 +483,7 @@ def show():
 @show.command(name="schema")
 @click.argument("file", type=click.Path(exists=True))
 @click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
-def show_schema(file: str, format: str):
+def show_schema(file: str, format: str) -> None:
     """Display schema information."""
     try:
         schema = load_schema(file)
@@ -511,7 +511,7 @@ def show_schema(file: str, format: str):
 
         sys.exit(0)
     except Exception as e:
-        click.secho(f"✗ Failed to load schema:", fg="red", err=True)
+        click.secho("✗ Failed to load schema:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
@@ -519,7 +519,7 @@ def show_schema(file: str, format: str):
 @show.command(name="catalog")
 @click.argument("file", type=click.Path(exists=True))
 @click.option("--format", type=click.Choice(["summary", "json", "yaml", "table"]), default="summary")
-def show_catalog(file: str, format: str):
+def show_catalog(file: str, format: str) -> None:
     """Display catalog information."""
     try:
         catalog = load_catalog(file)
@@ -527,7 +527,7 @@ def show_catalog(file: str, format: str):
         if format == "json":
             click.echo(json.dumps(catalog.model_dump(mode="python"), indent=2, default=str))
         elif format == "yaml":
-            click.echo(yaml.dump(catalog.model_dump(mode="python"), default_flow_style=False, default=str))
+            click.echo(yaml.dump(catalog.model_dump(mode="python"), default_flow_style=False))
         elif format == "table":
             # Simple table format
             click.secho(f"\nCatalog: {catalog.name}", bold=True)
@@ -557,7 +557,7 @@ def show_catalog(file: str, format: str):
 
         sys.exit(0)
     except Exception as e:
-        click.secho(f"✗ Failed to load catalog:", fg="red", err=True)
+        click.secho("✗ Failed to load catalog:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 

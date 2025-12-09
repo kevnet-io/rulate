@@ -4,7 +4,7 @@ SQLAlchemy database models for storing rulate configurations.
 
 import json
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
@@ -30,11 +30,11 @@ class SchemaDB(Base):
     rulesets = relationship("RuleSetDB", back_populates="schema", cascade="all, delete-orphan")
     catalogs = relationship("CatalogDB", back_populates="schema", cascade="all, delete-orphan")
 
-    def get_dimensions(self) -> list[Dict[str, Any]]:
+    def get_dimensions(self) -> list[dict[str, Any]]:
         """Parse dimensions from JSON."""
         return json.loads(self.dimensions_json)
 
-    def set_dimensions(self, value: list[Dict[str, Any]]) -> None:
+    def set_dimensions(self, value: list[dict[str, Any]]) -> None:
         """Serialize dimensions to JSON."""
         self.dimensions_json = json.dumps(value)
 
@@ -56,11 +56,11 @@ class RuleSetDB(Base):
     # Relationships
     schema = relationship("SchemaDB", back_populates="rulesets")
 
-    def get_rules(self) -> list[Dict[str, Any]]:
+    def get_rules(self) -> list[dict[str, Any]]:
         """Parse rules from JSON."""
         return json.loads(self.rules_json)
 
-    def set_rules(self, value: list[Dict[str, Any]]) -> None:
+    def set_rules(self, value: list[dict[str, Any]]) -> None:
         """Serialize rules to JSON."""
         self.rules_json = json.dumps(value)
 
@@ -84,11 +84,11 @@ class ClusterRuleSetDB(Base):
     schema = relationship("SchemaDB")
     pairwise_ruleset = relationship("RuleSetDB")
 
-    def get_rules(self) -> list[Dict[str, Any]]:
+    def get_rules(self) -> list[dict[str, Any]]:
         """Parse cluster rules from JSON."""
         return json.loads(self.rules_json)
 
-    def set_rules(self, value: list[Dict[str, Any]]) -> None:
+    def set_rules(self, value: list[dict[str, Any]]) -> None:
         """Serialize cluster rules to JSON."""
         self.rules_json = json.dumps(value)
 
@@ -110,13 +110,13 @@ class CatalogDB(Base):
     schema = relationship("SchemaDB", back_populates="catalogs")
     items = relationship("ItemDB", back_populates="catalog", cascade="all, delete-orphan")
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """Parse metadata from JSON."""
         if self.metadata_json:
             return json.loads(self.metadata_json)
         return {}
 
-    def set_metadata(self, value: Dict[str, Any]) -> None:
+    def set_metadata(self, value: dict[str, Any]) -> None:
         """Serialize metadata to JSON."""
         self.metadata_json = json.dumps(value) if value else None
 
@@ -138,20 +138,20 @@ class ItemDB(Base):
     # Relationships
     catalog = relationship("CatalogDB", back_populates="items")
 
-    def get_attributes(self) -> Dict[str, Any]:
+    def get_attributes(self) -> dict[str, Any]:
         """Parse attributes from JSON."""
         return json.loads(self.attributes_json)
 
-    def set_attributes(self, value: Dict[str, Any]) -> None:
+    def set_attributes(self, value: dict[str, Any]) -> None:
         """Serialize attributes to JSON."""
         self.attributes_json = json.dumps(value)
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """Parse metadata from JSON."""
         if self.metadata_json:
             return json.loads(self.metadata_json)
         return {}
 
-    def set_metadata(self, value: Dict[str, Any]) -> None:
+    def set_metadata(self, value: dict[str, Any]) -> None:
         """Serialize metadata to JSON."""
         self.metadata_json = json.dumps(value) if value else None

@@ -10,7 +10,6 @@ Usage:
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -20,7 +19,7 @@ import yaml
 
 def load_yaml_file(file_path: Path) -> dict:
     """Load a YAML file and return its contents as a dictionary."""
-    with open(file_path, 'r') as f:
+    with open(file_path) as f:
         return yaml.safe_load(f)
 
 

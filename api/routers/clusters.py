@@ -2,7 +2,7 @@
 API endpoints for cluster evaluation and ClusterRuleSet management.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -85,7 +85,7 @@ def db_to_rulate_catalog(db_catalog: CatalogDB) -> Catalog:
 def evaluate_clusters_endpoint(
     request: EvaluateClustersRequest,
     db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Find all compatibility clusters in a catalog.
 
@@ -202,7 +202,7 @@ def create_cluster_ruleset(ruleset_data: ClusterRuleSetCreate, db: Session = Dep
     )
 
 
-@router.get("/cluster-rulesets", response_model=List[ClusterRuleSetResponse])
+@router.get("/cluster-rulesets", response_model=list[ClusterRuleSetResponse])
 def list_cluster_rulesets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List all cluster rulesets."""
     cluster_rulesets = db.query(ClusterRuleSetDB).offset(skip).limit(limit).all()

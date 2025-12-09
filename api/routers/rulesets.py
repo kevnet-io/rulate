@@ -2,7 +2,6 @@
 API endpoints for RuleSet management.
 """
 
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -58,7 +57,7 @@ def create_ruleset(ruleset_data: RuleSetCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/rulesets", response_model=List[RuleSetResponse])
+@router.get("/rulesets", response_model=list[RuleSetResponse])
 def list_rulesets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List all rulesets."""
     rulesets = db.query(RuleSetDB).offset(skip).limit(limit).all()

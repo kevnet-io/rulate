@@ -8,21 +8,16 @@ Provides bulk import and export functionality for all data types:
 - Catalogs (with items)
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from api.database.connection import get_db
 from api.database.models import CatalogDB, ClusterRuleSetDB, ItemDB, RuleSetDB, SchemaDB
 from api.models.schemas import (
-    CatalogCreate,
-    ClusterRuleSetCreate,
-    ItemCreate,
     MessageResponse,
-    RuleSetCreate,
-    SchemaCreate,
 )
 from rulate.models.schema import Schema as RulateSchema
 
@@ -336,7 +331,7 @@ def export_all(db: Session = Depends(get_db)) -> JSONResponse:
 
 @router.post("/import/schemas", response_model=MessageResponse)
 def import_schemas(
-    schemas: List[Dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
+    schemas: list[dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
 ) -> MessageResponse:
     """
     Import multiple schemas.
@@ -370,7 +365,7 @@ def import_schemas(
 
             # Validate using Rulate Schema model
             try:
-                rulate_schema = RulateSchema(**schema_data)
+                _ = RulateSchema(**schema_data)  # Validation only
             except Exception as e:
                 errors.append(f"Schema '{schema_data.get('name', 'unknown')}' validation failed: {str(e)}")
                 continue
@@ -409,7 +404,7 @@ def import_schemas(
 
 @router.post("/import/rulesets", response_model=MessageResponse)
 def import_rulesets(
-    rulesets: List[Dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
+    rulesets: list[dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
 ) -> MessageResponse:
     """
     Import multiple rulesets.
@@ -483,7 +478,7 @@ def import_rulesets(
 
 @router.post("/import/cluster-rulesets", response_model=MessageResponse)
 def import_cluster_rulesets(
-    cluster_rulesets: List[Dict[str, Any]],
+    cluster_rulesets: list[dict[str, Any]],
     skip_existing: bool = False,
     db: Session = Depends(get_db),
 ) -> MessageResponse:
@@ -575,7 +570,7 @@ def import_cluster_rulesets(
 
 @router.post("/import/catalogs", response_model=MessageResponse)
 def import_catalogs(
-    catalogs: List[Dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
+    catalogs: list[dict[str, Any]], skip_existing: bool = False, db: Session = Depends(get_db)
 ) -> MessageResponse:
     """
     Import multiple catalogs with their items.
@@ -672,7 +667,7 @@ def import_catalogs(
 
 
 @router.post("/import/all", response_model=MessageResponse)
-def import_all(data: Dict[str, Any], skip_existing: bool = False, db: Session = Depends(get_db)) -> MessageResponse:
+def import_all(data: dict[str, Any], skip_existing: bool = False, db: Session = Depends(get_db)) -> MessageResponse:
     """
     Import all data types from a single JSON object.
 

@@ -293,7 +293,7 @@
 														updateRuleCondition(index, e.currentTarget.value)}
 													class="w-full px-3 py-2 border border-input rounded-md bg-background text-sm font-mono"
 													rows="4"
-													placeholder="{}"
+													placeholder="{'{}'}"
 												></textarea>
 											</div>
 										</div>

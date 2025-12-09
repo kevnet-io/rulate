@@ -112,7 +112,7 @@ class TestExportToYaml:
         assert output_file.exists()
 
         # Read content and verify key fields are present
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             content = f.read()
 
         assert "test_schema" in content
@@ -127,7 +127,7 @@ class TestExportToYaml:
         assert output_file.exists()
 
         # Read content and verify key fields are present
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             content = f.read()
 
         assert "test_rules" in content
@@ -141,7 +141,7 @@ class TestExportToYaml:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = yaml.safe_load(f)
 
         assert data["name"] == "test_catalog"
@@ -179,7 +179,7 @@ class TestExportToJson:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = json.load(f)
 
         assert data["name"] == "test_schema"
@@ -193,7 +193,7 @@ class TestExportToJson:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = json.load(f)
 
         assert data["name"] == "test_rules"
@@ -206,7 +206,7 @@ class TestExportToJson:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = json.load(f)
 
         assert data["name"] == "test_catalog"
@@ -219,7 +219,7 @@ class TestExportToJson:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = json.load(f)
 
         assert data["item1_id"] == "item_001"
@@ -233,7 +233,7 @@ class TestExportToJson:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             data = json.load(f)
 
         assert data["catalog_name"] == "test_catalog"
@@ -244,7 +244,7 @@ class TestExportToJson:
         output_file = tmp_path / "schema.json"
         export_to_json(sample_schema, output_file, indent=4)
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             content = f.read()
 
         # Check that content has 4-space indentation
@@ -381,7 +381,7 @@ class TestExportEvaluationMatrixToCsv:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             content = f.read()
 
         # Check CSV structure
@@ -408,7 +408,7 @@ class TestExportEvaluationMatrixToCsv:
         output_file = tmp_path / "matrix.csv"
         export_evaluation_matrix_to_csv(matrix, output_file)
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             lines = f.readlines()
 
         # Find rows for A and check values
@@ -423,7 +423,7 @@ class TestExportEvaluationMatrixToCsv:
         output_file = tmp_path / "matrix.csv"
         export_evaluation_matrix_to_csv(sample_evaluation_matrix, output_file)
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             lines = f.readlines()
 
         # Check diagonal values (self-compatibility)
@@ -446,7 +446,7 @@ class TestExportEvaluationMatrixToCsv:
         output_file = tmp_path / "matrix.csv"
         export_evaluation_matrix_to_csv(matrix, output_file)
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             lines = f.readlines()
 
         # Parse CSV
@@ -498,7 +498,7 @@ class TestExportEvaluationMatrixToCsv:
 
         assert output_file.exists()
 
-        with open(output_file, "r") as f:
+        with open(output_file) as f:
             content = f.read()
 
         # Should have just a header line

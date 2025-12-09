@@ -9,8 +9,7 @@ import pytest
 
 from rulate.models.catalog import Catalog, Item
 from rulate.models.rule import Rule, RuleSet, RuleType
-from rulate.models.schema import Dimension, DimensionType, Schema
-
+from rulate.models.schema import Schema
 
 # ============================================================================
 # Schema Fixtures

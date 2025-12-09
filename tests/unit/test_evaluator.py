@@ -10,8 +10,6 @@ import pytest
 from rulate.engine.evaluator import evaluate_item_against_catalog, evaluate_matrix, evaluate_pair
 from rulate.models.catalog import Catalog, Item
 from rulate.models.rule import Rule, RuleSet, RuleType
-from rulate.models.schema import Schema
-
 
 # ============================================================================
 # evaluate_pair() Tests

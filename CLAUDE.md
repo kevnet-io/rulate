@@ -124,13 +124,18 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 
 ### Setup
 ```bash
+# Install dependencies
 uv sync --dev
+
+# Install pre-commit hooks (recommended)
+uv run pre-commit install
 ```
 
 This command:
 - Creates a virtual environment in `.venv/`
 - Installs all project dependencies
-- Installs all dev dependencies (pytest, black, ruff, mypy, etc.)
+- Installs all dev dependencies (pytest, black, ruff, mypy, pre-commit, etc.)
+- Sets up pre-commit hooks to automatically run code quality checks before each commit
 
 ### Testing
 ```bash
@@ -155,6 +160,11 @@ pytest
 
 ### Code Quality
 ```bash
+# Run all pre-commit hooks on all files (recommended)
+uv run pre-commit run --all-files
+
+# Or run individual tools manually:
+
 # Format code
 uv run black .
 
@@ -164,6 +174,10 @@ uv run ruff check .
 # Type check
 uv run mypy rulate
 ```
+
+**Note:** If you've installed pre-commit hooks, these checks run automatically on `git commit`.
+
+**Claude Code Integration:** The `.claude/settings.json` file configures a Stop hook that runs pre-commit checks automatically when Claude finishes making changes, providing immediate feedback on code quality.
 
 ### Running the API
 ```bash

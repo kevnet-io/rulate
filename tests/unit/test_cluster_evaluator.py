@@ -17,9 +17,8 @@ from rulate.engine.cluster_evaluator import (
 )
 from rulate.models.catalog import Catalog, Item
 from rulate.models.cluster import Cluster, ClusterRule, ClusterRuleSet
-from rulate.models.evaluation import ComparisonResult, EvaluationMatrix, RuleEvaluation
+from rulate.models.evaluation import ComparisonResult, EvaluationMatrix
 from rulate.models.rule import Rule, RuleSet, RuleType
-
 
 # ============================================================================
 # Test Fixtures

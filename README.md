@@ -1,5 +1,9 @@
 # Rulate
 
+[![Tests](https://github.com/kevnet-io/rulate/actions/workflows/test.yml/badge.svg)](https://github.com/kevnet-io/rulate/actions/workflows/test.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 A generic, programmable rule-based comparison engine for evaluating and classifying relationships between pairs of objects.
 
 ## Overview
@@ -223,12 +227,11 @@ TBD
 
 Rulate is production-ready and welcomes contributions!
 
-Before contributing:
-1. Read the [development guide](CLAUDE.md) for architecture details
-2. Check [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for planned enhancements
-3. Open an issue to discuss your proposed changes
-4. Follow the code style (black, ruff, mypy)
-5. Add tests for new features
-6. Update documentation as needed
+Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
+- Development setup and workflow
+- Code style guidelines
+- Testing requirements
+- Pull request process
+- How to report bugs and suggest features
 
 See [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for a prioritized list of enhancements we'd love help with!

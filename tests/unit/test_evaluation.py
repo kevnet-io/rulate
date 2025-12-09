@@ -10,8 +10,6 @@ Tests cover:
 
 from datetime import datetime
 
-import pytest
-
 from rulate.models.evaluation import ComparisonResult, EvaluationMatrix, RuleEvaluation
 
 

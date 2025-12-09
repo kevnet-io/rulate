@@ -6,7 +6,6 @@ catalogs, and cluster rulesets.
 """
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -27,7 +26,6 @@ from rulate.utils.loaders import (
     load_schema_from_string,
     load_yaml_or_json,
 )
-
 
 # ============================================================================
 # Test Fixtures

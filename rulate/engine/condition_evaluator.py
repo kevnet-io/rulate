@@ -5,13 +5,13 @@ This module handles converting condition dictionaries into operator instances
 and evaluating them against item pairs.
 """
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
-from rulate.engine.operators import OPERATOR_REGISTRY
+from rulate.engine.operators import OPERATOR_REGISTRY, Operator
 from rulate.models.catalog import Item
 
 
-def evaluate_condition(condition: Dict[str, Any], item1: Item, item2: Item) -> Tuple[bool, str]:
+def evaluate_condition(condition: dict[str, Any], item1: Item, item2: Item) -> tuple[bool, str]:
     """
     Evaluate a condition dictionary against two items.
 
@@ -42,7 +42,7 @@ def evaluate_condition(condition: Dict[str, Any], item1: Item, item2: Item) -> T
     operator_config = condition[operator_name]
 
     # Look up operator class
-    operator_class = OPERATOR_REGISTRY.get(operator_name)
+    operator_class: type[Operator] | None = OPERATOR_REGISTRY.get(operator_name)
     if not operator_class:
         raise ValueError(
             f"Unknown operator '{operator_name}'. "
@@ -57,7 +57,7 @@ def evaluate_condition(condition: Dict[str, Any], item1: Item, item2: Item) -> T
         return False, f"Error evaluating {operator_name}: {str(e)}"
 
 
-def validate_condition(condition: Dict[str, Any]) -> bool:
+def validate_condition(condition: dict[str, Any]) -> bool:
     """
     Validate that a condition has proper structure.
 

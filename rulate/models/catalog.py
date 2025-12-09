@@ -5,7 +5,7 @@ A catalog contains items with their attributes, validated against a schema.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -34,10 +34,10 @@ class Item(BaseModel):
 
     id: str = Field(..., description="Unique identifier for the item")
     name: str = Field(..., description="Human-readable name of the item")
-    attributes: Dict[str, Any] = Field(
+    attributes: dict[str, Any] = Field(
         default_factory=dict, description="Attribute values for this item"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Optional metadata (tags, notes, etc.)"
     )
 
@@ -126,9 +126,9 @@ class Catalog(BaseModel):
 
     name: str = Field(..., description="Unique name of the catalog")
     schema_ref: str = Field(..., description="Name of the schema this catalog uses")
-    description: Optional[str] = Field(None, description="Human-readable description")
-    items: List[Item] = Field(default_factory=list, description="Items in this catalog")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Optional metadata")
+    description: str | None = Field(None, description="Human-readable description")
+    items: list[Item] = Field(default_factory=list, description="Items in this catalog")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Optional metadata")
     created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
     updated_at: datetime = Field(default_factory=datetime.now, description="Last update timestamp")
 
@@ -148,7 +148,7 @@ class Catalog(BaseModel):
             raise ValueError("Schema reference cannot be empty")
         return v
 
-    def get_item(self, item_id: str) -> Optional[Item]:
+    def get_item(self, item_id: str) -> Item | None:
         """
         Get an item by ID.
 
@@ -214,7 +214,7 @@ class Catalog(BaseModel):
         self.updated_at = datetime.now()
         return True
 
-    def get_items_by_attribute(self, attribute: str, value: Any) -> List[Item]:
+    def get_items_by_attribute(self, attribute: str, value: Any) -> list[Item]:
         """
         Find all items with a specific attribute value.
 

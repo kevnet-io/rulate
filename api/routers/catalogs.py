@@ -2,7 +2,6 @@
 API endpoints for Catalog and Item management.
 """
 
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,7 +11,6 @@ from api.database.models import CatalogDB, ItemDB, SchemaDB
 from api.models.schemas import (
     CatalogCreate,
     CatalogResponse,
-    CatalogUpdate,
     ItemCreate,
     ItemResponse,
     ItemUpdate,
@@ -69,7 +67,7 @@ def create_catalog(catalog_data: CatalogCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/catalogs", response_model=List[CatalogResponse])
+@router.get("/catalogs", response_model=list[CatalogResponse])
 def list_catalogs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List all catalogs."""
     catalogs = db.query(CatalogDB).offset(skip).limit(limit).all()
@@ -179,7 +177,7 @@ def create_item(catalog_name: str, item_data: ItemCreate, db: Session = Depends(
     )
 
 
-@router.get("/catalogs/{catalog_name}/items", response_model=List[ItemResponse])
+@router.get("/catalogs/{catalog_name}/items", response_model=list[ItemResponse])
 def list_items(
     catalog_name: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):

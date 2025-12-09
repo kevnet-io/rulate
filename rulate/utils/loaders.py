@@ -6,7 +6,7 @@ These functions handle parsing file formats and converting them into Pydantic mo
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 import yaml
 
@@ -16,7 +16,7 @@ from rulate.models.rule import RuleSet
 from rulate.models.schema import Schema
 
 
-def load_yaml_or_json(file_path: Union[str, Path]) -> Dict[str, Any]:
+def load_yaml_or_json(file_path: str | Path) -> dict[str, Any]:
     """
     Load a YAML or JSON file and return its contents as a dictionary.
 
@@ -38,11 +38,17 @@ def load_yaml_or_json(file_path: Union[str, Path]) -> Dict[str, Any]:
     suffix = path.suffix.lower()
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             if suffix in [".yaml", ".yml"]:
-                return yaml.safe_load(f)
+                data = yaml.safe_load(f)
+                if not isinstance(data, dict):
+                    raise ValueError(f"Expected dictionary in {file_path}, got {type(data)}")
+                return data
             elif suffix == ".json":
-                return json.load(f)
+                data = json.load(f)
+                if not isinstance(data, dict):
+                    raise ValueError(f"Expected dictionary in {file_path}, got {type(data)}")
+                return data
             else:
                 raise ValueError(
                     f"Unsupported file format: {suffix}. Use .yaml, .yml, or .json"
@@ -53,7 +59,7 @@ def load_yaml_or_json(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise ValueError(f"Invalid JSON in {file_path}: {e}")
 
 
-def load_schema(file_path: Union[str, Path]) -> Schema:
+def load_schema(file_path: str | Path) -> Schema:
     """
     Load a schema from a YAML or JSON file.
 
@@ -77,7 +83,7 @@ def load_schema(file_path: Union[str, Path]) -> Schema:
         raise ValueError(f"Failed to load schema from {file_path}: {e}")
 
 
-def load_ruleset(file_path: Union[str, Path]) -> RuleSet:
+def load_ruleset(file_path: str | Path) -> RuleSet:
     """
     Load a ruleset from a YAML or JSON file.
 
@@ -101,7 +107,7 @@ def load_ruleset(file_path: Union[str, Path]) -> RuleSet:
         raise ValueError(f"Failed to load ruleset from {file_path}: {e}")
 
 
-def load_catalog(file_path: Union[str, Path]) -> Catalog:
+def load_catalog(file_path: str | Path) -> Catalog:
     """
     Load a catalog from a YAML or JSON file.
 
@@ -203,7 +209,7 @@ def load_catalog_from_string(content: str, format: str = "yaml") -> Catalog:
         raise ValueError(f"Failed to load catalog from string: {e}")
 
 
-def load_cluster_ruleset(file_path: Union[str, Path]) -> ClusterRuleSet:
+def load_cluster_ruleset(file_path: str | Path) -> ClusterRuleSet:
     """
     Load a cluster ruleset from a YAML or JSON file.
 
