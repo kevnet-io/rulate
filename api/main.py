@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.database.connection import init_db
 from api.routers import catalogs, clusters, evaluation, import_export, rulesets, schemas
 
+
 # Initialize database on startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):

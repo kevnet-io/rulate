@@ -6,7 +6,7 @@ their attributes and relationships.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -44,8 +44,8 @@ class Rule(BaseModel):
 
     name: str = Field(..., description="Unique name of the rule")
     type: RuleType = Field(..., description="Type of rule (exclusion/requirement/custom)")
-    description: Optional[str] = Field(None, description="Human-readable description")
-    condition: Dict[str, Any] = Field(
+    description: str | None = Field(None, description="Human-readable description")
+    condition: dict[str, Any] = Field(
         ..., description="Condition expression (operator tree as dict)"
     )
     enabled: bool = Field(default=True, description="Whether this rule is active")
@@ -62,7 +62,7 @@ class Rule(BaseModel):
 
     @field_validator("condition")
     @classmethod
-    def validate_condition(cls, v: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_condition(cls, v: dict[str, Any]) -> dict[str, Any]:
         """Basic validation of condition structure."""
         if not v:
             raise ValueError("Condition cannot be empty")
@@ -92,9 +92,9 @@ class RuleSet(BaseModel):
 
     name: str = Field(..., description="Unique name of the ruleset")
     version: str = Field(..., description="Semantic version of the ruleset")
-    description: Optional[str] = Field(None, description="Human-readable description")
+    description: str | None = Field(None, description="Human-readable description")
     schema_ref: str = Field(..., description="Name of the schema this ruleset applies to")
-    rules: List[Rule] = Field(default_factory=list, description="List of rules in this ruleset")
+    rules: list[Rule] = Field(default_factory=list, description="List of rules in this ruleset")
 
     @field_validator("name")
     @classmethod
@@ -116,7 +116,7 @@ class RuleSet(BaseModel):
                 raise ValueError("Version components must be integers")
         return v
 
-    def get_rule(self, name: str) -> Optional[Rule]:
+    def get_rule(self, name: str) -> Rule | None:
         """
         Get a rule by name.
 
@@ -131,7 +131,7 @@ class RuleSet(BaseModel):
                 return rule
         return None
 
-    def get_active_rules(self) -> List[Rule]:
+    def get_active_rules(self) -> list[Rule]:
         """
         Get all enabled rules.
 
@@ -140,14 +140,14 @@ class RuleSet(BaseModel):
         """
         return [rule for rule in self.rules if rule.enabled]
 
-    def get_exclusion_rules(self) -> List[Rule]:
+    def get_exclusion_rules(self) -> list[Rule]:
         """Get all active exclusion rules."""
         return [r for r in self.get_active_rules() if r.type == RuleType.EXCLUSION]
 
-    def get_requirement_rules(self) -> List[Rule]:
+    def get_requirement_rules(self) -> list[Rule]:
         """Get all active requirement rules."""
         return [r for r in self.get_active_rules() if r.type == RuleType.REQUIREMENT]
 
-    def get_custom_rules(self) -> List[Rule]:
+    def get_custom_rules(self) -> list[Rule]:
         """Get all active custom rules."""
         return [r for r in self.get_active_rules() if r.type == RuleType.CUSTOM]

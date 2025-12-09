@@ -6,7 +6,7 @@ including their types, allowed values, and validation rules.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -35,19 +35,19 @@ class Dimension(BaseModel):
     name: str = Field(..., description="Unique name of the dimension")
     type: DimensionType = Field(..., description="Data type of the dimension")
     required: bool = Field(default=False, description="Whether this dimension must be present")
-    description: Optional[str] = Field(None, description="Human-readable description")
+    description: str | None = Field(None, description="Human-readable description")
 
     # For ENUM type
-    values: Optional[List[str]] = Field(
+    values: list[str] | None = Field(
         None, description="Allowed values (required for ENUM type)"
     )
 
     # For INTEGER/FLOAT types
-    min: Optional[float] = Field(None, description="Minimum value (for numeric types)")
-    max: Optional[float] = Field(None, description="Maximum value (for numeric types)")
+    min: float | None = Field(None, description="Minimum value (for numeric types)")
+    max: float | None = Field(None, description="Maximum value (for numeric types)")
 
     # For LIST type
-    item_type: Optional[str] = Field(None, description="Type of items in the list (for LIST type)")
+    item_type: str | None = Field(None, description="Type of items in the list (for LIST type)")
 
     @field_validator("name")
     @classmethod
@@ -182,8 +182,8 @@ class Schema(BaseModel):
 
     name: str = Field(..., description="Unique name of the schema")
     version: str = Field(..., description="Semantic version of the schema")
-    description: Optional[str] = Field(None, description="Human-readable description")
-    dimensions: List[Dimension] = Field(..., description="List of dimensions in this schema")
+    description: str | None = Field(None, description="Human-readable description")
+    dimensions: list[Dimension] = Field(..., description="List of dimensions in this schema")
 
     @field_validator("name")
     @classmethod
@@ -214,7 +214,7 @@ class Schema(BaseModel):
             raise ValueError(f"Duplicate dimension names found: {set(duplicates)}")
         return self
 
-    def get_dimension(self, name: str) -> Optional[Dimension]:
+    def get_dimension(self, name: str) -> Dimension | None:
         """
         Get a dimension by name.
 
@@ -229,7 +229,7 @@ class Schema(BaseModel):
                 return dim
         return None
 
-    def validate_attributes(self, attributes: Dict[str, Any]) -> bool:
+    def validate_attributes(self, attributes: dict[str, Any]) -> bool:
         """
         Validate a dictionary of attributes against this schema.
 
@@ -249,11 +249,11 @@ class Schema(BaseModel):
 
         # Validate each provided attribute
         for attr_name, attr_value in attributes.items():
-            dimension = self.get_dimension(attr_name)
-            if dimension is None:
+            attr_dimension = self.get_dimension(attr_name)
+            if attr_dimension is None:
                 raise ValueError(
                     f"Attribute '{attr_name}' is not defined in schema '{self.name}'"
                 )
-            dimension.validate_value(attr_value)
+            attr_dimension.validate_value(attr_value)
 
         return True

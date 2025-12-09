@@ -7,7 +7,7 @@ and return a boolean result plus an explanation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from rulate.models.catalog import Item
 
@@ -20,7 +20,7 @@ class Operator(ABC):
     plus a human-readable explanation.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the operator with configuration.
 
@@ -30,7 +30,7 @@ class Operator(ABC):
         self.config = config
 
     @abstractmethod
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         """
         Evaluate the condition against two items.
 
@@ -61,7 +61,7 @@ class EqualsOperator(Operator):
         Returns True if both items have the same body_zone value
     """
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         field = self.config.get("field")
         if not field:
             return False, "No field specified for equals operator"
@@ -91,7 +91,7 @@ class HasDifferentOperator(Operator):
         Returns True if items have different layer values
     """
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         field = self.config.get("field")
         if not field:
             return False, "No field specified for has_different operator"
@@ -122,7 +122,7 @@ class AbsDiffOperator(Operator):
         Returns True if formality difference is <= 2
     """
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         field = self.config.get("field")
         max_diff = self.config.get("max")
 
@@ -161,7 +161,7 @@ class AnyEqualsOperator(Operator):
         Returns True if either item has season="all_season"
     """
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         field = self.config.get("field")
         target_value = self.config.get("value")
 
@@ -191,7 +191,7 @@ class AnyMissingOperator(Operator):
         Returns True if either item doesn't have a formality value
     """
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         field = self.config.get("field")
 
         if not field:
@@ -227,7 +227,7 @@ class AllOperator(Operator):
         # For AllOperator, config is a list of conditions
         self.conditions = config if isinstance(config, list) else []
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         if not self.conditions:
             return False, "No conditions specified for 'all' operator"
 
@@ -261,7 +261,7 @@ class AnyOperator(Operator):
         # For AnyOperator, config is a list of conditions
         self.conditions = config if isinstance(config, list) else []
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         if not self.conditions:
             return False, "No conditions specified for 'any' operator"
 
@@ -291,7 +291,7 @@ class NotOperator(Operator):
     def __init__(self, config: Any):
         self.condition = config
 
-    def evaluate(self, item1: Item, item2: Item) -> Tuple[bool, str]:
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
         if not self.condition:
             return False, "No condition specified for 'not' operator"
 
@@ -312,7 +312,7 @@ class ClusterOperator(ABC):
     and return a boolean result plus a human-readable explanation.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the operator with configuration.
 
@@ -325,7 +325,7 @@ class ClusterOperator(ABC):
             setattr(self, key, value)
 
     @abstractmethod
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         """
         Evaluate the condition against a list of items.
 
@@ -361,7 +361,7 @@ class MinClusterSizeOperator(ClusterOperator):
         else:
             self.value = config
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         cluster_size = len(items)
         result = cluster_size >= self.value
         if result:
@@ -390,7 +390,7 @@ class MaxClusterSizeOperator(ClusterOperator):
         else:
             self.value = config
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         cluster_size = len(items)
         result = cluster_size <= self.value
         if result:
@@ -411,7 +411,7 @@ class UniqueValuesOperator(ClusterOperator):
         Returns True if all items have different body_zone values
     """
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         field = getattr(self, "field", None)
         if not field:
             return False, "No field specified for unique_values operator"
@@ -446,7 +446,7 @@ class HasItemWithOperator(ClusterOperator):
         Returns True if at least one item has category="top"
     """
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         field = getattr(self, "field", None)
         value = getattr(self, "value", None)
 
@@ -478,7 +478,7 @@ class CountByFieldOperator(ClusterOperator):
         Returns True if cluster covers at least 3 different body zones
     """
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         field = getattr(self, "field", None)
         if not field:
             return False, "No field specified for count_by_field operator"
@@ -513,7 +513,7 @@ class FormalityRangeOperator(ClusterOperator):
         Returns True if formality levels differ by at most 1
     """
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         max_diff = getattr(self, "max_diff", None)
         if max_diff is None:
             return False, "No max_diff specified for formality_range operator"
@@ -561,7 +561,7 @@ class ClusterAllOperator(ClusterOperator):
     def __init__(self, config: Any):
         self.conditions = config if isinstance(config, list) else []
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         if not self.conditions:
             return False, "No conditions specified for 'all' operator"
 
@@ -592,7 +592,7 @@ class ClusterAnyOperator(ClusterOperator):
     def __init__(self, config: Any):
         self.conditions = config if isinstance(config, list) else []
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         if not self.conditions:
             return False, "No conditions specified for 'any' operator"
 
@@ -622,7 +622,7 @@ class ClusterNotOperator(ClusterOperator):
     def __init__(self, config: Any):
         self.condition = config
 
-    def evaluate(self, items: List[Item]) -> Tuple[bool, str]:
+    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
         if not self.condition:
             return False, "No condition specified for 'not' operator"
 

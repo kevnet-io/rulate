@@ -8,17 +8,12 @@ Tests cover all CLI commands:
 """
 
 import json
-from pathlib import Path
 
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from rulate.cli import evaluate, main, show, validate
-from rulate.models.catalog import Catalog, Item
-from rulate.models.cluster import ClusterRule, ClusterRuleSet
-from rulate.models.rule import Rule, RuleSet, RuleType
-from rulate.models.schema import Schema
 
 
 @pytest.fixture

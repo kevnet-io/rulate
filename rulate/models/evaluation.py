@@ -5,7 +5,7 @@ These models capture the results of evaluating item pairs against rules.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -60,17 +60,17 @@ class ComparisonResult(BaseModel):
     item1_id: str = Field(..., description="ID of the first item")
     item2_id: str = Field(..., description="ID of the second item")
     compatible: bool = Field(..., description="Whether the items are compatible")
-    rules_evaluated: List[RuleEvaluation] = Field(
+    rules_evaluated: list[RuleEvaluation] = Field(
         default_factory=list, description="Detailed results for each rule"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata (catalog, ruleset names, etc.)"
     )
     evaluated_at: datetime = Field(
         default_factory=datetime.now, description="Timestamp of evaluation"
     )
 
-    def get_failed_rules(self) -> List[RuleEvaluation]:
+    def get_failed_rules(self) -> list[RuleEvaluation]:
         """
         Get all rules that failed.
 
@@ -79,7 +79,7 @@ class ComparisonResult(BaseModel):
         """
         return [eval for eval in self.rules_evaluated if not eval.passed]
 
-    def get_passed_rules(self) -> List[RuleEvaluation]:
+    def get_passed_rules(self) -> list[RuleEvaluation]:
         """
         Get all rules that passed.
 
@@ -104,7 +104,7 @@ class ComparisonResult(BaseModel):
         summary += f"Rules: {passed_count}/{total_rules} passed"
 
         if failed_count > 0:
-            summary += f"\nFailed rules:"
+            summary += "\nFailed rules:"
             for eval in self.get_failed_rules():
                 summary += f"\n  - {eval.rule_name}: {eval.reason}"
 
@@ -136,7 +136,7 @@ class EvaluationMatrix(BaseModel):
     catalog_name: str = Field(..., description="Name of the catalog that was evaluated")
     ruleset_name: str = Field(..., description="Name of the ruleset that was used")
     schema_name: str = Field(..., description="Name of the schema")
-    results: List[ComparisonResult] = Field(
+    results: list[ComparisonResult] = Field(
         default_factory=list, description="All pairwise comparison results"
     )
     evaluated_at: datetime = Field(
@@ -161,15 +161,15 @@ class EvaluationMatrix(BaseModel):
                 return result
         return None
 
-    def get_compatible_pairs(self) -> List[ComparisonResult]:
+    def get_compatible_pairs(self) -> list[ComparisonResult]:
         """Get all compatible pairs."""
         return [result for result in self.results if result.compatible]
 
-    def get_incompatible_pairs(self) -> List[ComparisonResult]:
+    def get_incompatible_pairs(self) -> list[ComparisonResult]:
         """Get all incompatible pairs."""
         return [result for result in self.results if not result.compatible]
 
-    def get_compatible_items_for(self, item_id: str) -> List[str]:
+    def get_compatible_items_for(self, item_id: str) -> list[str]:
         """
         Get all items compatible with a specific item.
 
@@ -187,7 +187,7 @@ class EvaluationMatrix(BaseModel):
                 compatible.append(result.item1_id)
         return compatible
 
-    def get_summary_stats(self) -> Dict[str, Any]:
+    def get_summary_stats(self) -> dict[str, Any]:
         """
         Get summary statistics about the evaluation.
 

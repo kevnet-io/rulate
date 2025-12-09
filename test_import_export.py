@@ -4,8 +4,9 @@ Test script for import/export functionality.
 """
 
 import json
-import requests
 import time
+
+import requests
 
 BASE_URL = "http://localhost:8000/api/v1"
 
@@ -117,7 +118,7 @@ def test_export():
     response = requests.get(f"{BASE_URL}/export/all")
     if response.status_code == 200:
         data = response.json()
-        print(f"✓ Export all successful")
+        print("✓ Export all successful")
         print(f"  - Schemas: {len(data.get('schemas', []))}")
         print(f"  - RuleSets: {len(data.get('rulesets', []))}")
         print(f"  - Catalogs: {len(data.get('catalogs', []))}")
@@ -179,7 +180,7 @@ def test_import():
 
     # Test import all
     print("\nImporting all data...")
-    with open("/tmp/export_all.json", "r") as f:
+    with open("/tmp/export_all.json") as f:
         data = json.load(f)
 
     response = requests.post(
@@ -257,7 +258,7 @@ if __name__ == "__main__":
                 if response.status_code == 200:
                     print("✓ Server is ready")
                     break
-            except:
+            except Exception:  # Catch connection errors during startup
                 time.sleep(1)
         else:
             print("✗ Server not responding")

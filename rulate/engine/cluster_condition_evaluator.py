@@ -5,15 +5,15 @@ This module handles converting cluster condition dictionaries into cluster opera
 and evaluating them against lists of items (clusters).
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
-from rulate.engine.operators import CLUSTER_OPERATOR_REGISTRY
+from rulate.engine.operators import CLUSTER_OPERATOR_REGISTRY, ClusterOperator
 from rulate.models.catalog import Item
 
 
 def evaluate_cluster_condition(
-    condition: Dict[str, Any], items: List[Item]
-) -> Tuple[bool, str]:
+    condition: dict[str, Any], items: list[Item]
+) -> tuple[bool, str]:
     """
     Evaluate a cluster condition dictionary against a list of items.
 
@@ -43,7 +43,7 @@ def evaluate_cluster_condition(
     operator_config = condition[operator_name]
 
     # Look up operator class
-    operator_class = CLUSTER_OPERATOR_REGISTRY.get(operator_name)
+    operator_class: type[ClusterOperator] | None = CLUSTER_OPERATOR_REGISTRY.get(operator_name)
     if not operator_class:
         raise ValueError(
             f"Unknown cluster operator '{operator_name}'. "
@@ -58,7 +58,7 @@ def evaluate_cluster_condition(
         return False, f"Error evaluating {operator_name}: {str(e)}"
 
 
-def validate_cluster_condition(condition: Dict[str, Any]) -> bool:
+def validate_cluster_condition(condition: dict[str, Any]) -> bool:
     """
     Validate that a cluster condition has proper structure.
 

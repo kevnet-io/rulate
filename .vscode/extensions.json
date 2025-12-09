@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // Python
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "charliermarsh.ruff",
+
+    // Frontend
+    "svelte.svelte-vscode",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // General
+    "editorconfig.editorconfig",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+
+    // Testing
+    "ms-playwright.playwright",
+
+    // YAML/JSON
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml"
+  ],
+  "unwantedRecommendations": []
+}

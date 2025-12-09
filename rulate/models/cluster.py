@@ -7,7 +7,7 @@ and defining cluster-level rules that go beyond pairwise compatibility.
 
 import hashlib
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -36,11 +36,11 @@ class ClusterRule(BaseModel):
         ..., description="Whether this is a requirement or exclusion rule"
     )
     enabled: bool = Field(default=True, description="Whether this rule is active")
-    description: Optional[str] = Field(None, description="Human-readable description")
-    condition: Dict[str, Any] = Field(
+    description: str | None = Field(None, description="Human-readable description")
+    condition: dict[str, Any] = Field(
         ..., description="Condition tree using cluster-level operators"
     )
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
 
 class ClusterRuleSet(BaseModel):
@@ -67,15 +67,15 @@ class ClusterRuleSet(BaseModel):
     pairwise_ruleset_ref: str = Field(
         ..., description="Name of the pairwise RuleSet used for compatibility graph"
     )
-    rules: List[ClusterRule] = Field(default_factory=list, description="Cluster-level rules")
-    description: Optional[str] = Field(None, description="Human-readable description")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    rules: list[ClusterRule] = Field(default_factory=list, description="Cluster-level rules")
+    description: str | None = Field(None, description="Human-readable description")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
-    def get_requirement_rules(self) -> List[ClusterRule]:
+    def get_requirement_rules(self) -> list[ClusterRule]:
         """Get all enabled requirement rules."""
         return [rule for rule in self.rules if rule.type == "requirement" and rule.enabled]
 
-    def get_exclusion_rules(self) -> List[ClusterRule]:
+    def get_exclusion_rules(self) -> list[ClusterRule]:
         """Get all enabled exclusion rules."""
         return [rule for rule in self.rules if rule.type == "exclusion" and rule.enabled]
 
@@ -98,16 +98,16 @@ class Cluster(BaseModel):
     """
 
     id: str = Field(..., description="Unique cluster ID (hash of sorted item IDs)")
-    item_ids: List[str] = Field(..., description="Sorted list of item IDs in this cluster")
+    item_ids: list[str] = Field(..., description="Sorted list of item IDs in this cluster")
     size: int = Field(..., description="Number of items in cluster")
     is_maximal: bool = Field(
         ..., description="Whether this cluster cannot be extended with more items"
     )
     is_maximum: bool = Field(..., description="Whether this is one of the largest clusters")
-    rule_evaluations: List[RuleEvaluation] = Field(
+    rule_evaluations: list[RuleEvaluation] = Field(
         default_factory=list, description="Results of cluster rule evaluations"
     )
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     def contains_item(self, item_id: str) -> bool:
         """Check if this cluster contains a specific item."""
@@ -125,7 +125,7 @@ class Cluster(BaseModel):
         """Check if this cluster shares any items with another cluster."""
         return bool(set(self.item_ids) & set(other.item_ids))
 
-    def get_overlap_items(self, other: "Cluster") -> List[str]:
+    def get_overlap_items(self, other: "Cluster") -> list[str]:
         """Get items shared with another cluster."""
         return sorted(set(self.item_ids) & set(other.item_ids))
 
@@ -152,7 +152,7 @@ class ClusterRelationship(BaseModel):
     relationship_type: Literal["subset", "superset", "overlapping"] = Field(
         ..., description="Type of relationship"
     )
-    shared_items: List[str] = Field(
+    shared_items: list[str] = Field(
         default_factory=list, description="Items shared between clusters"
     )
     overlap_size: int = Field(..., description="Number of shared items")
@@ -180,10 +180,10 @@ class ClusterAnalysis(BaseModel):
     ruleset_name: str = Field(..., description="Name of the pairwise ruleset used")
     cluster_ruleset_name: str = Field(..., description="Name of the cluster ruleset used")
     schema_name: str = Field(..., description="Name of the schema")
-    clusters: List[Cluster] = Field(
+    clusters: list[Cluster] = Field(
         default_factory=list, description="All valid clusters (sorted by size descending)"
     )
-    relationships: List[ClusterRelationship] = Field(
+    relationships: list[ClusterRelationship] = Field(
         default_factory=list, description="Relationships between clusters"
     )
     evaluated_at: datetime = Field(
@@ -199,22 +199,22 @@ class ClusterAnalysis(BaseModel):
         0, description="Number of unique items in at least one cluster"
     )
 
-    def get_cluster_by_id(self, cluster_id: str) -> Optional[Cluster]:
+    def get_cluster_by_id(self, cluster_id: str) -> Cluster | None:
         """Get a cluster by its ID."""
         for cluster in self.clusters:
             if cluster.id == cluster_id:
                 return cluster
         return None
 
-    def get_clusters_containing_item(self, item_id: str) -> List[Cluster]:
+    def get_clusters_containing_item(self, item_id: str) -> list[Cluster]:
         """Get all clusters that contain a specific item."""
         return [cluster for cluster in self.clusters if cluster.contains_item(item_id)]
 
-    def get_maximum_clusters(self) -> List[Cluster]:
+    def get_maximum_clusters(self) -> list[Cluster]:
         """Get all clusters marked as maximum (largest size)."""
         return [cluster for cluster in self.clusters if cluster.is_maximum]
 
-    def get_relationships_for_cluster(self, cluster_id: str) -> List[ClusterRelationship]:
+    def get_relationships_for_cluster(self, cluster_id: str) -> list[ClusterRelationship]:
         """Get all relationships involving a specific cluster."""
         return [
             rel
@@ -222,7 +222,7 @@ class ClusterAnalysis(BaseModel):
             if rel.cluster_id == cluster_id or rel.related_cluster_id == cluster_id
         ]
 
-    def get_summary_stats(self) -> Dict[str, Any]:
+    def get_summary_stats(self) -> dict[str, Any]:
         """Get summary statistics about the analysis."""
         return {
             "total_clusters": self.total_clusters,
@@ -234,7 +234,7 @@ class ClusterAnalysis(BaseModel):
         }
 
 
-def generate_cluster_id(item_ids: List[str]) -> str:
+def generate_cluster_id(item_ids: list[str]) -> str:
     """
     Generate a deterministic ID from a list of item IDs.
 

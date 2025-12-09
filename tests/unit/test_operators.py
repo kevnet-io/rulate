@@ -5,7 +5,6 @@ This module tests all pairwise and cluster operators to ensure they correctly
 evaluate conditions and return appropriate results and explanations.
 """
 
-import pytest
 
 from rulate.engine.operators import (
     CLUSTER_OPERATOR_REGISTRY,
@@ -29,7 +28,6 @@ from rulate.engine.operators import (
     UniqueValuesOperator,
 )
 from rulate.models.catalog import Item
-
 
 # ============================================================================
 # Pairwise Operator Tests

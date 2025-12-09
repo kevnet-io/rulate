@@ -14,7 +14,6 @@ from rulate.engine.cluster_condition_evaluator import (
 from rulate.engine.condition_evaluator import evaluate_condition, validate_condition
 from rulate.models.catalog import Item
 
-
 # ============================================================================
 # Pairwise Condition Evaluator Tests
 # ============================================================================

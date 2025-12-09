@@ -5,7 +5,7 @@ These are distinct from the core rulate models and are used for API serializatio
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -16,16 +16,16 @@ class SchemaCreate(BaseModel):
 
     name: str
     version: str
-    description: Optional[str] = None
-    dimensions: List[Dict[str, Any]]
+    description: str | None = None
+    dimensions: list[dict[str, Any]]
 
 
 class SchemaUpdate(BaseModel):
     """Schema for updating an existing Schema."""
 
-    version: Optional[str] = None
-    description: Optional[str] = None
-    dimensions: Optional[List[Dict[str, Any]]] = None
+    version: str | None = None
+    description: str | None = None
+    dimensions: list[dict[str, Any]] | None = None
 
 
 class SchemaResponse(BaseModel):
@@ -34,8 +34,8 @@ class SchemaResponse(BaseModel):
     id: int
     name: str
     version: str
-    description: Optional[str]
-    dimensions: List[Dict[str, Any]]
+    description: str | None
+    dimensions: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 
@@ -49,17 +49,17 @@ class RuleSetCreate(BaseModel):
 
     name: str
     version: str
-    description: Optional[str] = None
+    description: str | None = None
     schema_name: str  # References schema by name
-    rules: List[Dict[str, Any]]
+    rules: list[dict[str, Any]]
 
 
 class RuleSetUpdate(BaseModel):
     """Schema for updating an existing RuleSet."""
 
-    version: Optional[str] = None
-    description: Optional[str] = None
-    rules: Optional[List[Dict[str, Any]]] = None
+    version: str | None = None
+    description: str | None = None
+    rules: list[dict[str, Any]] | None = None
 
 
 class RuleSetResponse(BaseModel):
@@ -68,9 +68,9 @@ class RuleSetResponse(BaseModel):
     id: int
     name: str
     version: str
-    description: Optional[str]
+    description: str | None
     schema_name: str
-    rules: List[Dict[str, Any]]
+    rules: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 
@@ -84,18 +84,18 @@ class ClusterRuleSetCreate(BaseModel):
 
     name: str
     version: str
-    description: Optional[str] = None
+    description: str | None = None
     schema_name: str  # References schema by name
     pairwise_ruleset_name: str  # References pairwise ruleset by name
-    rules: List[Dict[str, Any]]
+    rules: list[dict[str, Any]]
 
 
 class ClusterRuleSetUpdate(BaseModel):
     """Schema for updating an existing ClusterRuleSet."""
 
-    version: Optional[str] = None
-    description: Optional[str] = None
-    rules: Optional[List[Dict[str, Any]]] = None
+    version: str | None = None
+    description: str | None = None
+    rules: list[dict[str, Any]] | None = None
 
 
 class ClusterRuleSetResponse(BaseModel):
@@ -104,10 +104,10 @@ class ClusterRuleSetResponse(BaseModel):
     id: int
     name: str
     version: str
-    description: Optional[str]
+    description: str | None
     schema_name: str
     pairwise_ruleset_name: str
-    rules: List[Dict[str, Any]]
+    rules: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 
@@ -120,16 +120,16 @@ class CatalogCreate(BaseModel):
     """Schema for creating a new Catalog."""
 
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     schema_name: str  # References schema by name
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 class CatalogUpdate(BaseModel):
     """Schema for updating an existing Catalog."""
 
-    description: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    description: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class CatalogResponse(BaseModel):
@@ -137,9 +137,9 @@ class CatalogResponse(BaseModel):
 
     id: int
     name: str
-    description: Optional[str]
+    description: str | None
     schema_name: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     item_count: int
     created_at: datetime
     updated_at: datetime
@@ -154,16 +154,16 @@ class ItemCreate(BaseModel):
 
     item_id: str  # User-facing ID
     name: str
-    attributes: Dict[str, Any]
-    metadata: Optional[Dict[str, Any]] = None
+    attributes: dict[str, Any]
+    metadata: dict[str, Any] | None = None
 
 
 class ItemUpdate(BaseModel):
     """Schema for updating an existing Item."""
 
-    name: Optional[str] = None
-    attributes: Optional[Dict[str, Any]] = None
-    metadata: Optional[Dict[str, Any]] = None
+    name: str | None = None
+    attributes: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class ItemResponse(BaseModel):
@@ -172,8 +172,8 @@ class ItemResponse(BaseModel):
     id: int
     item_id: str
     name: str
-    attributes: Dict[str, Any]
-    metadata: Dict[str, Any]
+    attributes: dict[str, Any]
+    metadata: dict[str, Any]
     catalog_name: str
     created_at: datetime
     updated_at: datetime
@@ -215,23 +215,23 @@ class EvaluateClustersRequest(BaseModel):
     ruleset_name: str
     cluster_ruleset_name: str
     min_cluster_size: int = Field(default=2, ge=2)
-    max_clusters: Optional[int] = Field(default=None, ge=1)
+    max_clusters: int | None = Field(default=None, ge=1)
 
 
 # Import/Export models
 class ImportRequest(BaseModel):
     """Request schema for importing data."""
 
-    data: Dict[str, Any]
+    data: dict[str, Any]
     format: str = Field(default="yaml", pattern="^(yaml|json)$")
 
 
 class BulkImportRequest(BaseModel):
     """Request schema for bulk import."""
 
-    schemas: Optional[List[Dict[str, Any]]] = None
-    rulesets: Optional[List[Dict[str, Any]]] = None
-    catalogs: Optional[List[Dict[str, Any]]] = None
+    schemas: list[dict[str, Any]] | None = None
+    rulesets: list[dict[str, Any]] | None = None
+    catalogs: list[dict[str, Any]] | None = None
 
 
 # Generic response models
@@ -239,11 +239,11 @@ class MessageResponse(BaseModel):
     """Generic message response."""
 
     message: str
-    detail: Optional[str] = None
+    detail: str | None = None
 
 
 class ErrorResponse(BaseModel):
     """Error response."""
 
     error: str
-    detail: Optional[str] = None
+    detail: str | None = None

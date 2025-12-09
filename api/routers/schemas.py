@@ -2,7 +2,6 @@
 API endpoints for Schema management.
 """
 
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -80,7 +79,7 @@ def create_schema(schema_data: SchemaCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/schemas", response_model=List[SchemaResponse])
+@router.get("/schemas", response_model=list[SchemaResponse])
 def list_schemas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     List all schemas.

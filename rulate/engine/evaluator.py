@@ -6,12 +6,11 @@ applying rules, and generating comparison results.
 """
 
 from datetime import datetime
-from typing import List, Optional
 
 from rulate.engine.condition_evaluator import evaluate_condition
 from rulate.models.catalog import Catalog, Item
 from rulate.models.evaluation import ComparisonResult, EvaluationMatrix, RuleEvaluation
-from rulate.models.rule import Rule, RuleSet, RuleType
+from rulate.models.rule import RuleSet
 from rulate.models.schema import Schema
 
 
@@ -19,7 +18,7 @@ def evaluate_pair(
     item1: Item,
     item2: Item,
     ruleset: RuleSet,
-    schema: Optional[Schema] = None,
+    schema: Schema | None = None,
     validate_schema: bool = True,
 ) -> ComparisonResult:
     """
@@ -46,7 +45,7 @@ def evaluate_pair(
         except ValueError as e:
             raise ValueError(f"Schema validation failed: {e}")
 
-    rule_evaluations: List[RuleEvaluation] = []
+    rule_evaluations: list[RuleEvaluation] = []
 
     # Evaluate exclusion rules (any fail → incompatible)
     exclusion_passed = True
@@ -113,7 +112,7 @@ def evaluate_pair(
 def evaluate_matrix(
     catalog: Catalog,
     ruleset: RuleSet,
-    schema: Optional[Schema] = None,
+    schema: Schema | None = None,
     validate_schema: bool = True,
     include_self: bool = False,
 ) -> EvaluationMatrix:
@@ -136,7 +135,7 @@ def evaluate_matrix(
     if len(catalog.items) == 0:
         raise ValueError("Cannot evaluate empty catalog")
 
-    results: List[ComparisonResult] = []
+    results: list[ComparisonResult] = []
 
     # Generate all pairs (avoiding duplicates: only compare i with j where j > i)
     for i, item1 in enumerate(catalog.items):
@@ -161,9 +160,9 @@ def evaluate_item_against_catalog(
     item: Item,
     catalog: Catalog,
     ruleset: RuleSet,
-    schema: Optional[Schema] = None,
+    schema: Schema | None = None,
     validate_schema: bool = True,
-) -> List[ComparisonResult]:
+) -> list[ComparisonResult]:
     """
     Evaluate a single item against all items in a catalog.
 
@@ -180,7 +179,7 @@ def evaluate_item_against_catalog(
     Raises:
         ValueError: If schema validation fails
     """
-    results: List[ComparisonResult] = []
+    results: list[ComparisonResult] = []
 
     for other_item in catalog.items:
         if item.id == other_item.id:

@@ -40,6 +40,7 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "types-pyyaml",
+    "pre-commit>=3.0.0",
 ]
 
 [project.scripts]
@@ -65,6 +66,8 @@ target-version = ['py310']
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -73,7 +76,14 @@ select = [
     "N",  # pep8-naming
     "UP", # pyupgrade
 ]
-ignore = []
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow uppercase variable names in Bron-Kerbosch algorithm (standard notation)
+"rulate/engine/cluster_evaluator.py" = ["N803", "N806"]
+"tests/unit/test_cluster_evaluator.py" = ["N806"]
 
 [tool.mypy]
 python_version = "3.10"

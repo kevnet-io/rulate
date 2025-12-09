@@ -6,7 +6,6 @@ These functions handle converting Pydantic models back into file formats.
 
 import json
 from pathlib import Path
-from typing import Union
 
 import yaml
 
@@ -16,7 +15,7 @@ from rulate.models.rule import RuleSet
 from rulate.models.schema import Schema
 
 
-def export_to_yaml(obj: Union[Schema, RuleSet, Catalog], file_path: Union[str, Path]) -> None:
+def export_to_yaml(obj: Schema | RuleSet | Catalog, file_path: str | Path) -> None:
     """
     Export a model object to a YAML file.
 
@@ -47,12 +46,12 @@ def export_to_yaml(obj: Union[Schema, RuleSet, Catalog], file_path: Union[str, P
                 indent=2,
             )
     except Exception as e:
-        raise IOError(f"Failed to write YAML to {file_path}: {e}")
+        raise OSError(f"Failed to write YAML to {file_path}: {e}")
 
 
 def export_to_json(
-    obj: Union[Schema, RuleSet, Catalog, ComparisonResult, EvaluationMatrix],
-    file_path: Union[str, Path],
+    obj: Schema | RuleSet | Catalog | ComparisonResult | EvaluationMatrix,
+    file_path: str | Path,
     indent: int = 2,
 ) -> None:
     """
@@ -79,10 +78,10 @@ def export_to_json(
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=indent, ensure_ascii=False, default=str)
     except Exception as e:
-        raise IOError(f"Failed to write JSON to {file_path}: {e}")
+        raise OSError(f"Failed to write JSON to {file_path}: {e}")
 
 
-def to_yaml_string(obj: Union[Schema, RuleSet, Catalog]) -> str:
+def to_yaml_string(obj: Schema | RuleSet | Catalog) -> str:
     """
     Convert a model object to a YAML string.
 
@@ -103,7 +102,7 @@ def to_yaml_string(obj: Union[Schema, RuleSet, Catalog]) -> str:
 
 
 def to_json_string(
-    obj: Union[Schema, RuleSet, Catalog, ComparisonResult, EvaluationMatrix], indent: int = 2
+    obj: Schema | RuleSet | Catalog | ComparisonResult | EvaluationMatrix, indent: int = 2
 ) -> str:
     """
     Convert a model object to a JSON string.
@@ -123,7 +122,7 @@ def to_json_string(
     return json.dumps(data, indent=indent, ensure_ascii=False, default=str)
 
 
-def export_evaluation_matrix_to_csv(matrix: EvaluationMatrix, file_path: Union[str, Path]) -> None:
+def export_evaluation_matrix_to_csv(matrix: EvaluationMatrix, file_path: str | Path) -> None:
     """
     Export an evaluation matrix to CSV format.
 
@@ -144,11 +143,11 @@ def export_evaluation_matrix_to_csv(matrix: EvaluationMatrix, file_path: Union[s
     path.parent.mkdir(parents=True, exist_ok=True)
 
     # Collect all unique item IDs
-    item_ids = set()
+    item_ids_set = set()
     for result in matrix.results:
-        item_ids.add(result.item1_id)
-        item_ids.add(result.item2_id)
-    item_ids = sorted(item_ids)
+        item_ids_set.add(result.item1_id)
+        item_ids_set.add(result.item2_id)
+    item_ids = sorted(item_ids_set)
 
     # Build compatibility lookup
     compat_lookup = {}
@@ -171,8 +170,8 @@ def export_evaluation_matrix_to_csv(matrix: EvaluationMatrix, file_path: Union[s
                     if row_id == col_id:
                         row.append("1")  # Item is compatible with itself
                     else:
-                        value = compat_lookup.get((row_id, col_id), "")
+                        value = compat_lookup.get((row_id, col_id), 0)
                         row.append(str(value))
                 f.write(",".join(row) + "\n")
     except Exception as e:
-        raise IOError(f"Failed to write CSV to {file_path}: {e}")
+        raise OSError(f"Failed to write CSV to {file_path}: {e}")
