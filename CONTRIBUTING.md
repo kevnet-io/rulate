@@ -35,7 +35,7 @@ Rulate is a generic, programmable rule-based comparison engine. Before contribut
 
 - **Python 3.10+** (3.10, 3.11, or 3.12 recommended)
 - **Node.js 20+** (for web UI development)
-- **uv** (Python package installer) - Install: `pip install uv`
+- **uv** (Python package installer) - Install via [official guide](https://docs.astral.sh/uv/getting-started/installation/)
 - **Git**
 
 ### Initial Setup
@@ -58,11 +58,10 @@ This creates a virtual environment in `.venv/` and installs all dependencies.
 3. **Install pre-commit hooks (recommended):**
 
 ```bash
-pip install pre-commit
-pre-commit install
+uv run pre-commit install
 ```
 
-This automatically runs code quality checks before each commit.
+This automatically runs code quality checks before each commit. (pre-commit is already installed as a dev dependency via `uv sync --dev`)
 
 4. **Set up the web UI (if contributing to frontend):**
 
