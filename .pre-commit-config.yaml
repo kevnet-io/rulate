@@ -12,10 +12,10 @@ repos:
       - id: end-of-file-fixer
         exclude: ^web/
       - id: check-yaml
-        args: ['--safe']
+        args: ["--safe"]
       - id: check-json
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ["--maxkb=1000"]
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: mixed-line-ending
@@ -41,11 +41,10 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [
-          pydantic,
-          types-PyYAML,
-          sqlalchemy[mypy],
-        ]
+        additional_dependencies:
+          - pydantic
+          - types-PyYAML
+          - sqlalchemy[mypy]
         exclude: ^(web/|tests/)
         args: [--ignore-missing-imports]
 

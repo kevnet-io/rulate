@@ -5,15 +5,15 @@
   },
   "hooks": {
     "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cd \"${CLAUDE_PROJECT_DIR}\" && echo \"Running pre-commit checks...\" && uv run pre-commit run --all-files && echo \"✓ All pre-commit checks passed\"'"
-          }
-        ]
-      }
+      // {
+      //   "matcher": "",
+      //   "hooks": [
+      //     {
+      //       "type": "command",
+      //       "command": "bash -c 'cd \"${CLAUDE_PROJECT_DIR}\" && echo \"Running pre-commit checks...\" && uv run pre-commit run --all-files && echo \"✓ All pre-commit checks passed\"'"
+      //     }
+      //   ]
+      // }
     ]
   }
 }
