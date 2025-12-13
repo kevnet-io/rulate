@@ -1,0 +1,19 @@
+# Build outputs
+.svelte-kit/
+build/
+dist/
+
+# Coverage reports
+coverage/
+
+# Test reports
+playwright-report/
+test-results/
+
+# Dependencies
+node_modules/
+
+# Package manager
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
