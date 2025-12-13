@@ -219,7 +219,7 @@ mypy rulate
 
 - **[CLAUDE.md](CLAUDE.md)** - Development guide for contributors and Claude Code AI assistant
 - **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** - Complete technical specification of the current implementation
-- **[docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md)** - Enhancement backlog and nice-to-have features
+- **[docs/roadmap/](docs/roadmap/)** - Enhancement roadmap organized by epic
 - **[docs/UX_POLISH_SUMMARY.md](docs/UX_POLISH_SUMMARY.md)** - Comprehensive UX improvements and component documentation
 
 ## License
@@ -237,4 +237,4 @@ Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
 - Pull request process
 - How to report bugs and suggest features
 
-See [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for a prioritized list of enhancements we'd love help with!
+See [docs/roadmap/](docs/roadmap/) for a prioritized list of enhancements we'd love help with!

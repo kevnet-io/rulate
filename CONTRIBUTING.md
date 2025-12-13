@@ -26,7 +26,7 @@ Rulate is a generic, programmable rule-based comparison engine. Before contribut
 
 1. Read the [README.md](README.md) for project overview
 2. Review [docs/SPECIFICATION.md](docs/SPECIFICATION.md) for technical details
-3. Check [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for planned features
+3. Check [docs/roadmap/](docs/roadmap/) for planned features
 4. Browse existing [issues](https://github.com/kevnet-io/rulate/issues) and [pull requests](https://github.com/kevnet-io/rulate/pulls)
 
 ## Development Setup
@@ -439,7 +439,7 @@ Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md) to
 - Proposed solution
 - Alternatives considered
 
-Check [docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md) for features already on the roadmap.
+Check [docs/roadmap/](docs/roadmap/) for features already on the roadmap.
 
 ## Questions?
 

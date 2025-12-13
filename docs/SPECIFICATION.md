@@ -178,7 +178,7 @@ rulate/
 │   └── ORIGINAL_SPECIFICATION.md # Initial planning doc
 ├── README.md                 # User guide
 ├── SPECIFICATION.md          # This file
-├── FUTURE_TASKS.md          # Enhancement backlog
+├── roadmap/                 # Enhancement roadmap (by epic)
 └── pyproject.toml           # Package configuration
 ```
 
@@ -1104,5 +1104,5 @@ npm run test:e2e:ui              # E2E tests with UI
 - `docs/CLAUDE.md` - Development guide for contributors
 - `docs/UX_POLISH_SUMMARY.md` - Comprehensive UX improvements documentation
 - `docs/ORIGINAL_SPECIFICATION.md` - Initial planning document
-- `FUTURE_TASKS.md` - Enhancement backlog
+- `docs/roadmap/` - Enhancement roadmap organized by epic
 - `/docs` - Interactive API documentation (when server running)

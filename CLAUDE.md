@@ -389,4 +389,4 @@ items:
 - **Interactive Features**: Explorer with item compatibility checking, matrix visualization, import/export workflows
 - **Svelte 5 Compatibility**: Resolved SSR compilation issues, proper reactivity patterns
 
-See `docs/SPECIFICATION.md` for complete technical specifications and `docs/FUTURE_TASKS.md` for enhancement roadmap.
+See `docs/SPECIFICATION.md` for complete technical specifications and `docs/roadmap/` for the enhancement roadmap.
