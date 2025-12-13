@@ -71,9 +71,21 @@ def sample_catalog_file(tmp_path):
         "name": "test_catalog",
         "schema_ref": "test_schema",
         "items": [
-            {"id": "shirt_001", "name": "Blue Shirt", "attributes": {"category": "shirt", "color": "blue", "formality": 3}},
-            {"id": "pants_001", "name": "Black Pants", "attributes": {"category": "pants", "color": "black", "formality": 4}},
-            {"id": "shirt_002", "name": "Red Shirt", "attributes": {"category": "shirt", "color": "red", "formality": 2}},
+            {
+                "id": "shirt_001",
+                "name": "Blue Shirt",
+                "attributes": {"category": "shirt", "color": "blue", "formality": 3},
+            },
+            {
+                "id": "pants_001",
+                "name": "Black Pants",
+                "attributes": {"category": "pants", "color": "black", "formality": 4},
+            },
+            {
+                "id": "shirt_002",
+                "name": "Red Shirt",
+                "attributes": {"category": "shirt", "color": "red", "formality": 2},
+            },
         ],
     }
     catalog_file = tmp_path / "catalog.yaml"
@@ -156,9 +168,13 @@ class TestValidateRules:
         assert "Rules: 1" in result.output
         assert "different_categories (requirement, enabled)" in result.output
 
-    def test_validates_ruleset_with_schema(self, cli_runner, sample_ruleset_file, sample_schema_file):
+    def test_validates_ruleset_with_schema(
+        self, cli_runner, sample_ruleset_file, sample_schema_file
+    ):
         """validate rules command with --schema option."""
-        result = cli_runner.invoke(validate, ["rules", sample_ruleset_file, "--schema", sample_schema_file])
+        result = cli_runner.invoke(
+            validate, ["rules", sample_ruleset_file, "--schema", sample_schema_file]
+        )
         assert result.exit_code == 0
         assert "✓ RuleSet valid" in result.output
 
@@ -174,7 +190,9 @@ class TestValidateRules:
         with open(different_schema_file, "w") as f:
             yaml.dump(different_schema_dict, f)
 
-        result = cli_runner.invoke(validate, ["rules", sample_ruleset_file, "--schema", str(different_schema_file)])
+        result = cli_runner.invoke(
+            validate, ["rules", sample_ruleset_file, "--schema", str(different_schema_file)]
+        )
         assert result.exit_code == 0
         assert "⚠ Warning" in result.output
         assert "different_schema" in result.output
@@ -197,9 +215,13 @@ class TestValidateCatalog:
         assert "Schema: test_schema" in result.output
         assert "Items: 3" in result.output
 
-    def test_validates_catalog_with_schema(self, cli_runner, sample_catalog_file, sample_schema_file):
+    def test_validates_catalog_with_schema(
+        self, cli_runner, sample_catalog_file, sample_schema_file
+    ):
         """validate catalog command with --schema validates items."""
-        result = cli_runner.invoke(validate, ["catalog", sample_catalog_file, "--schema", sample_schema_file])
+        result = cli_runner.invoke(
+            validate, ["catalog", sample_catalog_file, "--schema", sample_schema_file]
+        )
         assert result.exit_code == 0
         assert "✓ Catalog valid" in result.output
         assert "Validating items against schema" in result.output
@@ -216,7 +238,9 @@ class TestValidateCatalog:
         with open(different_schema_file, "w") as f:
             yaml.dump(different_schema_dict, f)
 
-        result = cli_runner.invoke(validate, ["catalog", sample_catalog_file, "--schema", str(different_schema_file)])
+        result = cli_runner.invoke(
+            validate, ["catalog", sample_catalog_file, "--schema", str(different_schema_file)]
+        )
         assert "⚠ Warning" in result.output
         assert "different_schema" in result.output
 
@@ -234,7 +258,9 @@ class TestValidateCatalog:
         with open(invalid_catalog_file, "w") as f:
             yaml.dump(invalid_catalog_dict, f)
 
-        result = cli_runner.invoke(validate, ["catalog", str(invalid_catalog_file), "--schema", sample_schema_file])
+        result = cli_runner.invoke(
+            validate, ["catalog", str(invalid_catalog_file), "--schema", sample_schema_file]
+        )
         assert result.exit_code == 1
         assert "✗ invalid_001" in result.output
         assert "items failed validation" in result.output
@@ -695,9 +721,7 @@ class TestShowCatalog:
 
     def test_shows_catalog_table_format(self, cli_runner, sample_catalog_file):
         """show catalog command displays table format."""
-        result = cli_runner.invoke(
-            show, ["catalog", sample_catalog_file, "--format", "table"]
-        )
+        result = cli_runner.invoke(show, ["catalog", sample_catalog_file, "--format", "table"])
         assert result.exit_code == 0
         assert "shirt_001" in result.output
         assert "Blue Shirt" in result.output

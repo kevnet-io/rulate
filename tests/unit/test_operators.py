@@ -5,7 +5,6 @@ This module tests all pairwise and cluster operators to ensure they correctly
 evaluate conditions and return appropriate results and explanations.
 """
 
-
 from rulate.engine.operators import (
     CLUSTER_OPERATOR_REGISTRY,
     OPERATOR_REGISTRY,
@@ -283,7 +282,9 @@ class TestAllOperator:
 
     def test_returns_false_when_all_conditions_fail(self, item_blue_shirt, item_blue_pants):
         """Test all returns False when all sub-conditions fail."""
-        op = AllOperator([{"equals": {"field": "color"}}, {"has_different": {"field": "formality"}}])
+        op = AllOperator(
+            [{"equals": {"field": "color"}}, {"has_different": {"field": "formality"}}]
+        )
         result, explanation = op.evaluate(item_blue_shirt, item_blue_pants)
         assert result is False
 

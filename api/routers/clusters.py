@@ -83,8 +83,7 @@ def db_to_rulate_catalog(db_catalog: CatalogDB) -> Catalog:
 
 @router.post("/evaluate/clusters")
 def evaluate_clusters_endpoint(
-    request: EvaluateClustersRequest,
-    db: Session = Depends(get_db)
+    request: EvaluateClustersRequest, db: Session = Depends(get_db)
 ) -> dict[str, Any]:
     """
     Find all compatibility clusters in a catalog.
@@ -148,7 +147,9 @@ def evaluate_clusters_endpoint(
 # ClusterRuleSet CRUD endpoints
 
 
-@router.post("/cluster-rulesets", response_model=ClusterRuleSetResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/cluster-rulesets", response_model=ClusterRuleSetResponse, status_code=status.HTTP_201_CREATED
+)
 def create_cluster_ruleset(ruleset_data: ClusterRuleSetCreate, db: Session = Depends(get_db)):
     """Create a new cluster ruleset."""
     # Check if cluster ruleset with this name already exists
@@ -168,7 +169,9 @@ def create_cluster_ruleset(ruleset_data: ClusterRuleSetCreate, db: Session = Dep
         )
 
     # Find pairwise ruleset
-    pairwise_ruleset = db.query(RuleSetDB).filter(RuleSetDB.name == ruleset_data.pairwise_ruleset_name).first()
+    pairwise_ruleset = (
+        db.query(RuleSetDB).filter(RuleSetDB.name == ruleset_data.pairwise_ruleset_name).first()
+    )
     if not pairwise_ruleset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -225,11 +228,13 @@ def list_cluster_rulesets(skip: int = 0, limit: int = 100, db: Session = Depends
 @router.get("/cluster-rulesets/{cluster_ruleset_name}", response_model=ClusterRuleSetResponse)
 def get_cluster_ruleset(cluster_ruleset_name: str, db: Session = Depends(get_db)):
     """Get a cluster ruleset by name."""
-    cluster_ruleset = db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    cluster_ruleset = (
+        db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    )
     if not cluster_ruleset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found"
+            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found",
         )
 
     return ClusterRuleSetResponse(
@@ -247,16 +252,16 @@ def get_cluster_ruleset(cluster_ruleset_name: str, db: Session = Depends(get_db)
 
 @router.put("/cluster-rulesets/{cluster_ruleset_name}", response_model=ClusterRuleSetResponse)
 def update_cluster_ruleset(
-    cluster_ruleset_name: str,
-    ruleset_data: ClusterRuleSetUpdate,
-    db: Session = Depends(get_db)
+    cluster_ruleset_name: str, ruleset_data: ClusterRuleSetUpdate, db: Session = Depends(get_db)
 ):
     """Update a cluster ruleset."""
-    cluster_ruleset = db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    cluster_ruleset = (
+        db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    )
     if not cluster_ruleset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found"
+            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found",
         )
 
     # Update fields if provided
@@ -286,11 +291,13 @@ def update_cluster_ruleset(
 @router.delete("/cluster-rulesets/{cluster_ruleset_name}", response_model=MessageResponse)
 def delete_cluster_ruleset(cluster_ruleset_name: str, db: Session = Depends(get_db)):
     """Delete a cluster ruleset."""
-    cluster_ruleset = db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    cluster_ruleset = (
+        db.query(ClusterRuleSetDB).filter(ClusterRuleSetDB.name == cluster_ruleset_name).first()
+    )
     if not cluster_ruleset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found"
+            detail=f"ClusterRuleSet '{cluster_ruleset_name}' not found",
         )
 
     db.delete(cluster_ruleset)
@@ -298,5 +305,5 @@ def delete_cluster_ruleset(cluster_ruleset_name: str, db: Session = Depends(get_
 
     return MessageResponse(
         message="ClusterRuleSet deleted successfully",
-        detail=f"ClusterRuleSet '{cluster_ruleset_name}' has been deleted"
+        detail=f"ClusterRuleSet '{cluster_ruleset_name}' has been deleted",
     )

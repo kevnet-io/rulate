@@ -38,9 +38,7 @@ class Dimension(BaseModel):
     description: str | None = Field(None, description="Human-readable description")
 
     # For ENUM type
-    values: list[str] | None = Field(
-        None, description="Allowed values (required for ENUM type)"
-    )
+    values: list[str] | None = Field(None, description="Allowed values (required for ENUM type)")
 
     # For INTEGER/FLOAT types
     min: float | None = Field(None, description="Minimum value (for numeric types)")
@@ -114,7 +112,7 @@ class Dimension(BaseModel):
                 raise ValueError(f"Value {value} is above maximum {self.max} for '{self.name}'")
 
         elif self.type == DimensionType.FLOAT:
-            if not isinstance(value, (int, float)) or isinstance(value, bool):
+            if not isinstance(value, int | float) or isinstance(value, bool):
                 raise ValueError(f"Expected float for '{self.name}', got {type(value).__name__}")
             if self.min is not None and value < self.min:
                 raise ValueError(f"Value {value} is below minimum {self.min} for '{self.name}'")
@@ -127,7 +125,9 @@ class Dimension(BaseModel):
 
         elif self.type == DimensionType.ENUM:
             if not isinstance(value, str):
-                raise ValueError(f"Expected string for ENUM '{self.name}', got {type(value).__name__}")
+                raise ValueError(
+                    f"Expected string for ENUM '{self.name}', got {type(value).__name__}"
+                )
             if value not in self.values:  # type: ignore
                 raise ValueError(
                     f"Value '{value}' not in allowed values {self.values} for '{self.name}'"
@@ -149,7 +149,7 @@ class Dimension(BaseModel):
                         f"Item {i} in '{self.name}' should be integer, got {type(item).__name__}"
                     )
                 elif self.item_type == "float" and (
-                    not isinstance(item, (int, float)) or isinstance(item, bool)
+                    not isinstance(item, int | float) or isinstance(item, bool)
                 ):
                     raise ValueError(
                         f"Item {i} in '{self.name}' should be float, got {type(item).__name__}"
@@ -251,9 +251,7 @@ class Schema(BaseModel):
         for attr_name, attr_value in attributes.items():
             attr_dimension = self.get_dimension(attr_name)
             if attr_dimension is None:
-                raise ValueError(
-                    f"Attribute '{attr_name}' is not defined in schema '{self.name}'"
-                )
+                raise ValueError(f"Attribute '{attr_name}' is not defined in schema '{self.name}'")
             attr_dimension.validate_value(attr_value)
 
         return True

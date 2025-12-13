@@ -111,7 +111,9 @@ class TestEvaluatePair:
         assert result.rules_evaluated[0].passed is False
         assert "exceeds" in result.rules_evaluated[0].reason
 
-    def test_exclusion_rule_passed_field_logic(self, item_blue_shirt, item_blue_pants, simple_schema):
+    def test_exclusion_rule_passed_field_logic(
+        self, item_blue_shirt, item_blue_pants, simple_schema
+    ):
         """Test that exclusion rules have correct 'passed' field logic."""
         ruleset = RuleSet(
             name="test_rules",
@@ -134,7 +136,9 @@ class TestEvaluatePair:
         assert result.compatible is True
         assert result.rules_evaluated[0].passed is True
 
-    def test_requirement_rule_passed_field_logic(self, item_blue_shirt, item_red_shirt, simple_schema):
+    def test_requirement_rule_passed_field_logic(
+        self, item_blue_shirt, item_red_shirt, simple_schema
+    ):
         """Test that requirement rules have correct 'passed' field logic."""
         ruleset = RuleSet(
             name="test_rules",
@@ -187,8 +191,12 @@ class TestEvaluatePair:
 
     def test_validates_items_against_schema(self, simple_schema):
         """Test that schema validation is performed when provided."""
-        invalid_item = Item(id="invalid", name="Invalid", attributes={"category": "invalid_category"})
-        valid_item = Item(id="valid", name="Valid", attributes={"category": "shirt", "color": "blue"})
+        invalid_item = Item(
+            id="invalid", name="Invalid", attributes={"category": "invalid_category"}
+        )
+        valid_item = Item(
+            id="valid", name="Valid", attributes={"category": "shirt", "color": "blue"}
+        )
 
         ruleset = RuleSet(
             name="test_rules",
@@ -202,8 +210,12 @@ class TestEvaluatePair:
 
     def test_skips_schema_validation_when_disabled(self, simple_schema):
         """Test that schema validation can be disabled."""
-        invalid_item = Item(id="invalid", name="Invalid", attributes={"category": "invalid_category"})
-        valid_item = Item(id="valid", name="Valid", attributes={"category": "shirt", "color": "blue"})
+        invalid_item = Item(
+            id="invalid", name="Invalid", attributes={"category": "invalid_category"}
+        )
+        valid_item = Item(
+            id="valid", name="Valid", attributes={"category": "shirt", "color": "blue"}
+        )
 
         ruleset = RuleSet(
             name="test_rules",
@@ -213,7 +225,9 @@ class TestEvaluatePair:
         )
 
         # Should not raise error when validation disabled
-        result = evaluate_pair(invalid_item, valid_item, ruleset, simple_schema, validate_schema=False)
+        result = evaluate_pair(
+            invalid_item, valid_item, ruleset, simple_schema, validate_schema=False
+        )
         assert result is not None
 
     def test_skips_schema_validation_when_no_schema_provided(self, item_blue_shirt, item_red_shirt):
@@ -463,7 +477,9 @@ class TestEvaluateMatrix:
         )
 
         # Should not raise when validation disabled
-        matrix = evaluate_matrix(catalog_with_invalid, ruleset, simple_schema, validate_schema=False)
+        matrix = evaluate_matrix(
+            catalog_with_invalid, ruleset, simple_schema, validate_schema=False
+        )
         assert len(matrix.results) == 1  # 1 pair
 
     def test_applies_rules_to_all_pairs(self, simple_catalog, simple_schema):
@@ -553,7 +569,9 @@ class TestEvaluateItemAgainstCatalog:
             rules=[],
         )
 
-        results = evaluate_item_against_catalog(item_blue_shirt, simple_catalog, ruleset, simple_schema)
+        results = evaluate_item_against_catalog(
+            item_blue_shirt, simple_catalog, ruleset, simple_schema
+        )
 
         # Item compared against 5 catalog items, but should exclude itself
         # Blue shirt IS in the catalog, so 5 - 1 = 4 comparisons

@@ -50,9 +50,7 @@ def load_yaml_or_json(file_path: str | Path) -> dict[str, Any]:
                     raise ValueError(f"Expected dictionary in {file_path}, got {type(data)}")
                 return data
             else:
-                raise ValueError(
-                    f"Unsupported file format: {suffix}. Use .yaml, .yml, or .json"
-                )
+                raise ValueError(f"Unsupported file format: {suffix}. Use .yaml, .yml, or .json")
     except yaml.YAMLError as e:
         raise ValueError(f"Invalid YAML in {file_path}: {e}")
     except json.JSONDecodeError as e:

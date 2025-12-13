@@ -367,7 +367,9 @@ def import_schemas(
             try:
                 _ = RulateSchema(**schema_data)  # Validation only
             except Exception as e:
-                errors.append(f"Schema '{schema_data.get('name', 'unknown')}' validation failed: {str(e)}")
+                errors.append(
+                    f"Schema '{schema_data.get('name', 'unknown')}' validation failed: {str(e)}"
+                )
                 continue
 
             # Create database record
@@ -382,7 +384,9 @@ def import_schemas(
             imported += 1
 
         except Exception as e:
-            errors.append(f"Error importing schema '{schema_data.get('name', 'unknown')}': {str(e)}")
+            errors.append(
+                f"Error importing schema '{schema_data.get('name', 'unknown')}': {str(e)}"
+            )
 
     try:
         db.commit()
@@ -440,7 +444,9 @@ def import_rulesets(
             schema_ref = ruleset_data.get("schema_ref") or ruleset_data.get("schema_name")
             schema = db.query(SchemaDB).filter(SchemaDB.name == schema_ref).first()
             if not schema:
-                errors.append(f"Schema '{schema_ref}' not found for ruleset '{ruleset_data['name']}'")
+                errors.append(
+                    f"Schema '{schema_ref}' not found for ruleset '{ruleset_data['name']}'"
+                )
                 continue
 
             # Create database record
@@ -456,7 +462,9 @@ def import_rulesets(
             imported += 1
 
         except Exception as e:
-            errors.append(f"Error importing ruleset '{ruleset_data.get('name', 'unknown')}': {str(e)}")
+            errors.append(
+                f"Error importing ruleset '{ruleset_data.get('name', 'unknown')}': {str(e)}"
+            )
 
     try:
         db.commit()
@@ -518,7 +526,9 @@ def import_cluster_rulesets(
             schema_ref = cr_data.get("schema_ref") or cr_data.get("schema_name")
             schema = db.query(SchemaDB).filter(SchemaDB.name == schema_ref).first()
             if not schema:
-                errors.append(f"Schema '{schema_ref}' not found for cluster ruleset '{cr_data['name']}'")
+                errors.append(
+                    f"Schema '{schema_ref}' not found for cluster ruleset '{cr_data['name']}'"
+                )
                 continue
 
             # Find pairwise ruleset
@@ -607,7 +617,9 @@ def import_catalogs(
             schema_ref = catalog_data.get("schema_ref") or catalog_data.get("schema_name")
             schema = db.query(SchemaDB).filter(SchemaDB.name == schema_ref).first()
             if not schema:
-                errors.append(f"Schema '{schema_ref}' not found for catalog '{catalog_data['name']}'")
+                errors.append(
+                    f"Schema '{schema_ref}' not found for catalog '{catalog_data['name']}'"
+                )
                 continue
 
             # Create catalog
@@ -646,7 +658,9 @@ def import_catalogs(
             imported_catalogs += 1
 
         except Exception as e:
-            errors.append(f"Error importing catalog '{catalog_data.get('name', 'unknown')}': {str(e)}")
+            errors.append(
+                f"Error importing catalog '{catalog_data.get('name', 'unknown')}': {str(e)}"
+            )
 
     try:
         db.commit()
@@ -667,7 +681,9 @@ def import_catalogs(
 
 
 @router.post("/import/all", response_model=MessageResponse)
-def import_all(data: dict[str, Any], skip_existing: bool = False, db: Session = Depends(get_db)) -> MessageResponse:
+def import_all(
+    data: dict[str, Any], skip_existing: bool = False, db: Session = Depends(get_db)
+) -> MessageResponse:
     """
     Import all data types from a single JSON object.
 
@@ -702,7 +718,9 @@ def import_all(data: dict[str, Any], skip_existing: bool = False, db: Session = 
         results.append(f"RuleSets: {result.message}")
 
     if "cluster_rulesets" in data and data["cluster_rulesets"]:
-        result = import_cluster_rulesets(data["cluster_rulesets"], skip_existing=skip_existing, db=db)
+        result = import_cluster_rulesets(
+            data["cluster_rulesets"], skip_existing=skip_existing, db=db
+        )
         results.append(f"ClusterRuleSets: {result.message}")
 
     if "catalogs" in data and data["catalogs"]:

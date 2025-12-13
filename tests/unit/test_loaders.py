@@ -78,7 +78,11 @@ def valid_catalog_dict():
         "schema_ref": "test_schema",
         "items": [
             {"id": "item1", "name": "Item 1", "attributes": {"category": "shirt", "color": "blue"}},
-            {"id": "item2", "name": "Item 2", "attributes": {"category": "pants", "color": "black"}},
+            {
+                "id": "item2",
+                "name": "Item 2",
+                "attributes": {"category": "pants", "color": "black"},
+            },
         ],
     }
 

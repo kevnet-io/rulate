@@ -4,4 +4,4 @@
  */
 
 // Fixtures - Mock data builders for tests
-export * from './fixtures';
+export * from "./fixtures";

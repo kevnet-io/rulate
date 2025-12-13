@@ -24,7 +24,12 @@ def simple_schema():
         version="1.0.0",
         description="Test schema for unit tests",
         dimensions=[
-            {"name": "category", "type": "enum", "values": ["shirt", "pants", "shoes"], "required": True},
+            {
+                "name": "category",
+                "type": "enum",
+                "values": ["shirt", "pants", "shoes"],
+                "required": True,
+            },
             {"name": "color", "type": "string", "required": True},
             {"name": "size", "type": "string", "required": False},
             {"name": "formality", "type": "integer", "min": 1, "max": 5, "required": False},
@@ -190,13 +195,24 @@ def item_with_nulls():
 
 @pytest.fixture
 def simple_catalog(
-    simple_schema, item_blue_shirt, item_red_shirt, item_blue_pants, item_black_pants, item_brown_shoes
+    simple_schema,
+    item_blue_shirt,
+    item_red_shirt,
+    item_blue_pants,
+    item_black_pants,
+    item_brown_shoes,
 ):
     """Simple catalog with 5 items for testing."""
     return Catalog(
         name="test_catalog",
         schema_ref=simple_schema.name,
-        items=[item_blue_shirt, item_red_shirt, item_blue_pants, item_black_pants, item_brown_shoes],
+        items=[
+            item_blue_shirt,
+            item_red_shirt,
+            item_blue_pants,
+            item_black_pants,
+            item_brown_shoes,
+        ],
     )
 
 

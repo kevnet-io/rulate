@@ -96,9 +96,7 @@ def to_yaml_string(obj: Schema | RuleSet | Catalog) -> str:
         print(yaml_str)
     """
     data = obj.model_dump(mode="python", exclude_none=False)
-    return yaml.dump(
-        data, default_flow_style=False, sort_keys=False, allow_unicode=True, indent=2
-    )
+    return yaml.dump(data, default_flow_style=False, sort_keys=False, allow_unicode=True, indent=2)
 
 
 def to_json_string(

@@ -56,7 +56,9 @@ class TestEvaluateCondition:
 
     def test_evaluates_all_operator(self, item_blue_shirt, item_red_shirt):
         """Test evaluating an all (AND) logical operator."""
-        condition = {"all": [{"equals": {"field": "category"}}, {"has_different": {"field": "color"}}]}
+        condition = {
+            "all": [{"equals": {"field": "category"}}, {"has_different": {"field": "color"}}]
+        }
         result, explanation = evaluate_condition(condition, item_blue_shirt, item_red_shirt)
         assert result is True
 
@@ -77,7 +79,12 @@ class TestEvaluateCondition:
         condition = {
             "all": [
                 {"equals": {"field": "category"}},
-                {"any": [{"has_different": {"field": "color"}}, {"equals": {"field": "formality"}}]},
+                {
+                    "any": [
+                        {"has_different": {"field": "color"}},
+                        {"equals": {"field": "formality"}},
+                    ]
+                },
             ]
         }
         result, _ = evaluate_condition(condition, item_blue_shirt, item_red_shirt)
@@ -136,7 +143,9 @@ class TestValidateCondition:
 
     def test_validates_all_operator_with_sub_conditions(self):
         """Test validating an all operator with sub-conditions."""
-        condition = {"all": [{"equals": {"field": "category"}}, {"has_different": {"field": "color"}}]}
+        condition = {
+            "all": [{"equals": {"field": "category"}}, {"has_different": {"field": "color"}}]
+        }
         assert validate_condition(condition) is True
 
     def test_validates_any_operator_with_sub_conditions(self):
@@ -154,7 +163,12 @@ class TestValidateCondition:
         condition = {
             "all": [
                 {"equals": {"field": "category"}},
-                {"any": [{"has_different": {"field": "color"}}, {"not": {"equals": {"field": "size"}}}]},
+                {
+                    "any": [
+                        {"has_different": {"field": "color"}},
+                        {"not": {"equals": {"field": "size"}}},
+                    ]
+                },
             ]
         }
         assert validate_condition(condition) is True
@@ -278,7 +292,12 @@ class TestEvaluateClusterCondition:
         condition = {
             "all": [
                 {"min_cluster_size": 3},
-                {"any": [{"max_cluster_size": 5}, {"has_item_with": {"field": "category", "value": "shoes"}}]},
+                {
+                    "any": [
+                        {"max_cluster_size": 5},
+                        {"has_item_with": {"field": "category", "value": "shoes"}},
+                    ]
+                },
             ]
         }
         result, _ = evaluate_cluster_condition(condition, sample_items_list)
@@ -359,7 +378,12 @@ class TestValidateClusterCondition:
 
     def test_validates_cluster_any_operator_with_sub_conditions(self):
         """Test validating a cluster any operator with sub-conditions."""
-        condition = {"any": [{"min_cluster_size": 5}, {"has_item_with": {"field": "category", "value": "top"}}]}
+        condition = {
+            "any": [
+                {"min_cluster_size": 5},
+                {"has_item_with": {"field": "category", "value": "top"}},
+            ]
+        }
         assert validate_cluster_condition(condition) is True
 
     def test_validates_cluster_not_operator_with_sub_condition(self):

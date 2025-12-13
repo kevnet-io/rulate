@@ -18,6 +18,7 @@ The e2e test setup is fully automated! You don't need to manually start the API 
 ### Run E2E Tests
 
 The e2e test global setup automatically:
+
 - ✓ Clears the e2e database (`e2e_test.db`) for a fresh state
 - ✓ Starts the backend API server with the e2e database
 - ✓ Waits for the API server to be ready
@@ -25,11 +26,13 @@ The e2e test global setup automatically:
 - ✓ Starts the frontend dev server on `http://localhost:5173`
 
 **Run all tests:**
+
 ```bash
 npm run test:e2e
 ```
 
 **Run tests in specific browsers:**
+
 ```bash
 # Chromium only (fastest)
 npm run test:e2e -- --project=chromium
@@ -42,11 +45,13 @@ npm run test:e2e -- --project=webkit
 ```
 
 **Run specific test file:**
+
 ```bash
 npm run test:e2e -- rule-editor.spec.ts
 ```
 
 **Run specific test:**
+
 ```bash
 npm run test:e2e -- rule-editor.spec.ts:12
 ```
@@ -105,6 +110,7 @@ Playwright automatically starts the frontend dev server (`npm run dev`) on port 
 **Problem**: Tests timeout or API server fails to start
 
 **Solution**:
+
 1. Ensure all dependencies are installed:
    ```bash
    uv sync --dev
@@ -128,6 +134,7 @@ Playwright automatically starts the frontend dev server (`npm run dev`) on port 
 **Problem**: Setup fails at the "Seeding database" step
 
 **Solution**:
+
 1. Ensure all Python dependencies are installed:
    ```bash
    uv sync --dev
@@ -146,11 +153,13 @@ Playwright automatically starts the frontend dev server (`npm run dev`) on port 
 **Problem**: Tests pass sometimes but fail other times
 
 **Solution**: In CI, set `CI=true` environment variable to force fresh server:
+
 ```bash
 CI=true npm run test:e2e
 ```
 
 Locally, you can manually kill stale processes:
+
 ```bash
 lsof -ti:5173 | xargs kill -9
 npm run test:e2e
@@ -161,6 +170,7 @@ npm run test:e2e
 **Problem**: `Error: Port 5173 is in use`
 
 **Solution**: Kill any process using that port:
+
 ```bash
 # macOS/Linux
 lsof -ti:5173 | xargs kill -9
@@ -200,11 +210,12 @@ When adding new e2e tests:
 5. **Reference existing fixtures** - See `fixtures.ts` for mock data patterns
 
 Example:
-```typescript
-test('should create a schema', async ({ page }) => {
-  await page.goto('/schemas/new');
 
-  await page.fill('input[name="name"]', 'my_schema');
+```typescript
+test("should create a schema", async ({ page }) => {
+  await page.goto("/schemas/new");
+
+  await page.fill('input[name="name"]', "my_schema");
   await page.click('button:has-text("Create Schema")');
 
   await expect(page.locator('h1:has-text("my_schema")')).toBeVisible();
@@ -220,6 +231,7 @@ CI=true npm run test:e2e
 ```
 
 This ensures:
+
 - Fresh frontend server each run
 - No server reuse
 - Consistent test environment

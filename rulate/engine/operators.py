@@ -176,7 +176,10 @@ class AnyEqualsOperator(Operator):
         if value1 == target_value or value2 == target_value:
             return True, f"At least one item has {field}='{target_value}'"
         else:
-            return False, f"Neither item has {field}='{target_value}' (values: '{value1}', '{value2}')"
+            return (
+                False,
+                f"Neither item has {field}='{target_value}' (values: '{value1}', '{value2}')",
+            )
 
 
 class AnyMissingOperator(Operator):
@@ -536,9 +539,15 @@ class FormalityRangeOperator(ClusterOperator):
         result = diff <= max_diff
 
         if result:
-            return True, f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f}, max={max_diff})"
+            return (
+                True,
+                f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f}, max={max_diff})",
+            )
         else:
-            return False, f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f} exceeds max {max_diff})"
+            return (
+                False,
+                f"Formality range {min_val:.0f}-{max_val:.0f} (diff={diff:.0f} exceeds max {max_diff})",
+            )
 
 
 # Cluster Logical Operators

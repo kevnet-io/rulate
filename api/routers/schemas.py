@@ -2,7 +2,6 @@
 API endpoints for Schema management.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -43,9 +42,7 @@ def create_schema(schema_data: SchemaCreate, db: Session = Depends(get_db)):
             name=schema_data.name,
             version=schema_data.version,
             description=schema_data.description,
-            dimensions=[
-                {**dim} for dim in schema_data.dimensions
-            ],  # Convert to dict if needed
+            dimensions=[{**dim} for dim in schema_data.dimensions],  # Convert to dict if needed
         )
     except Exception as e:
         raise HTTPException(

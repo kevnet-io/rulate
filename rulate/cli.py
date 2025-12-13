@@ -80,7 +80,7 @@ def validate_rules(file: str, schema: str | None) -> None:
                 click.secho(
                     f"⚠ Warning: RuleSet references schema '{ruleset.schema_ref}' "
                     f"but provided schema is '{schema_obj.name}'",
-                    fg="yellow"
+                    fg="yellow",
                 )
 
         sys.exit(0)
@@ -107,7 +107,7 @@ def validate_catalog(file: str, schema: str | None) -> None:
                 click.secho(
                     f"⚠ Warning: Catalog references schema '{catalog.schema_ref}' "
                     f"but provided schema is '{schema_obj.name}'",
-                    fg="yellow"
+                    fg="yellow",
                 )
 
             # Validate all items against schema
@@ -151,7 +151,9 @@ def evaluate() -> None:
 @click.option("--rules", "-r", required=True, type=click.Path(exists=True), help="Rules file")
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
-def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, schema: str | None, format: str) -> None:
+def evaluate_pair_cmd(
+    item1_id: str, item2_id: str, catalog: str, rules: str, schema: str | None, format: str
+) -> None:
     """Evaluate compatibility between two items."""
     try:
         # Load files
@@ -182,7 +184,9 @@ def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, sc
             # Summary format
             status_color = "green" if result.compatible else "red"
             status_symbol = "✓" if result.compatible else "✗"
-            click.secho(f"\n{status_symbol} {item1.name} + {item2.name}", fg=status_color, bold=True)
+            click.secho(
+                f"\n{status_symbol} {item1.name} + {item2.name}", fg=status_color, bold=True
+            )
             click.echo(f"Compatible: {result.compatible}\n")
 
             click.echo("Rules evaluated:")
@@ -206,7 +210,9 @@ def evaluate_pair_cmd(item1_id: str, item2_id: str, catalog: str, rules: str, sc
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml", "csv"]), default="summary")
 @click.option("--output", "-o", type=click.Path(), help="Output file (default: stdout)")
-def evaluate_matrix_cmd(catalog: str, rules: str, schema: str | None, format: str, output: str | None) -> None:
+def evaluate_matrix_cmd(
+    catalog: str, rules: str, schema: str | None, format: str, output: str | None
+) -> None:
     """Generate compatibility matrix for all items in a catalog."""
     try:
         # Load files
@@ -216,10 +222,7 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: str | None, format: st
 
         # Evaluate
         progress_length = len(catalog_obj.items) * (len(catalog_obj.items) - 1) // 2
-        with click.progressbar(
-            length=progress_length,
-            label="Evaluating pairs"
-        ) as bar:
+        with click.progressbar(length=progress_length, label="Evaluating pairs") as bar:
             matrix = evaluate_matrix(catalog_obj, ruleset, schema_obj)
             bar.update(progress_length)
 
@@ -231,6 +234,7 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: str | None, format: st
         elif format == "csv":
             # Generate CSV matrix
             from io import StringIO
+
             csv_buffer = StringIO()
 
             # Get all item IDs
@@ -294,7 +298,9 @@ def evaluate_matrix_cmd(catalog: str, rules: str, schema: str | None, format: st
 @click.option("--rules", "-r", required=True, type=click.Path(exists=True), help="Rules file")
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
-def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: str | None, format: str) -> None:
+def evaluate_item_cmd(
+    item_id: str, catalog: str, rules: str, schema: str | None, format: str
+) -> None:
     """Find all items compatible with a specific item."""
     try:
         # Load files
@@ -313,9 +319,13 @@ def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: str | None
 
         # Output
         if format == "json":
-            click.echo(json.dumps([r.model_dump(mode="python") for r in results], indent=2, default=str))
+            click.echo(
+                json.dumps([r.model_dump(mode="python") for r in results], indent=2, default=str)
+            )
         elif format == "yaml":
-            click.echo(yaml.dump([r.model_dump(mode="python") for r in results], default_flow_style=False))
+            click.echo(
+                yaml.dump([r.model_dump(mode="python") for r in results], default_flow_style=False)
+            )
         else:
             # Summary format
             compatible = [r for r in results if r.compatible]
@@ -349,8 +359,12 @@ def evaluate_item_cmd(item_id: str, catalog: str, rules: str, schema: str | None
 
 @evaluate.command(name="clusters")
 @click.option("--catalog", "-c", required=True, type=click.Path(exists=True), help="Catalog file")
-@click.option("--rules", "-r", required=True, type=click.Path(exists=True), help="Pairwise rules file")
-@click.option("--cluster-rules", "-cr", required=True, type=click.Path(exists=True), help="Cluster rules file")
+@click.option(
+    "--rules", "-r", required=True, type=click.Path(exists=True), help="Pairwise rules file"
+)
+@click.option(
+    "--cluster-rules", "-cr", required=True, type=click.Path(exists=True), help="Cluster rules file"
+)
 @click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
 @click.option("--min-size", default=2, type=int, help="Minimum cluster size (default: 2)")
 @click.option("--max-clusters", type=int, help="Maximum number of clusters to return")
@@ -364,7 +378,7 @@ def evaluate_clusters_cmd(
     min_size: int,
     max_clusters: int | None,
     format: str,
-    output: str | None
+    output: str | None,
 ) -> None:
     """Find all compatible clusters (sets of items) in a catalog."""
     try:
@@ -382,7 +396,7 @@ def evaluate_clusters_cmd(
             cluster_ruleset,
             schema_obj,
             min_cluster_size=min_size,
-            max_clusters=max_clusters
+            max_clusters=max_clusters,
         )
 
         # Prepare output
@@ -398,16 +412,22 @@ def evaluate_clusters_cmd(
             output_lines.append(f"Found {analysis.total_clusters} cluster(s)")
 
             if analysis.total_clusters > 0:
-                output_lines.append(f"Cluster sizes: {analysis.min_cluster_size} - {analysis.max_cluster_size}")
+                output_lines.append(
+                    f"Cluster sizes: {analysis.min_cluster_size} - {analysis.max_cluster_size}"
+                )
                 output_lines.append(f"Average cluster size: {analysis.avg_cluster_size:.1f}")
-                output_lines.append(f"Items in clusters: {analysis.total_items_covered}/{len(catalog_obj.items)} ({analysis.total_items_covered/len(catalog_obj.items)*100:.1f}%)")
+                output_lines.append(
+                    f"Items in clusters: {analysis.total_items_covered}/{len(catalog_obj.items)} ({analysis.total_items_covered/len(catalog_obj.items)*100:.1f}%)"
+                )
                 output_lines.append(f"Relationships: {len(analysis.relationships)}")
                 output_lines.append("")
 
                 # Show maximum clusters
                 maximum_clusters = analysis.get_maximum_clusters()
                 if maximum_clusters:
-                    output_lines.append(f"Maximum Clusters ({len(maximum_clusters)} @ {maximum_clusters[0].size} items):")
+                    output_lines.append(
+                        f"Maximum Clusters ({len(maximum_clusters)} @ {maximum_clusters[0].size} items):"
+                    )
                     for i, cluster in enumerate(maximum_clusters[:3], 1):
                         output_lines.append(f"\n  Cluster #{i} (ID: {cluster.id[:8]}...)")
                         output_lines.append(f"  Items: {cluster.item_ids}")
@@ -434,18 +454,24 @@ def evaluate_clusters_cmd(
                             for rel in rels:
                                 rel_type = rel.relationship_type
                                 rel_summary[rel_type] = rel_summary.get(rel_type, 0) + 1
-                            rel_text = ", ".join(f"{count} {rel_type}" for rel_type, count in rel_summary.items())
+                            rel_text = ", ".join(
+                                f"{count} {rel_type}" for rel_type, count in rel_summary.items()
+                            )
                             output_lines.append(f"  Relationships: {rel_text}")
 
                     if len(maximum_clusters) > 3:
-                        output_lines.append(f"\n  ... and {len(maximum_clusters) - 3} more maximum clusters")
+                        output_lines.append(
+                            f"\n  ... and {len(maximum_clusters) - 3} more maximum clusters"
+                        )
 
                 # Show some smaller clusters
                 other_clusters = [c for c in analysis.clusters if not c.is_maximum]
                 if other_clusters:
                     output_lines.append(f"\n\nOther Clusters ({len(other_clusters)}):")
                     for cluster in other_clusters[:5]:
-                        output_lines.append(f"  - {cluster.size} items: {cluster.item_ids[:3]}{'...' if len(cluster.item_ids) > 3 else ''}")
+                        output_lines.append(
+                            f"  - {cluster.size} items: {cluster.item_ids[:3]}{'...' if len(cluster.item_ids) > 3 else ''}"
+                        )
                     if len(other_clusters) > 5:
                         output_lines.append(f"  ... and {len(other_clusters) - 5} more")
 
@@ -465,6 +491,7 @@ def evaluate_clusters_cmd(
         click.secho("✗ Cluster evaluation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
@@ -518,7 +545,9 @@ def show_schema(file: str, format: str) -> None:
 
 @show.command(name="catalog")
 @click.argument("file", type=click.Path(exists=True))
-@click.option("--format", type=click.Choice(["summary", "json", "yaml", "table"]), default="summary")
+@click.option(
+    "--format", type=click.Choice(["summary", "json", "yaml", "table"]), default="summary"
+)
 def show_catalog(file: str, format: str) -> None:
     """Display catalog information."""
     try:
@@ -537,7 +566,7 @@ def show_catalog(file: str, format: str) -> None:
             click.echo(f"{'ID':<20} {'Name':<30} {'Attributes':<30}")
             click.echo("-" * 80)
             for item in catalog.items:
-                attrs = ', '.join(f"{k}={v}" for k, v in list(item.attributes.items())[:3])
+                attrs = ", ".join(f"{k}={v}" for k, v in list(item.attributes.items())[:3])
                 if len(item.attributes) > 3:
                     attrs += "..."
                 click.echo(f"{item.id:<20} {item.name:<30} {attrs:<30}")

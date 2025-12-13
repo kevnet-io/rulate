@@ -11,9 +11,7 @@ from rulate.engine.operators import CLUSTER_OPERATOR_REGISTRY, ClusterOperator
 from rulate.models.catalog import Item
 
 
-def evaluate_cluster_condition(
-    condition: dict[str, Any], items: list[Item]
-) -> tuple[bool, str]:
+def evaluate_cluster_condition(condition: dict[str, Any], items: list[Item]) -> tuple[bool, str]:
     """
     Evaluate a cluster condition dictionary against a list of items.
 
@@ -35,9 +33,7 @@ def evaluate_cluster_condition(
 
     # Condition should have exactly one operator key
     if len(condition) > 1:
-        raise ValueError(
-            f"Condition must have exactly one operator, got {list(condition.keys())}"
-        )
+        raise ValueError(f"Condition must have exactly one operator, got {list(condition.keys())}")
 
     operator_name = list(condition.keys())[0]
     operator_config = condition[operator_name]

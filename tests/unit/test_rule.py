@@ -214,7 +214,11 @@ class TestRuleSet:
         """RuleSet can be created with all fields."""
         rules = [
             Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -263,7 +267,11 @@ class TestRuleSet:
         """get_rule() returns rule when name exists."""
         rules = [
             Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -285,9 +293,24 @@ class TestRuleSet:
     def test_get_active_rules_returns_only_enabled_rules(self):
         """get_active_rules() returns only enabled rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=True),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}, enabled=False),
-            Rule(name="rule3", type=RuleType.EXCLUSION, condition={"equals": {"field": "size"}}, enabled=True),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+                enabled=False,
+            ),
+            Rule(
+                name="rule3",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "size"}},
+                enabled=True,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -304,7 +327,12 @@ class TestRuleSet:
     def test_get_active_rules_returns_empty_list_when_all_disabled(self):
         """get_active_rules() returns empty list when all rules disabled."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=False),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=False,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -319,10 +347,30 @@ class TestRuleSet:
     def test_get_exclusion_rules_returns_only_exclusion_rules(self):
         """get_exclusion_rules() returns only active exclusion rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=True),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}, enabled=True),
-            Rule(name="rule3", type=RuleType.EXCLUSION, condition={"equals": {"field": "size"}}, enabled=True),
-            Rule(name="rule4", type=RuleType.EXCLUSION, condition={"equals": {"field": "category"}}, enabled=False),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule3",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "size"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule4",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "category"}},
+                enabled=False,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -339,10 +387,30 @@ class TestRuleSet:
     def test_get_requirement_rules_returns_only_requirement_rules(self):
         """get_requirement_rules() returns only active requirement rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=True),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}, enabled=True),
-            Rule(name="rule3", type=RuleType.REQUIREMENT, condition={"equals": {"field": "size"}}, enabled=True),
-            Rule(name="rule4", type=RuleType.REQUIREMENT, condition={"equals": {"field": "category"}}, enabled=False),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule3",
+                type=RuleType.REQUIREMENT,
+                condition={"equals": {"field": "size"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule4",
+                type=RuleType.REQUIREMENT,
+                condition={"equals": {"field": "category"}},
+                enabled=False,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -360,7 +428,12 @@ class TestRuleSet:
         """get_custom_rules() returns only active custom rules."""
         rules = [
             Rule(name="rule1", type=RuleType.CUSTOM, condition={"custom_op": {}}, enabled=True),
-            Rule(name="rule2", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}, enabled=True),
+            Rule(
+                name="rule2",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+                enabled=True,
+            ),
             Rule(name="rule3", type=RuleType.CUSTOM, condition={"custom_op": {}}, enabled=True),
             Rule(name="rule4", type=RuleType.CUSTOM, condition={"custom_op": {}}, enabled=False),
         ]
@@ -379,7 +452,12 @@ class TestRuleSet:
     def test_get_exclusion_rules_returns_empty_list_when_none(self):
         """get_exclusion_rules() returns empty list when no exclusion rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.REQUIREMENT, condition={"abs_diff": {"field": "formality", "max": 1}}, enabled=True),
+            Rule(
+                name="rule1",
+                type=RuleType.REQUIREMENT,
+                condition={"abs_diff": {"field": "formality", "max": 1}},
+                enabled=True,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -394,7 +472,12 @@ class TestRuleSet:
     def test_get_requirement_rules_returns_empty_list_when_none(self):
         """get_requirement_rules() returns empty list when no requirement rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=True),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=True,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -409,7 +492,12 @@ class TestRuleSet:
     def test_get_custom_rules_returns_empty_list_when_none(self):
         """get_custom_rules() returns empty list when no custom rules."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "color"}}, enabled=True),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "color"}},
+                enabled=True,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -428,9 +516,24 @@ class TestRuleSetIntegration:
     def test_filtering_preserves_rule_order(self):
         """Rule filtering methods preserve original order."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "a"}}, enabled=True),
-            Rule(name="rule2", type=RuleType.EXCLUSION, condition={"equals": {"field": "b"}}, enabled=True),
-            Rule(name="rule3", type=RuleType.EXCLUSION, condition={"equals": {"field": "c"}}, enabled=True),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "a"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule2",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "b"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule3",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "c"}},
+                enabled=True,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",
@@ -445,10 +548,30 @@ class TestRuleSetIntegration:
     def test_mixed_enabled_states_filter_correctly(self):
         """Rules with mixed enabled states filter correctly."""
         rules = [
-            Rule(name="rule1", type=RuleType.EXCLUSION, condition={"equals": {"field": "a"}}, enabled=True),
-            Rule(name="rule2", type=RuleType.EXCLUSION, condition={"equals": {"field": "b"}}, enabled=False),
-            Rule(name="rule3", type=RuleType.REQUIREMENT, condition={"equals": {"field": "c"}}, enabled=True),
-            Rule(name="rule4", type=RuleType.REQUIREMENT, condition={"equals": {"field": "d"}}, enabled=False),
+            Rule(
+                name="rule1",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "a"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule2",
+                type=RuleType.EXCLUSION,
+                condition={"equals": {"field": "b"}},
+                enabled=False,
+            ),
+            Rule(
+                name="rule3",
+                type=RuleType.REQUIREMENT,
+                condition={"equals": {"field": "c"}},
+                enabled=True,
+            ),
+            Rule(
+                name="rule4",
+                type=RuleType.REQUIREMENT,
+                condition={"equals": {"field": "d"}},
+                enabled=False,
+            ),
         ]
         ruleset = RuleSet(
             name="test_ruleset",

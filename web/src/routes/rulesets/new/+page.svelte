@@ -77,7 +77,7 @@
 		try {
 			const condition = value.trim() ? JSON.parse(value) : {};
 			updateRule(index, { condition });
-		} catch (err) {
+		} catch {
 			// Invalid JSON, keep text but don't update condition
 		}
 	}

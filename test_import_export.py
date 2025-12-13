@@ -97,9 +97,7 @@ def create_test_data():
     ]
 
     for item in items:
-        response = requests.post(
-            f"{BASE_URL}/catalogs/test_catalog/items", json=item
-        )
+        response = requests.post(f"{BASE_URL}/catalogs/test_catalog/items", json=item)
         if response.status_code == 201:
             print(f"✓ Created item: {item['item_id']}")
         else:
@@ -183,9 +181,7 @@ def test_import():
     with open("/tmp/export_all.json") as f:
         data = json.load(f)
 
-    response = requests.post(
-        f"{BASE_URL}/import/all?skip_existing=false", json=data
-    )
+    response = requests.post(f"{BASE_URL}/import/all?skip_existing=false", json=data)
     if response.status_code == 200:
         result = response.json()
         print(f"✓ Import all successful: {result['message']}")
@@ -226,9 +222,7 @@ def test_import():
 
     # Test skip_existing flag
     print("\nTesting skip_existing flag...")
-    response = requests.post(
-        f"{BASE_URL}/import/all?skip_existing=true", json=data
-    )
+    response = requests.post(f"{BASE_URL}/import/all?skip_existing=true", json=data)
     if response.status_code == 200:
         result = response.json()
         print(f"✓ Import with skip_existing=true successful: {result['message']}")

@@ -32,10 +32,24 @@ def cluster_compatible_catalog():
         name="cluster_catalog",
         schema_ref="test_schema",
         items=[
-            Item(id="i1", name="I1", attributes={"category": "shirt", "color": "blue", "formality": 2}),
-            Item(id="i2", name="I2", attributes={"category": "pants", "color": "blue", "formality": 2}),
-            Item(id="i3", name="I3", attributes={"category": "shoes", "color": "brown", "formality": 2}),
-            Item(id="i4", name="I4", attributes={"category": "shirt", "color": "red", "formality": 3}),
+            Item(
+                id="i1",
+                name="I1",
+                attributes={"category": "shirt", "color": "blue", "formality": 2},
+            ),
+            Item(
+                id="i2",
+                name="I2",
+                attributes={"category": "pants", "color": "blue", "formality": 2},
+            ),
+            Item(
+                id="i3",
+                name="I3",
+                attributes={"category": "shoes", "color": "brown", "formality": 2},
+            ),
+            Item(
+                id="i4", name="I4", attributes={"category": "shirt", "color": "red", "formality": 3}
+            ),
         ],
     )
 

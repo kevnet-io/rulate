@@ -2,7 +2,6 @@
 API endpoints for RuleSet management.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -98,9 +97,7 @@ def get_ruleset(ruleset_name: str, db: Session = Depends(get_db)):
 
 
 @router.put("/rulesets/{ruleset_name}", response_model=RuleSetResponse)
-def update_ruleset(
-    ruleset_name: str, ruleset_data: RuleSetUpdate, db: Session = Depends(get_db)
-):
+def update_ruleset(ruleset_name: str, ruleset_data: RuleSetUpdate, db: Session = Depends(get_db)):
     """Update a ruleset."""
     ruleset = db.query(RuleSetDB).filter(RuleSetDB.name == ruleset_name).first()
     if not ruleset:

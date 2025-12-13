@@ -2,7 +2,6 @@
 API endpoints for Catalog and Item management.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -178,9 +177,7 @@ def create_item(catalog_name: str, item_data: ItemCreate, db: Session = Depends(
 
 
 @router.get("/catalogs/{catalog_name}/items", response_model=list[ItemResponse])
-def list_items(
-    catalog_name: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-):
+def list_items(catalog_name: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List all items in a catalog."""
     catalog = db.query(CatalogDB).filter(CatalogDB.name == catalog_name).first()
     if not catalog:
@@ -188,9 +185,7 @@ def list_items(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Catalog '{catalog_name}' not found"
         )
 
-    items = (
-        db.query(ItemDB).filter(ItemDB.catalog_id == catalog.id).offset(skip).limit(limit).all()
-    )
+    items = db.query(ItemDB).filter(ItemDB.catalog_id == catalog.id).offset(skip).limit(limit).all()
 
     return [
         ItemResponse(
@@ -217,9 +212,7 @@ def get_item(catalog_name: str, item_id: str, db: Session = Depends(get_db)):
         )
 
     item = (
-        db.query(ItemDB)
-        .filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id)
-        .first()
+        db.query(ItemDB).filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id).first()
     )
     if not item:
         raise HTTPException(
@@ -250,9 +243,7 @@ def update_item(
         )
 
     item = (
-        db.query(ItemDB)
-        .filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id)
-        .first()
+        db.query(ItemDB).filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id).first()
     )
     if not item:
         raise HTTPException(
@@ -291,9 +282,7 @@ def delete_item(catalog_name: str, item_id: str, db: Session = Depends(get_db)):
         )
 
     item = (
-        db.query(ItemDB)
-        .filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id)
-        .first()
+        db.query(ItemDB).filter(ItemDB.catalog_id == catalog.id, ItemDB.item_id == item_id).first()
     )
     if not item:
         raise HTTPException(

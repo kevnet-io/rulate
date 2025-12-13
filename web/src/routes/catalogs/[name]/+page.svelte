@@ -16,7 +16,7 @@
 
 	let catalog = $state<Catalog | null>(null);
 	let items = $state<Item[]>([]);
-	let schema = $state<Schema | null>(null);
+	let _schema = $state<Schema | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let showDeleteModal = $state(false);
@@ -32,7 +32,7 @@
 			catalog = await api.getCatalog(catalogName);
 			items = await api.getItems(catalogName);
 			if (catalog) {
-				schema = await api.getSchema(catalog.schema_name);
+				_schema = await api.getSchema(catalog.schema_name);
 			}
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load catalog';

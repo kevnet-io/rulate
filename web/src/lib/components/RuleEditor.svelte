@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ALL_OPERATORS, type OperatorMetadata, getOperatorsByCategory } from '$lib/data/operators';
+	import { ALL_OPERATORS, type OperatorMetadata } from '$lib/data/operators';
 	import {
 		RULE_TEMPLATES,
 		CLUSTER_TEMPLATES,
@@ -59,7 +59,6 @@
 
 		// 3. Check if cursor is inside an array of a logical operator
 		const beforeCursor = textValue.slice(0, cursorPos);
-		const afterCursor = textValue.slice(cursorPos);
 
 		// Count brackets to determine if we're inside an array
 		const openBrackets = (beforeCursor.match(/\[/g) || []).length;
@@ -369,7 +368,7 @@
 			} else {
 				toastStore.info('JSON is already formatted');
 			}
-		} catch (e) {
+		} catch {
 			// Show error message to user
 			toastStore.error('Invalid JSON: Cannot format');
 		}

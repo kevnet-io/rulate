@@ -127,8 +127,11 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 # Install dependencies
 uv sync --dev
 
-# Install pre-commit hooks (recommended)
+# Install pre-commit hooks (REQUIRED before committing)
 uv run pre-commit install
+
+# Install frontend dependencies
+cd web && npm install
 ```
 
 This command:
@@ -136,6 +139,16 @@ This command:
 - Installs all project dependencies
 - Installs all dev dependencies (pytest, black, ruff, mypy, pre-commit, etc.)
 - Sets up pre-commit hooks to automatically run code quality checks before each commit
+- Installs frontend dependencies for ESLint and testing
+
+**IMPORTANT:** Always run pre-commit checks before committing:
+```bash
+# Run all pre-commit checks
+uv run pre-commit run --all-files
+
+# Or let git commit trigger them automatically
+git commit
+```
 
 ### Testing
 ```bash
@@ -160,24 +173,40 @@ pytest
 
 ### Code Quality
 ```bash
-# Run all pre-commit hooks on all files (recommended)
+# ALWAYS run all pre-commit hooks before committing
 uv run pre-commit run --all-files
 
-# Or run individual tools manually:
+# Pre-commit runs:
+# - Python: black (formatting), ruff (linting), mypy (type checking - core only)
+# - Frontend: prettier (formatting), ESLint (linting)
+# - General: YAML/JSON validation, trailing whitespace, end-of-file fixes
 
-# Format code
+# Or run individual tools manually:
+# Python formatting
 uv run black .
 
-# Lint
+# Python linting
 uv run ruff check .
 
-# Type check
+# Python type checking (core only - API excluded due to SQLAlchemy typing complexity)
 uv run mypy rulate
+
+# Frontend linting
+cd web && npm run lint
+
+# Frontend tests
+cd web && npm test
 ```
 
-**Note:** If you've installed pre-commit hooks, these checks run automatically on `git commit`.
+**IMPORTANT:**
+- Pre-commit hooks are REQUIRED before committing. They will run automatically on `git commit`.
+- If you bypass hooks with `--no-verify`, CI will fail.
+- The `.claude/settings.json` file includes a Stop hook for automated pre-commit checking.
 
-**Claude Code Integration:** The `.claude/settings.json` file configures a Stop hook that runs pre-commit checks automatically when Claude finishes making changes, providing immediate feedback on code quality.
+**Type Checking Note:**
+- Core engine (`rulate/`) is fully type-checked with mypy
+- API layer (`api/`) is temporarily excluded from mypy due to SQLAlchemy Column typing complexity
+- This is pragmatic - the core business logic is type-safe while the API layer needs future improvements
 
 ### Running the API
 ```bash

@@ -34,9 +34,7 @@ def evaluate_condition(condition: dict[str, Any], item1: Item, item2: Item) -> t
 
     # Condition should have exactly one operator key
     if len(condition) > 1:
-        raise ValueError(
-            f"Condition must have exactly one operator, got {list(condition.keys())}"
-        )
+        raise ValueError(f"Condition must have exactly one operator, got {list(condition.keys())}")
 
     operator_name = list(condition.keys())[0]
     operator_config = condition[operator_name]
@@ -45,8 +43,7 @@ def evaluate_condition(condition: dict[str, Any], item1: Item, item2: Item) -> t
     operator_class: type[Operator] | None = OPERATOR_REGISTRY.get(operator_name)
     if not operator_class:
         raise ValueError(
-            f"Unknown operator '{operator_name}'. "
-            f"Available: {list(OPERATOR_REGISTRY.keys())}"
+            f"Unknown operator '{operator_name}'. " f"Available: {list(OPERATOR_REGISTRY.keys())}"
         )
 
     # Create operator instance and evaluate
@@ -82,8 +79,7 @@ def validate_condition(condition: dict[str, Any]) -> bool:
     operator_name = list(condition.keys())[0]
     if operator_name not in OPERATOR_REGISTRY:
         raise ValueError(
-            f"Unknown operator '{operator_name}'. "
-            f"Available: {list(OPERATOR_REGISTRY.keys())}"
+            f"Unknown operator '{operator_name}'. " f"Available: {list(OPERATOR_REGISTRY.keys())}"
         )
 
     # For logical operators, recursively validate sub-conditions

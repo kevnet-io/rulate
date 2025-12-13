@@ -13,7 +13,6 @@
 	import CardDescription from '$lib/components/ui/card/card-description.svelte';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';

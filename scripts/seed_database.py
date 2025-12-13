@@ -53,14 +53,12 @@ def seed_database(api_url: str, examples_dir: Path):
         "name": schema_data["name"],
         "version": schema_data["version"],
         "description": schema_data.get("description"),
-        "dimensions": schema_data["dimensions"]
+        "dimensions": schema_data["dimensions"],
     }
 
     try:
         response = httpx.post(
-            f"{api_url}/schemas",
-            json=schema_payload,
-            headers={"Content-Type": "application/json"}
+            f"{api_url}/schemas", json=schema_payload, headers={"Content-Type": "application/json"}
         )
         if response.status_code == 201:
             print(f"   ✓ Created schema: {schema_data['name']}")
@@ -81,14 +79,14 @@ def seed_database(api_url: str, examples_dir: Path):
         "version": rules_data["version"],
         "description": rules_data.get("description"),
         "schema_name": rules_data["schema_ref"],
-        "rules": rules_data["rules"]
+        "rules": rules_data["rules"],
     }
 
     try:
         response = httpx.post(
             f"{api_url}/rulesets",
             json=ruleset_payload,
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code == 201:
             print(f"   ✓ Created ruleset: {rules_data['name']}")
@@ -110,14 +108,14 @@ def seed_database(api_url: str, examples_dir: Path):
         "description": cluster_rules_data.get("description"),
         "schema_name": cluster_rules_data["schema_ref"],
         "pairwise_ruleset_name": cluster_rules_data["pairwise_ruleset_ref"],
-        "rules": cluster_rules_data["rules"]
+        "rules": cluster_rules_data["rules"],
     }
 
     try:
         response = httpx.post(
             f"{api_url}/cluster-rulesets",
             json=cluster_ruleset_payload,
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code == 201:
             print(f"   ✓ Created cluster ruleset: {cluster_rules_data['name']}")
@@ -137,14 +135,14 @@ def seed_database(api_url: str, examples_dir: Path):
         "name": catalog_data["name"],
         "description": catalog_data.get("description"),
         "schema_name": catalog_data["schema_ref"],
-        "metadata": catalog_data.get("metadata", {})
+        "metadata": catalog_data.get("metadata", {}),
     }
 
     try:
         response = httpx.post(
             f"{api_url}/catalogs",
             json=catalog_payload,
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code == 201:
             print(f"   ✓ Created catalog: {catalog_data['name']}")
@@ -173,14 +171,14 @@ def seed_database(api_url: str, examples_dir: Path):
             "item_id": item_data["id"],
             "name": item_data["name"],
             "attributes": item_data["attributes"],
-            "metadata": item_data.get("metadata", {})
+            "metadata": item_data.get("metadata", {}),
         }
 
         try:
             response = httpx.post(
                 f"{api_url}/catalogs/{catalog_data['name']}/items",
                 json=item_payload,
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
             if response.status_code == 201:
                 items_created += 1
@@ -206,13 +204,13 @@ def main():
     parser.add_argument(
         "--api-url",
         default="http://localhost:8000/api/v1",
-        help="Base URL of the Rulate API (default: http://localhost:8000/api/v1)"
+        help="Base URL of the Rulate API (default: http://localhost:8000/api/v1)",
     )
     parser.add_argument(
         "--examples-dir",
         type=Path,
         default=Path(__file__).parent.parent / "examples" / "wardrobe",
-        help="Path to examples directory (default: examples/wardrobe)"
+        help="Path to examples directory (default: examples/wardrobe)",
     )
 
     args = parser.parse_args()

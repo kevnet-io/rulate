@@ -53,6 +53,7 @@ npm run test:e2e:debug
 ```
 
 **Test Coverage**: 671 tests with 100% coverage on production TypeScript code
+
 - **Unit Tests**: 22 test files covering API client, components, pages, and form logic
 - **E2E Tests**: 72 tests across 3 browsers validating critical user workflows
 - **Test Infrastructure**: Vitest 4.0, Playwright for E2E, happy-dom environment for Svelte 5
@@ -99,28 +100,33 @@ uv run uvicorn api.main:app --reload --port 8000
 ## Features by Page
 
 ### Dashboard (/)
+
 - Overview cards for schemas, rulesets, and catalogs
 - Quick stats and recent items
 - Quick action links
 
 ### Schemas (/schemas)
+
 - List all schemas with dimension counts
 - View schema details with full dimension specifications
 - Delete schemas
 
 ### RuleSets (/rulesets)
+
 - List all rulesets with rule counts
 - View ruleset details with formatted conditions
 - See exclusion vs requirement rules
 - Delete rulesets
 
 ### Catalogs (/catalogs)
+
 - List all catalogs
 - View catalog items with attributes
 - Browse item details
 - Delete catalogs and items
 
 ### Matrix (/matrix)
+
 - Select catalog and ruleset
 - Generate compatibility matrix
 - Visual grid with color coding (green=compatible, red=incompatible)
@@ -130,6 +136,7 @@ uv run uvicorn api.main:app --reload --port 8000
 ## Styling
 
 The UI uses a custom color system based on CSS variables defined in `app.css`:
+
 - Primary: Blue accent color
 - Secondary: Gray accent
 - Destructive: Red for errors/warnings
@@ -145,6 +152,7 @@ All components support dark mode (though not yet implemented in the UI).
 ## Contributing
 
 When adding new pages:
+
 1. Create route in `src/routes/`
 2. Add navigation link in `Navigation.svelte`
 3. Use existing UI components from `src/lib/components/ui/`

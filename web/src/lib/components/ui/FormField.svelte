@@ -14,9 +14,9 @@
 
 	let { label, name, error, hint, required = false, class: className, children }: Props = $props();
 
-	const inputId = `field-${name}`;
-	const errorId = `error-${name}`;
-	const hintId = `hint-${name}`;
+	const inputId = $derived(`field-${name}`);
+	const errorId = $derived(`error-${name}`);
+	const hintId = $derived(`hint-${name}`);
 </script>
 
 <div class={cn('space-y-2', className)}>
