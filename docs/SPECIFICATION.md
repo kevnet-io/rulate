@@ -150,7 +150,8 @@ rulate/
 │   │   │   └── import-export/            # Bulk import/export
 │   │   └── lib/
 │   │       ├── api/client.ts             # TypeScript API client
-│   │       └── components/               # 9 UI components
+│   │       ├── stores/                   # Svelte 5 stores (toast, modal)
+│   │       └── components/               # 19 UI components
 ├── tests/                    # Test suite
 │   ├── unit/                # 11 test files with 480 tests
 │   │   ├── test_schema.py
@@ -1075,7 +1076,7 @@ npm run test:e2e:ui              # E2E tests with UI
 - **Operators**: 19 total (9 pairwise + 8 cluster + 2 base)
 - **API Endpoints**: 42 endpoints across 6 routers
 - **Web UI Pages**: 19 pages
-- **UI Components**: 9 reusable components
+- **UI Components**: 19 reusable components (includes 10 UX polish components)
 - **Backend Tests**: 480 tests (94% coverage)
 - **Frontend Tests**: 671 tests (100% production code coverage)
 - **Total Test Count**: 1,151 tests
@@ -1101,6 +1102,7 @@ npm run test:e2e:ui              # E2E tests with UI
 
 - `README.md` - User guide and quick start
 - `docs/CLAUDE.md` - Development guide for contributors
+- `docs/UX_POLISH_SUMMARY.md` - Comprehensive UX improvements documentation
 - `docs/ORIGINAL_SPECIFICATION.md` - Initial planning document
 - `FUTURE_TASKS.md` - Enhancement backlog
 - `/docs` - Interactive API documentation (when server running)

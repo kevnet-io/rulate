@@ -370,6 +370,13 @@ items:
 - **Test Infrastructure**: Cleaned up unused utilities, excluded test code from coverage metrics (standard practice)
 
 ### Recent Changes
+- **UX Polish (December 2025)**: Comprehensive user experience improvements
+  - Toast notifications replacing browser alerts (4 types, auto-dismiss, stacking)
+  - Modal dialogs replacing browser confirms (accessible, focus trap, keyboard nav)
+  - Enhanced RuleEditor with operator docs sidebar, search, and 18 templates
+  - Loading states, empty states, tooltips, form validation utilities
+  - Unsaved changes warnings
+  - Zero browser `alert()` or `confirm()` calls remaining
 - **Import/Export Functionality**: Comprehensive bulk data import/export capabilities
   - API endpoints for exporting/importing all data types with validation
   - Web UI page with file upload/download for backup and migration
