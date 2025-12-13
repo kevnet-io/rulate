@@ -19,9 +19,7 @@
   ],
 
   // Ruff
-  "ruff.lint.args": [
-    "--line-length=100"
-  ],
+  "ruff.configuration": "--line-length=100",
 
   // Testing
   "python.testing.pytestEnabled": true,
