@@ -54,6 +54,7 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 - [x] Compatibility matrix visualization with detailed rule evaluations
 - [x] Responsive design with Tailwind CSS and accessible color palette
 - [x] Real-time evaluation against REST API backend
+- [x] Professional UX with toast notifications, modals, loading states, and enhanced rule editor
 
 **Phases 4-7: Testing & Data Management** ✅ COMPLETE
 
@@ -176,12 +177,13 @@ npm run dev
 The Web UI provides:
 - **Dashboard**: Overview of schemas, rulesets, and catalogs with statistics
 - **Schema Management**: Create schemas with dynamic dimension builder supporting all 6 types (string, integer, float, boolean, enum, list)
-- **RuleSet Management**: Create rulesets with JSON condition editor and rule builder
+- **RuleSet Management**: Create rulesets with enhanced rule editor featuring operator documentation, search, and 18 templates
 - **Catalog Management**: Create catalogs and manage items with schema-driven forms
 - **Item Editor**: Create and edit items with dynamic forms based on schema definitions
 - **Explorer**: Interactive compatibility exploration - click through items to see what they're compatible/incompatible with
 - **Matrix**: Visual grid showing all pairwise compatibility results with detailed rule evaluations
 - **Import/Export**: Bulk import and export of all data types (schemas, rulesets, cluster rulesets, catalogs) with JSON file download and upload
+- **UX Polish**: Toast notifications, accessible modals, loading states, empty states, form validation, and unsaved changes warnings
 
 ## Development
 
@@ -218,6 +220,7 @@ mypy rulate
 - **[CLAUDE.md](CLAUDE.md)** - Development guide for contributors and Claude Code AI assistant
 - **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** - Complete technical specification of the current implementation
 - **[docs/FUTURE_TASKS.md](docs/FUTURE_TASKS.md)** - Enhancement backlog and nice-to-have features
+- **[docs/UX_POLISH_SUMMARY.md](docs/UX_POLISH_SUMMARY.md)** - Comprehensive UX improvements and component documentation
 
 ## License
 
