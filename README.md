@@ -70,8 +70,11 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 git clone <repo-url>
 cd rulate
 
-# Install dependencies (creates virtual environment automatically)
-uv sync --dev
+# Install all dependencies (backend + frontend + pre-commit hooks)
+make install
+
+# Or use uv directly:
+# uv sync --dev
 ```
 
 ## Quick Start
@@ -139,7 +142,10 @@ rulate evaluate matrix \
 
 ```bash
 # Start the API server
-uvicorn api.main:app --reload
+make dev-backend
+
+# Or use uvicorn directly:
+# uvicorn api.main:app --reload
 
 # API is now available at http://localhost:8000
 # Interactive docs at http://localhost:8000/docs
@@ -164,14 +170,16 @@ curl -X POST http://localhost:8000/api/v1/evaluate/pair \
 
 ```bash
 # Terminal 1: Start the API server
-uvicorn api.main:app --reload --port 8000
+make dev-backend
 
 # Terminal 2: Start the web frontend
-cd web
-npm install  # First time only
-npm run dev
+make dev-frontend
 
 # Web UI is now available at http://localhost:5173
+
+# Or use the underlying commands:
+# Terminal 1: uvicorn api.main:app --reload --port 8000
+# Terminal 2: cd web && npm run dev
 ```
 
 The Web UI provides:
@@ -187,33 +195,74 @@ The Web UI provides:
 
 ## Development
 
+### Quick Reference
+
+```bash
+# Install dependencies
+make install
+
+# Start development servers
+make dev-backend    # API server (http://localhost:8000)
+make dev-frontend   # Web UI (http://localhost:5173)
+
+# Run tests
+make test           # Backend tests
+make test-frontend  # Frontend unit tests
+make test-e2e       # Frontend E2E tests (requires API running)
+
+# Code quality
+make format         # Auto-fix formatting issues
+make check-all      # Verify all checks pass (run before pushing)
+
+# See all available commands
+make help
+```
+
 ### Running Tests
 
 ```bash
 # Backend tests
-uv run pytest
-uv run pytest --cov=rulate  # With coverage
+make test              # Run pytest suite
+make test-cov          # With coverage report
 
 # Frontend tests
-cd web
-npm test                    # Unit tests
-npm run test:e2e           # E2E tests
+make test-frontend     # Unit tests (vitest)
+make test-e2e          # E2E tests (playwright)
+
+# Or use underlying commands:
+# uv run pytest
+# uv run pytest --cov=rulate
+# cd web && npm test
+# cd web && npm run test:e2e
 ```
 
 For detailed testing information, see [docs/SPECIFICATION.md](docs/SPECIFICATION.md#testing).
 
 ### Code Quality
 
+Use the two-tier workflow for code quality:
+
 ```bash
-# Format code
-black .
+# 1. During development - auto-fix issues (modifies files)
+make format
 
-# Lint
-ruff check .
+# 2. Before pushing - verify all checks pass (read-only)
+make check-all
 
-# Type check
-mypy rulate
+# Individual quality checks (read-only)
+make lint              # Ruff linting
+make typecheck         # Mypy type checking
+make lint-frontend     # ESLint
+
+# Or use individual tools:
+# uv run black .              # Format Python
+# uv run ruff check .         # Lint Python
+# uv run mypy rulate          # Type check core
+# cd web && npm run lint      # Lint frontend
 ```
+
+Pre-commit hooks run automatically on commit to enforce code quality.
+Run `make help` to see all available commands.
 
 ## Documentation
 

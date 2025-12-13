@@ -73,19 +73,21 @@ npm install
 ### Verify Installation
 
 ```bash
-# Run backend tests
-uv run pytest
+# Run all checks
+make check-all
 
-# Run frontend tests
-cd web
-npm test
+# Or test individual components:
+# Backend tests
+make test
+
+# Frontend tests
+make test-frontend
 
 # Start the API server
-uv run uvicorn api.main:app --reload
+make dev-backend
 
 # Start the web UI (in another terminal)
-cd web
-npm run dev
+make dev-frontend
 ```
 
 ## Project Architecture
@@ -139,38 +141,50 @@ git checkout -b fix/bug-description
 ### 3. Run Tests Locally
 
 ```bash
+# All tests (backend + frontend)
+make test && make test-frontend
+
 # Backend tests
-uv run pytest
+make test              # Run pytest suite
+make test-cov          # With coverage report
 
-# Backend with coverage
-uv run pytest --cov=rulate --cov=api
+# Frontend tests
+make test-frontend     # Unit tests (vitest)
+make test-e2e          # E2E tests (playwright)
 
-# Frontend unit tests
-cd web
-npm test
-
-# Frontend E2E tests
-npm run test:e2e
+# Or use underlying commands:
+# uv run pytest
+# uv run pytest --cov=rulate --cov=api
+# cd web && npm test
+# cd web && npm run test:e2e
 ```
 
 ### 4. Run Code Quality Checks
 
+**Two-tier workflow:**
+
 ```bash
-# Python formatting
-uv run black .
+# 1. During development - auto-fix issues (modifies files)
+make format
 
-# Python linting
-uv run ruff check . --fix
+# 2. Before committing - verify all checks pass (read-only)
+make check-all
 
-# Python type checking
-uv run mypy rulate
+# Individual quality checks (read-only):
+make lint              # Python linting
+make typecheck         # Python type checking
+make lint-frontend     # Frontend linting
 
-# Frontend linting
-cd web
-npm run lint
+# Or use individual tools:
+# uv run black .              # Format Python
+# uv run ruff check . --fix   # Fix Python linting
+# uv run mypy rulate          # Type check core
+# cd web && npm run lint      # Lint frontend
 ```
 
-Or simply commit - pre-commit hooks will run these automatically!
+**Best practice:** Run `make format` during development, then `make check-all` before committing.
+
+Pre-commit hooks will automatically run quality checks on commit (equivalent to `make format`).
 
 ### 5. Commit Your Changes
 
@@ -380,15 +394,15 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ### Before Submitting
 
-1. **Ensure all tests pass:**
+1. **Ensure all tests pass and code quality checks succeed:**
    ```bash
-   uv run pytest
-   cd web && npm test && npm run test:e2e
+   # Run all checks (mirrors CI)
+   make check-all
    ```
 
-2. **Run code quality checks:**
+2. **Format your code (if not already done):**
    ```bash
-   uv run black . && uv run ruff check . && uv run mypy rulate
+   make format
    ```
 
 3. **Update documentation:**
@@ -399,6 +413,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 4. **Add tests:**
    - Backend: Maintain 94%+ coverage
    - Frontend: Maintain 100% production code coverage
+
+**Tip:** Run `make help` to see all available commands.
 
 ### PR Checklist
 

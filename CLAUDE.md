@@ -8,6 +8,25 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 
 **Initial use case**: Wardrobe compatibility checking (determining which clothing items can be worn together), but the engine is designed to be domain-agnostic.
 
+## Quick Reference
+
+**Common Commands:**
+- `make install` - Install all dependencies (backend + frontend + hooks)
+- `make dev-backend` - Start API server on http://localhost:8000
+- `make dev-frontend` - Start web UI on http://localhost:5173
+- `make format` - Auto-fix all formatting issues (modifies files)
+- `make check-all` - Run all checks before pushing (CI-safe, read-only)
+- `make test` - Run backend tests
+- `make test-frontend` - Run frontend unit tests
+
+**Workflow:**
+1. **During development:** `make format` (auto-fix code style)
+2. **Before committing:** `make check-all` (verify all checks pass)
+3. **Commit:** Pre-commit hooks run automatically
+4. **Push:** CI runs equivalent of `make check-all`
+
+For all available commands: `make` or `make help`
+
 ## Architecture
 
 Rulate has a three-layer architecture:
@@ -122,16 +141,27 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 
 ## Development Commands
 
-### Setup
+### Quick Start
+
 ```bash
-# Install dependencies
-uv sync --dev
+# First time setup - install everything
+make install
 
-# Install pre-commit hooks (REQUIRED before committing)
-uv run pre-commit install
+# Start development servers
+make dev-backend  # Terminal 1: API server on http://localhost:8000
+make dev-frontend # Terminal 2: Web UI on http://localhost:5173
+```
 
-# Install frontend dependencies
-cd web && npm install
+### Installation
+
+```bash
+# Install all dependencies (backend + frontend + pre-commit hooks)
+make install
+
+# Or install components separately:
+make install-backend   # Python dependencies with uv
+make install-frontend  # Node.js dependencies
+make install-hooks     # Pre-commit hooks
 ```
 
 This command:
@@ -141,28 +171,71 @@ This command:
 - Sets up pre-commit hooks to automatically run code quality checks before each commit
 - Installs frontend dependencies for ESLint and testing
 
-**IMPORTANT:** Always run pre-commit checks before committing:
-```bash
-# Run all pre-commit checks
-uv run pre-commit run --all-files
+**IMPORTANT:** Pre-commit hooks are REQUIRED before committing. They run automatically on `git commit`.
 
-# Or let git commit trigger them automatically
-git commit
+### Code Quality Workflow
+
+Rulate uses a **two-tier workflow** for code quality:
+
+#### 1. Auto-Fix Commands (Modify Files)
+
+Use these when actively developing to automatically fix formatting issues:
+
+```bash
+# Format all code (Python + frontend)
+make format
+
+# Format only backend (black + ruff --fix)
+make format-backend
+
+# Format only frontend (prettier)
+make format-frontend
 ```
 
-### Testing
+#### 2. Check Commands (Read-Only, CI-Safe)
+
+Use these before committing or in CI to verify code quality without modifying files:
+
 ```bash
-# Run all tests
+# Check everything (matches CI) - RECOMMENDED before pushing
+make check-all
+
+# Check only backend (ruff + mypy + pytest)
+make check
+
+# Check only frontend (prettier + eslint + svelte-check + tests)
+make check-frontend
+
+# Run pre-commit hooks on all files
+make pre-commit
+```
+
+**Best Practice:**
+1. During development: `make format` to auto-fix issues
+2. Before committing: `make check-all` to verify everything passes
+3. Commit triggers pre-commit hooks automatically
+4. CI runs `make check-all` equivalent
+
+### Testing
+
+```bash
+# Backend tests
+make test              # Run pytest suite
+make test-cov          # Run with coverage report (HTML + terminal)
+
+# Frontend tests
+make test-frontend     # Unit tests (vitest)
+make test-e2e          # E2E tests (playwright) - requires API server running
+
+# Or use pytest/npm directly:
 uv run pytest
-
-# Run specific test file
 uv run pytest tests/unit/test_schema.py
-
-# Run specific test
 uv run pytest tests/unit/test_schema.py::TestSchema::test_create_simple_schema
-
-# Run with coverage
 uv run pytest --cov=rulate --cov-report=html
+
+cd web && npm test
+cd web && npm run test:ui          # Interactive test UI
+cd web && npm run test:coverage    # With coverage report
 ```
 
 Alternatively, activate the virtual environment first:
@@ -171,53 +244,56 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pytest
 ```
 
-### Code Quality
+### Individual Tools
+
+While `make` targets are recommended, you can run individual tools:
+
 ```bash
-# ALWAYS run all pre-commit hooks before committing
-uv run pre-commit run --all-files
-
-# Pre-commit runs:
-# - Python: black (formatting), ruff (linting), mypy (type checking - core only)
-# - Frontend: prettier (formatting), ESLint (linting)
-# - General: YAML/JSON validation, trailing whitespace, end-of-file fixes
-
-# Or run individual tools manually:
 # Python formatting
 uv run black .
 
-# Python linting
+# Python linting (check only)
 uv run ruff check .
+
+# Python linting (auto-fix)
+uv run ruff check . --fix
 
 # Python type checking (core only - API excluded due to SQLAlchemy typing complexity)
 uv run mypy rulate
 
-# Frontend linting
+# Frontend formatting (check)
+cd web && npm run format:check
+
+# Frontend formatting (auto-fix)
+cd web && npm run format
+
+# Frontend linting (check)
 cd web && npm run lint
 
-# Frontend tests
-cd web && npm test
+# Frontend linting (auto-fix)
+cd web && npm run lint:fix
+
+# Frontend type checking
+cd web && npm run check
 ```
 
-**IMPORTANT:**
-- Pre-commit hooks are REQUIRED before committing. They will run automatically on `git commit`.
-- If you bypass hooks with `--no-verify`, CI will fail.
-- The `.claude/settings.json` file includes a Stop hook for automated pre-commit checking.
+### Development Servers
 
-**Type Checking Note:**
-- Core engine (`rulate/`) is fully type-checked with mypy
-- API layer (`api/`) is temporarily excluded from mypy due to SQLAlchemy Column typing complexity
-- This is pragmatic - the core business logic is type-safe while the API layer needs future improvements
-
-### Running the API
 ```bash
-# Start server
-uv run uvicorn api.main:app --reload
+# Start API server (http://localhost:8000)
+make dev-backend
+# Interactive API docs: http://localhost:8000/docs
 
-# API available at http://localhost:8000
-# Interactive docs at http://localhost:8000/docs
+# Start web UI (http://localhost:5173)
+make dev-frontend
+
+# Or use underlying commands:
+uv run uvicorn api.main:app --reload
+cd web && npm run dev
 ```
 
 ### Using the CLI
+
 ```bash
 # Validate files
 uv run rulate validate schema examples/wardrobe/schema.yaml
@@ -236,18 +312,49 @@ uv run rulate evaluate matrix \
   --format summary  # or json, yaml, csv
 ```
 
-### Running the Web UI
+### Cleaning Build Artifacts
+
 ```bash
-# Terminal 1: Start the API server
-uv run uvicorn api.main:app --reload --port 8000
+# Clean all build artifacts
+make clean
 
-# Terminal 2: Start the web frontend
-cd web
-npm install  # First time only
-npm run dev
+# Clean only backend (__pycache__, .pytest_cache, .mypy_cache, htmlcov, etc.)
+make clean-backend
 
-# Web UI available at http://localhost:5173
+# Clean only frontend (.svelte-kit, build, coverage, playwright-report)
+make clean-frontend
+
+# Clean development databases
+make clean-db
 ```
+
+### Pre-Commit Hooks
+
+Pre-commit hooks run automatically on `git commit` and include:
+- **Python:** black (formatting), ruff --fix (linting), mypy (type checking - core only)
+- **Frontend:** prettier (formatting), ESLint (linting)
+- **General:** YAML/JSON validation, trailing whitespace, end-of-file fixes
+
+```bash
+# Run all hooks manually
+make pre-commit
+# Or: uv run pre-commit run --all-files
+
+# Run specific hook
+uv run pre-commit run black --all-files
+uv run pre-commit run mypy --all-files
+```
+
+**IMPORTANT:**
+- If you bypass hooks with `git commit --no-verify`, CI will fail
+- Run `make check-all` before pushing to verify all checks pass
+- The `.claude/settings.json` file includes a Stop hook for automated pre-commit checking
+
+### Type Checking Note
+
+- Core engine (`rulate/`) is fully type-checked with mypy (strict mode)
+- API layer (`api/`) is temporarily excluded due to SQLAlchemy Column typing complexity
+- This is pragmatic - core business logic is type-safe while API layer needs future improvements
 
 ### Git Commit Messages
 
@@ -256,7 +363,7 @@ All commits should include the following footer to attribute Claude Code assista
 ```
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 **Example commit:**
@@ -267,7 +374,7 @@ Implements MinClusterSizeOperator to enforce minimum cluster sizes.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>"
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 
 ## Important Implementation Details
