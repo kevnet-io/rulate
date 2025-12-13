@@ -17,10 +17,8 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    reviewers:
-      - "kevnet-io"
-    assignees:
-      - "kevnet-io"
+    reviewers: []
+    assignees: []
 
   # Frontend dependencies
   - package-ecosystem: "npm"
@@ -36,10 +34,8 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    reviewers:
-      - "kevnet-io"
-    assignees:
-      - "kevnet-io"
+    reviewers: []
+    assignees: []
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
