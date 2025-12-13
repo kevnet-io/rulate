@@ -12,14 +12,14 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
-	let item: Item | null = null;
-	let schema: Schema | null = null;
-	let loading = true;
-	let error: string | null = null;
+	let item = $state<Item | null>(null);
+	let schema = $state<Schema | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
-	$: catalogName = $page.params.name;
-	$: itemId = $page.params.itemId;
-	$: pageTitle = `${itemId} - ${catalogName} - Rulate`;
+	let catalogName = $derived($page.params.name);
+	let itemId = $derived($page.params.itemId);
+	let pageTitle = $derived(`${itemId} - ${catalogName} - Rulate`);
 
 	async function loadItem() {
 		try {

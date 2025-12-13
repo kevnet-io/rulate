@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { api } from '$lib/api/client';
 	import type { Catalog, Item, Schema } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -11,15 +12,18 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
 
-	let catalog: Catalog | null = null;
-	let items: Item[] = [];
-	let schema: Schema | null = null;
-	let loading = true;
-	let error: string | null = null;
+	let catalog = $state<Catalog | null>(null);
+	let items = $state<Item[]>([]);
+	let schema = $state<Schema | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let showDeleteModal = $state(false);
+	let itemToDelete = $state<string | null>(null);
 
-	$: catalogName = $page.params.name;
-	$: pageTitle = `${catalogName} - Catalog - Rulate`;
+	let catalogName = $derived($page.params.name);
+	let pageTitle = $derived(`${catalogName} - Catalog - Rulate`);
 
 	async function loadData() {
 		try {
@@ -32,21 +36,27 @@
 			}
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load catalog';
+			toastStore.error(error);
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function deleteItem(itemId: string) {
-		if (!confirm(`Are you sure you want to delete item "${itemId}"?`)) {
-			return;
-		}
+	function confirmDelete(itemId: string) {
+		itemToDelete = itemId;
+		showDeleteModal = true;
+	}
+
+	async function deleteItem() {
+		if (!itemToDelete) return;
 
 		try {
-			await api.deleteItem(catalogName, itemId);
+			await api.deleteItem(catalogName, itemToDelete);
+			toastStore.success(`Item "${itemToDelete}" deleted successfully`);
 			await loadData();
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to delete item';
+			const errorMsg = err instanceof Error ? err.message : 'Failed to delete item';
+			toastStore.error(errorMsg);
 		}
 	}
 
@@ -169,7 +179,7 @@
 										<Button
 											variant="destructive"
 											size="sm"
-											onclick={() => deleteItem(item.item_id)}>Delete</Button
+											onclick={() => confirmDelete(item.item_id)}>Delete</Button
 										>
 									</div>
 								</div>
@@ -181,3 +191,14 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmModal
+	bind:isOpen={showDeleteModal}
+	onClose={() => (showDeleteModal = false)}
+	onConfirm={deleteItem}
+	title="Delete Item"
+	message="Are you sure you want to delete this item? This action cannot be undone."
+	confirmText="Delete"
+	isDanger={true}
+	details={itemToDelete ? { ID: itemToDelete } : undefined}
+/>

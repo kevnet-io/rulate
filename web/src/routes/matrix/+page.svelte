@@ -14,15 +14,15 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let catalogs: Catalog[] = [];
-	let rulesets: RuleSet[] = [];
-	let selectedCatalog: string = '';
-	let selectedRuleset: string = '';
-	let matrix: EvaluationMatrix | null = null;
-	let loading = false;
-	let error: string | null = null;
-	let selectedPair: ComparisonResult | null = null;
-	let items: string[] = [];
+	let catalogs = $state<Catalog[]>([]);
+	let rulesets = $state<RuleSet[]>([]);
+	let selectedCatalog = $state('');
+	let selectedRuleset = $state('');
+	let matrix = $state<EvaluationMatrix | null>(null);
+	let loading = $state(false);
+	let error = $state<string | null>(null);
+	let selectedPair = $state<ComparisonResult | null>(null);
+	let items = $state<string[]>([]);
 
 	async function loadOptions() {
 		try {

@@ -14,18 +14,18 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let catalogs: Catalog[] = [];
-	let rulesets: RuleSet[] = [];
-	let items: Item[] = [];
-	let selectedCatalog: string = '';
-	let selectedRuleset: string = '';
-	let selectedItemId: string = '';
-	let loading = false;
-	let error: string | null = null;
+	let catalogs = $state<Catalog[]>([]);
+	let rulesets = $state<RuleSet[]>([]);
+	let items = $state<Item[]>([]);
+	let selectedCatalog = $state('');
+	let selectedRuleset = $state('');
+	let selectedItemId = $state('');
+	let loading = $state(false);
+	let error = $state<string | null>(null);
 
-	let currentItem: Item | null = null;
-	let compatibleResults: ComparisonResult[] = [];
-	let incompatibleResults: ComparisonResult[] = [];
+	let currentItem = $state<Item | null>(null);
+	let compatibleResults = $state<ComparisonResult[]>([]);
+	let incompatibleResults = $state<ComparisonResult[]>([]);
 
 	async function loadOptions() {
 		try {
@@ -99,10 +99,12 @@
 		incompatibleResults = [];
 	}
 
-	$: if (selectedCatalog) {
-		loadItems();
-		reset();
-	}
+	$effect(() => {
+		if (selectedCatalog) {
+			loadItems();
+			reset();
+		}
+	});
 
 	onMount(loadOptions);
 </script>

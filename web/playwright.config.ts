@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Read environment variables from file.
@@ -11,14 +15,16 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
 	testDir: './e2e',
+	/* Global setup file for seeding database before tests */
+	globalSetup: path.join(__dirname, 'e2e/setup.ts'),
 	/* Run tests in files in parallel */
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: !!process.env.CI,
 	/* Retry on CI only */
 	retries: process.env.CI ? 2 : 0,
-	/* Opt out of parallel tests on CI. */
-	workers: process.env.CI ? 1 : undefined,
+	/* Limit workers to avoid overwhelming the test environment */
+	workers: process.env.CI ? 1 : 4,
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
 	reporter: 'html',
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

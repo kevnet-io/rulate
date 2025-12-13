@@ -12,12 +12,12 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
-	let clusterRuleset: ClusterRuleSet | null = null;
-	let loading = true;
-	let error: string | null = null;
+	let clusterRuleset = $state<ClusterRuleSet | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
-	$: clusterRulesetName = $page.params.name;
-	$: pageTitle = `${clusterRulesetName} - Cluster RuleSet - Rulate`;
+	let clusterRulesetName = $derived($page.params.name);
+	let pageTitle = $derived(`${clusterRulesetName} - Cluster RuleSet - Rulate`);
 
 	async function loadClusterRuleSet() {
 		try {

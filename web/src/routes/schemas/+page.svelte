@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api/client';
 	import type { Schema } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -14,10 +15,14 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 
-	let schemas: Schema[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let schemas = $state<Schema[]>([]);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let showDeleteModal = $state(false);
+	let schemaToDelete = $state<string | null>(null);
 
 	async function loadSchemas() {
 		try {
@@ -26,21 +31,27 @@
 			schemas = await api.getSchemas();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load schemas';
+			toastStore.error(error);
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function deleteSchema(name: string) {
-		if (!confirm(`Are you sure you want to delete schema "${name}"?`)) {
-			return;
-		}
+	function confirmDelete(name: string) {
+		schemaToDelete = name;
+		showDeleteModal = true;
+	}
+
+	async function deleteSchema() {
+		if (!schemaToDelete) return;
 
 		try {
-			await api.deleteSchema(name);
+			await api.deleteSchema(schemaToDelete);
+			toastStore.success(`Schema "${schemaToDelete}" deleted successfully`);
 			await loadSchemas();
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to delete schema';
+			const errorMsg = err instanceof Error ? err.message : 'Failed to delete schema';
+			toastStore.error(errorMsg);
 		}
 	}
 
@@ -83,15 +94,13 @@
 			{/each}
 		</div>
 	{:else if schemas.length === 0}
-		<Card>
-			<CardHeader>
-				<CardTitle>No Schemas</CardTitle>
-				<CardDescription>Create your first schema to get started</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Button href="/schemas/new">Create Schema</Button>
-			</CardContent>
-		</Card>
+		<EmptyState
+			title="No Schemas"
+			description="Create your first schema to define the structure and validation rules for your items"
+			actionText="Create Schema"
+			actionHref="/schemas/new"
+			icon="📋"
+		/>
 	{:else}
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each schemas as schema}
@@ -137,7 +146,7 @@
 								<Button
 									variant="destructive"
 									size="sm"
-									onclick={() => deleteSchema(schema.name)}>Delete</Button
+									onclick={() => confirmDelete(schema.name)}>Delete</Button
 								>
 							</div>
 						</div>
@@ -147,3 +156,14 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmModal
+	bind:isOpen={showDeleteModal}
+	onClose={() => (showDeleteModal = false)}
+	onConfirm={deleteSchema}
+	title="Delete Schema"
+	message="Are you sure you want to delete this schema? This action cannot be undone."
+	confirmText="Delete"
+	isDanger={true}
+	details={schemaToDelete ? { Name: schemaToDelete } : undefined}
+/>

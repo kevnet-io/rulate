@@ -29,6 +29,18 @@ The following major tasks have been completed:
 - **Code of Conduct** - Contributor Covenant 2.0 for open source collaboration
 - **Build badges** - Test status and version badges in README
 
+### ✅ UX Polish - December 2025
+- **Toast notifications** - Custom toast system with 4 types, auto-dismiss, stacking
+- **Modal dialogs** - Accessible modals with focus trap, keyboard nav, contextual confirmations
+- **Loading states** - Spinner component and skeleton loaders on all list pages
+- **Empty states** - Helpful empty states with icons and CTAs on all list pages
+- **Tooltips** - Reusable tooltip component for inline help
+- **Form validation** - FormField component and comprehensive validation utilities
+- **Unsaved changes** - Warning before navigation with unsaved form data
+- **Enhanced rule editor** - Operator documentation sidebar, search, templates (18 presets)
+- **Operator registry** - 17 operators fully documented with examples and parameters
+- **See**: `docs/UX_POLISH_SUMMARY.md` for full details
+
 ---
 
 ## Implementation Priorities
@@ -76,56 +88,54 @@ With **CI/CD, pre-commit hooks, and contribution guidelines** now in place, the 
 ## User Experience Polish
 
 ### Toast Notifications
-**Status**: Not implemented (using browser alerts)
+**Status**: ✅ COMPLETED (December 2025)
 **Effort**: Low
 **Value**: Medium
 
-- [ ] Replace browser `alert()` calls with toast notifications
-- [ ] Implement toast component (success, error, warning, info)
-- [ ] Add auto-dismiss with configurable timeout
-- [ ] Position toasts appropriately (top-right recommended)
-- [ ] Support stacking multiple toasts
+- [x] Replace browser `alert()` calls with toast notifications
+- [x] Implement toast component (success, error, warning, info)
+- [x] Add auto-dismiss with configurable timeout
+- [x] Position toasts appropriately (top-right recommended)
+- [x] Support stacking multiple toasts
 
-**Current State**: Using `alert()` for error messages and confirmations.
-
-**Recommended Library**: svelte-french-toast or build custom with Tailwind
+**Implementation**: Custom Svelte components with store-based state management. Zero browser `alert()` calls remaining.
 
 ---
 
 ### Modal Confirmation Dialogs
-**Status**: Partial (using browser confirm)
+**Status**: ✅ COMPLETED (December 2025)
 **Effort**: Low
 **Value**: Medium
 
-- [ ] Replace browser `confirm()` with custom modal
-- [ ] Create reusable Modal component
-- [ ] Add proper accessibility (focus trap, ESC to close, ARIA labels)
-- [ ] Improve delete confirmations with item details
-- [ ] Add confirmation for destructive actions
+- [x] Replace browser `confirm()` with custom modal
+- [x] Create reusable Modal component
+- [x] Add proper accessibility (focus trap, ESC to close, ARIA labels)
+- [x] Improve delete confirmations with item details
+- [x] Add confirmation for destructive actions
 
-**Current State**: Using browser `confirm()` for delete operations.
+**Implementation**: Accessible modal system with ConfirmModal variant. Zero browser `confirm()` calls remaining. WCAG 2.1 AA compliant.
 
 ---
 
-### Visual Rule Builder
-**Status**: Partial (JSON editor only)
-**Effort**: High
-**Value**: Medium
+### Enhanced Rule Editor (Alternative to Full Visual Builder)
+**Status**: ✅ COMPLETED (December 2025)
+**Effort**: Medium
+**Value**: High
 
-- [ ] Design drag-and-drop interface for building conditions
-- [ ] Operator palette with descriptions
+- [x] Operator documentation sidebar with search and filtering
+- [x] One-click operator insertion
+- [x] Template library (18 pre-built patterns)
+- [x] Format JSON button
+- [x] Available schema fields display
+- [x] Comprehensive operator registry (17 operators)
+
+**Implementation**: Enhanced JSON editor with operator docs and templates. More practical than full drag-and-drop while providing significant UX improvement.
+
+**Future Enhancement** (Optional): Full drag-and-drop visual builder
+- [ ] Drag-and-drop interface for building conditions
 - [ ] Visual tree representation of nested conditions
 - [ ] Real-time validation and preview
 - [ ] Toggle between visual and JSON modes
-- [ ] Template/preset conditions
-
-**Current State**: JSON textarea editor with syntax highlighting would be helpful first step.
-
-**Implementation Notes**:
-- Consider libraries like react-flow or build custom with Svelte
-- Show operator documentation inline
-- Validate as user builds
-- Generate JSON from visual representation
 
 ---
 

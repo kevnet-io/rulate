@@ -10,17 +10,17 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let catalogs: Catalog[] = [];
-	let rulesets: RuleSet[] = [];
-	let selectedCatalog: string = '';
-	let selectedRuleset: string = '';
-	let selectedClusterRuleset: string = '';
-	let minClusterSize: number = 2;
-	let maxClusters: number | undefined = undefined;
-	let analysis: ClusterAnalysis | null = null;
-	let catalogItems: Item[] = [];
-	let loading = false;
-	let error: string | null = null;
+	let catalogs = $state<Catalog[]>([]);
+	let rulesets = $state<RuleSet[]>([]);
+	let selectedCatalog = $state('');
+	let selectedRuleset = $state('');
+	let selectedClusterRuleset = $state('');
+	let minClusterSize = $state(2);
+	let maxClusters = $state<number | undefined>(undefined);
+	let analysis = $state<ClusterAnalysis | null>(null);
+	let catalogItems = $state<Item[]>([]);
+	let loading = $state(false);
+	let error = $state<string | null>(null);
 
 	async function loadOptions() {
 		try {

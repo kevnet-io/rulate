@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import { api } from '$lib/api/client';
 	import type { Rule, Schema } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -14,15 +15,25 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import RuleEditor from '$lib/components/RuleEditor.svelte';
 
-	let name = '';
-	let version = '1.0.0';
-	let schema_name = '';
-	let rules: Rule[] = [];
-	let schemas: Schema[] = [];
-	let error: string | null = null;
-	let submitting = false;
-	let loadingSchemas = true;
+	let name = $state('');
+	let version = $state('1.0.0');
+	let schema_name = $state('');
+	let rules = $state<Rule[]>([]);
+	let ruleConditionTexts = $state<string[]>([]); // Track JSON text for each rule
+	let schemas = $state<Schema[]>([]);
+	let error = $state<string | null>(null);
+	let submitting = $state(false);
+	let loadingSchemas = $state(true);
+
+	// Get selected schema
+	const selectedSchema = $derived(() => schemas.find((s) => s.name === schema_name));
+
+	// Get schema field names for RuleEditor
+	const schemaFields = $derived(() =>
+		selectedSchema()?.dimensions.map((d) => d.name) || []
+	);
 
 	async function loadSchemas() {
 		try {
@@ -47,10 +58,12 @@
 				enabled: true
 			}
 		];
+		ruleConditionTexts = [...ruleConditionTexts, '{}'];
 	}
 
 	function removeRule(index: number) {
 		rules = rules.filter((_, i) => i !== index);
+		ruleConditionTexts = ruleConditionTexts.filter((_, i) => i !== index);
 	}
 
 	function updateRule(index: number, updates: Partial<Rule>) {
@@ -58,66 +71,61 @@
 	}
 
 	function updateRuleCondition(index: number, value: string) {
+		ruleConditionTexts[index] = value;
+		ruleConditionTexts = ruleConditionTexts; // Trigger reactivity
+
 		try {
 			const condition = value.trim() ? JSON.parse(value) : {};
 			updateRule(index, { condition });
 		} catch (err) {
-			// Invalid JSON, don't update
+			// Invalid JSON, keep text but don't update condition
 		}
 	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		console.log('RuleSet form submitted!');
-		console.log('Name:', name);
-		console.log('Version:', version);
-		console.log('Schema:', schema_name);
-		console.log('Rules:', rules);
-
 		error = null;
 
 		// Validate
 		if (!name.trim()) {
 			error = 'RuleSet name is required';
-			console.error('Validation failed: name is required');
+			toastStore.error(error);
 			return;
 		}
 
 		if (!schema_name) {
 			error = 'Schema selection is required';
-			console.error('Validation failed: schema not selected');
+			toastStore.error(error);
 			return;
 		}
 
 		if (rules.length === 0) {
 			error = 'At least one rule is required';
-			console.error('Validation failed: no rules');
+			toastStore.error(error);
 			return;
 		}
 
 		for (const rule of rules) {
 			if (!rule.name.trim()) {
 				error = 'All rules must have a name';
-				console.error('Validation failed: rule missing name');
+				toastStore.error(error);
 				return;
 			}
 		}
 
 		try {
 			submitting = true;
-			console.log('Calling API to create ruleset...');
-			const result = await api.createRuleSet({
+			await api.createRuleSet({
 				name: name.trim(),
 				version: version.trim(),
 				schema_name,
 				rules
 			});
-			console.log('API response:', result);
-			console.log('Navigating to ruleset detail page...');
+			toastStore.success(`RuleSet "${name.trim()}" created successfully`);
 			goto(`/rulesets/${name.trim()}`);
 		} catch (err) {
-			console.error('API error:', err);
 			error = err instanceof Error ? err.message : 'Failed to create ruleset';
+			toastStore.error(error);
 			submitting = false;
 		}
 	}
@@ -125,7 +133,7 @@
 	onMount(loadSchemas);
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold mb-2">Create RuleSet</h1>
 		<p class="text-muted-foreground">Define compatibility rules and conditions</p>
@@ -163,6 +171,7 @@
 								<input
 									type="text"
 									id="name"
+									name="name"
 									bind:value={name}
 									class="w-full px-3 py-2 border border-input rounded-md bg-background"
 									placeholder="e.g., wardrobe_rules"
@@ -174,6 +183,7 @@
 								<input
 									type="text"
 									id="version"
+									name="version"
 									bind:value={version}
 									class="w-full px-3 py-2 border border-input rounded-md bg-background"
 									placeholder="1.0.0"
@@ -184,6 +194,7 @@
 								<label for="schema" class="block text-sm font-medium mb-2">Schema</label>
 								<select
 									id="schema"
+									name="schema"
 									bind:value={schema_name}
 									class="w-full px-3 py-2 border border-input rounded-md bg-background"
 									required
@@ -235,8 +246,9 @@
 										<div class="space-y-4">
 											<!-- Name -->
 											<div>
-												<label class="block text-sm font-medium mb-2">Name</label>
+												<label for="rule-name-{index}" class="block text-sm font-medium mb-2">Name</label>
 												<input
+													id="rule-name-{index}"
 													type="text"
 													bind:value={rule.name}
 													onchange={(e) =>
@@ -250,8 +262,9 @@
 											<!-- Type and Enabled -->
 											<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 												<div>
-													<label class="block text-sm font-medium mb-2">Type</label>
+													<label for="rule-type-{index}" class="block text-sm font-medium mb-2">Type</label>
 													<select
+														id="rule-type-{index}"
 														bind:value={rule.type}
 														onchange={(e) =>
 															updateRule(index, {
@@ -280,22 +293,15 @@
 											</div>
 
 											<!-- Condition -->
-											<div>
-												<label class="block text-sm font-medium mb-2">
-													Condition (JSON)
-													<span class="text-muted-foreground font-normal ml-2"
-														>e.g., {`{"equals": {"field": "color"}}`}</span
-													>
-												</label>
-												<textarea
-													value={JSON.stringify(rule.condition, null, 2)}
-													oninput={(e) =>
-														updateRuleCondition(index, e.currentTarget.value)}
-													class="w-full px-3 py-2 border border-input rounded-md bg-background text-sm font-mono"
-													rows="4"
-													placeholder="{'{}'}"
-												></textarea>
-											</div>
+											<fieldset>
+												<legend class="block text-sm font-medium mb-2">Condition</legend>
+												<RuleEditor
+													bind:value={ruleConditionTexts[index]}
+													onchange={(val) => updateRuleCondition(index, val)}
+													schemaFields={schemaFields()}
+													schemaName={schema_name}
+												/>
+											</fieldset>
 										</div>
 									</div>
 								{/each}

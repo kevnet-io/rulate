@@ -12,18 +12,18 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	$: catalogName = $page.params.name;
-	$: pageTitle = `Add Item - ${catalogName} - Rulate`;
+	let catalogName = $derived($page.params.name);
+	let pageTitle = $derived(`Add Item - ${catalogName} - Rulate`);
 
-	let catalog: Catalog | null = null;
-	let schema: Schema | null = null;
-	let loading = true;
-	let error: string | null = null;
-	let submitting = false;
+	let catalog = $state<Catalog | null>(null);
+	let schema = $state<Schema | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let submitting = $state(false);
 
-	let item_id = '';
-	let name = '';
-	let attributes: Record<string, any> = {};
+	let item_id = $state('');
+	let name = $state('');
+	let attributes = $state<Record<string, any>>({});
 
 	async function loadData() {
 		try {
@@ -163,7 +163,7 @@
 	<title>{pageTitle}</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
 	<div class="mb-6">
 		<Button href="/catalogs/{catalogName}" variant="ghost" size="sm">← Back to Catalog</Button>
 	</div>
