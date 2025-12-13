@@ -12,12 +12,12 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
-	let schema: Schema | null = null;
-	let loading = true;
-	let error: string | null = null;
+	let schema = $state<Schema | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
-	$: schemaName = $page.params.name;
-	$: pageTitle = `${schemaName} - Schema - Rulate`;
+	let schemaName = $derived($page.params.name);
+	let pageTitle = $derived(`${schemaName} - Schema - Rulate`);
 
 	async function loadSchema() {
 		try {

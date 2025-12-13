@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api/client';
 	import type { ClusterRuleSet } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -14,10 +15,14 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 
-	let clusterRulesets: ClusterRuleSet[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let clusterRulesets = $state<ClusterRuleSet[]>([]);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let showDeleteModal = $state(false);
+	let clusterRulesetToDelete = $state<string | null>(null);
 
 	async function loadClusterRuleSets() {
 		try {
@@ -26,21 +31,27 @@
 			clusterRulesets = await api.getClusterRuleSets();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load cluster rulesets';
+			toastStore.error(error);
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function deleteClusterRuleSet(name: string) {
-		if (!confirm(`Are you sure you want to delete cluster ruleset "${name}"?`)) {
-			return;
-		}
+	function confirmDelete(name: string) {
+		clusterRulesetToDelete = name;
+		showDeleteModal = true;
+	}
+
+	async function deleteClusterRuleSet() {
+		if (!clusterRulesetToDelete) return;
 
 		try {
-			await api.deleteClusterRuleSet(name);
+			await api.deleteClusterRuleSet(clusterRulesetToDelete);
+			toastStore.success(`Cluster RuleSet "${clusterRulesetToDelete}" deleted successfully`);
 			await loadClusterRuleSets();
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to delete cluster ruleset';
+			const errorMsg = err instanceof Error ? err.message : 'Failed to delete cluster ruleset';
+			toastStore.error(errorMsg);
 		}
 	}
 
@@ -80,17 +91,11 @@
 			{/each}
 		</div>
 	{:else if clusterRulesets.length === 0}
-		<Card>
-			<CardHeader>
-				<CardTitle>No Cluster RuleSets</CardTitle>
-				<CardDescription>No cluster rulesets have been created yet</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<p class="text-sm text-muted-foreground">
-					Cluster rulesets define validation rules for compatible sets of items. They work together with pairwise rulesets to determine which sets form valid clusters.
-				</p>
-			</CardContent>
-		</Card>
+		<EmptyState
+			title="No Cluster RuleSets"
+			description="Create your first cluster ruleset to define set-level compatibility rules"
+			icon="🔗"
+		/>
 	{:else}
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each clusterRulesets as clusterRuleset}
@@ -158,7 +163,7 @@
 								<Button
 									variant="destructive"
 									size="sm"
-									onclick={() => deleteClusterRuleSet(clusterRuleset.name)}>Delete</Button
+									onclick={() => confirmDelete(clusterRuleset.name)}>Delete</Button
 								>
 							</div>
 						</div>
@@ -168,3 +173,14 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmModal
+	bind:isOpen={showDeleteModal}
+	onClose={() => (showDeleteModal = false)}
+	onConfirm={deleteClusterRuleSet}
+	title="Delete Cluster RuleSet"
+	message="Are you sure you want to delete this cluster ruleset? This action cannot be undone."
+	confirmText="Delete"
+	isDanger={true}
+	details={clusterRulesetToDelete ? { Name: clusterRulesetToDelete } : undefined}
+/>

@@ -12,12 +12,12 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
-	let ruleset: RuleSet | null = null;
-	let loading = true;
-	let error: string | null = null;
+	let ruleset = $state<RuleSet | null>(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
-	$: rulesetName = $page.params.name;
-	$: pageTitle = `${rulesetName} - RuleSet - Rulate`;
+	let rulesetName = $derived($page.params.name);
+	let pageTitle = $derived(`${rulesetName} - RuleSet - Rulate`);
 
 	async function loadRuleSet() {
 		try {

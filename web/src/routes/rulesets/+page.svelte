@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api/client';
 	import type { RuleSet } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -14,10 +15,14 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 
-	let rulesets: RuleSet[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let rulesets = $state<RuleSet[]>([]);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let showDeleteModal = $state(false);
+	let rulesetToDelete = $state<string | null>(null);
 
 	async function loadRuleSets() {
 		try {
@@ -26,21 +31,27 @@
 			rulesets = await api.getRuleSets();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load rulesets';
+			toastStore.error(error);
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function deleteRuleSet(name: string) {
-		if (!confirm(`Are you sure you want to delete ruleset "${name}"?`)) {
-			return;
-		}
+	function confirmDelete(name: string) {
+		rulesetToDelete = name;
+		showDeleteModal = true;
+	}
+
+	async function deleteRuleSet() {
+		if (!rulesetToDelete) return;
 
 		try {
-			await api.deleteRuleSet(name);
+			await api.deleteRuleSet(rulesetToDelete);
+			toastStore.success(`RuleSet "${rulesetToDelete}" deleted successfully`);
 			await loadRuleSets();
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to delete ruleset';
+			const errorMsg = err instanceof Error ? err.message : 'Failed to delete ruleset';
+			toastStore.error(errorMsg);
 		}
 	}
 
@@ -81,15 +92,13 @@
 			{/each}
 		</div>
 	{:else if rulesets.length === 0}
-		<Card>
-			<CardHeader>
-				<CardTitle>No RuleSets</CardTitle>
-				<CardDescription>Create your first ruleset to get started</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Button href="/rulesets/new">Create RuleSet</Button>
-			</CardContent>
-		</Card>
+		<EmptyState
+			title="No RuleSets"
+			description="Create your first ruleset to define compatibility rules and conditions"
+			actionText="Create RuleSet"
+			actionHref="/rulesets/new"
+			icon="⚙️"
+		/>
 	{:else}
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each rulesets as ruleset}
@@ -150,7 +159,7 @@
 								<Button
 									variant="destructive"
 									size="sm"
-									onclick={() => deleteRuleSet(ruleset.name)}>Delete</Button
+									onclick={() => confirmDelete(ruleset.name)}>Delete</Button
 								>
 							</div>
 						</div>
@@ -160,3 +169,14 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmModal
+	bind:isOpen={showDeleteModal}
+	onClose={() => (showDeleteModal = false)}
+	onConfirm={deleteRuleSet}
+	title="Delete RuleSet"
+	message="Are you sure you want to delete this ruleset? This action cannot be undone."
+	confirmText="Delete"
+	isDanger={true}
+	details={rulesetToDelete ? { Name: rulesetToDelete } : undefined}
+/>

@@ -13,7 +13,7 @@ import argparse
 import sys
 from pathlib import Path
 
-import requests
+import httpx
 import yaml
 
 
@@ -57,7 +57,7 @@ def seed_database(api_url: str, examples_dir: Path):
     }
 
     try:
-        response = requests.post(
+        response = httpx.post(
             f"{api_url}/schemas",
             json=schema_payload,
             headers={"Content-Type": "application/json"}
@@ -85,7 +85,7 @@ def seed_database(api_url: str, examples_dir: Path):
     }
 
     try:
-        response = requests.post(
+        response = httpx.post(
             f"{api_url}/rulesets",
             json=ruleset_payload,
             headers={"Content-Type": "application/json"}
@@ -114,7 +114,7 @@ def seed_database(api_url: str, examples_dir: Path):
     }
 
     try:
-        response = requests.post(
+        response = httpx.post(
             f"{api_url}/cluster-rulesets",
             json=cluster_ruleset_payload,
             headers={"Content-Type": "application/json"}
@@ -141,7 +141,7 @@ def seed_database(api_url: str, examples_dir: Path):
     }
 
     try:
-        response = requests.post(
+        response = httpx.post(
             f"{api_url}/catalogs",
             json=catalog_payload,
             headers={"Content-Type": "application/json"}
@@ -177,7 +177,7 @@ def seed_database(api_url: str, examples_dir: Path):
         }
 
         try:
-            response = requests.post(
+            response = httpx.post(
                 f"{api_url}/catalogs/{catalog_data['name']}/items",
                 json=item_payload,
                 headers={"Content-Type": "application/json"}

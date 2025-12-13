@@ -14,11 +14,11 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let name = '';
-	let version = '1.0.0';
-	let dimensions: Dimension[] = [];
-	let error: string | null = null;
-	let submitting = false;
+	let name = $state('');
+	let version = $state('1.0.0');
+	let dimensions = $state<Dimension[]>([]);
+	let error = $state<string | null>(null);
+	let submitting = $state(false);
 
 	function addDimension() {
 		dimensions = [
@@ -88,7 +88,7 @@
 	}
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold mb-2">Create Schema</h1>
 		<p class="text-muted-foreground">
@@ -111,6 +111,7 @@
 							<input
 								type="text"
 								id="name"
+								name="name"
 								bind:value={name}
 								class="w-full px-3 py-2 border border-input rounded-md bg-background"
 								placeholder="e.g., wardrobe_schema"
@@ -122,6 +123,7 @@
 							<input
 								type="text"
 								id="version"
+								name="version"
 								bind:value={version}
 								class="w-full px-3 py-2 border border-input rounded-md bg-background"
 								placeholder="1.0.0"
@@ -166,8 +168,9 @@
 									<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<!-- Name -->
 										<div>
-											<label class="block text-sm font-medium mb-2">Name</label>
+											<label for="dim-name-{index}" class="block text-sm font-medium mb-2">Name</label>
 											<input
+												id="dim-name-{index}"
 												type="text"
 												bind:value={dim.name}
 												onchange={(e) =>
@@ -180,8 +183,9 @@
 
 										<!-- Type -->
 										<div>
-											<label class="block text-sm font-medium mb-2">Type</label>
+											<label for="dim-type-{index}" class="block text-sm font-medium mb-2">Type</label>
 											<select
+												id="dim-type-{index}"
 												bind:value={dim.type}
 												onchange={(e) =>
 													updateDimension(index, {
@@ -216,10 +220,11 @@
 										<!-- Type-specific fields -->
 										{#if dim.type === 'enum'}
 											<div class="md:col-span-2">
-												<label class="block text-sm font-medium mb-2"
+												<label for="dim-values-{index}" class="block text-sm font-medium mb-2"
 													>Allowed Values (comma-separated)</label
 												>
 												<input
+													id="dim-values-{index}"
 													type="text"
 													value={dim.values?.join(', ') || ''}
 													oninput={(e) =>
@@ -235,8 +240,9 @@
 											</div>
 										{:else if dim.type === 'integer' || dim.type === 'float'}
 											<div>
-												<label class="block text-sm font-medium mb-2">Min Value</label>
+												<label for="dim-min-{index}" class="block text-sm font-medium mb-2">Min Value</label>
 												<input
+													id="dim-min-{index}"
 													type="number"
 													bind:value={dim.min}
 													step={dim.type === 'float' ? '0.1' : '1'}
@@ -250,8 +256,9 @@
 												/>
 											</div>
 											<div>
-												<label class="block text-sm font-medium mb-2">Max Value</label>
+												<label for="dim-max-{index}" class="block text-sm font-medium mb-2">Max Value</label>
 												<input
+													id="dim-max-{index}"
 													type="number"
 													bind:value={dim.max}
 													step={dim.type === 'float' ? '0.1' : '1'}
@@ -266,8 +273,9 @@
 											</div>
 										{:else if dim.type === 'list'}
 											<div class="md:col-span-2">
-												<label class="block text-sm font-medium mb-2">Item Type</label>
+												<label for="dim-item-type-{index}" class="block text-sm font-medium mb-2">Item Type</label>
 												<select
+													id="dim-item-type-{index}"
 													bind:value={dim.item_type}
 													onchange={(e) =>
 														updateDimension(index, { item_type: e.currentTarget.value })}

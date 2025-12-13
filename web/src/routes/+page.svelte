@@ -14,11 +14,11 @@
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let schemas: Schema[] = [];
-	let rulesets: RuleSet[] = [];
-	let catalogs: Catalog[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let schemas = $state<Schema[]>([]);
+	let rulesets = $state<RuleSet[]>([]);
+	let catalogs = $state<Catalog[]>([]);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
 
 	onMount(async () => {
 		try {

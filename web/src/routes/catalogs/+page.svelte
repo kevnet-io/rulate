@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api/client';
 	import type { Catalog } from '$lib/api/client';
+	import { toastStore } from '$lib/stores/toast.svelte';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
@@ -14,10 +15,14 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 
-	let catalogs: Catalog[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let catalogs = $state<Catalog[]>([]);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let showDeleteModal = $state(false);
+	let catalogToDelete = $state<string | null>(null);
 
 	async function loadCatalogs() {
 		try {
@@ -26,21 +31,27 @@
 			catalogs = await api.getCatalogs();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load catalogs';
+			toastStore.error(error);
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function deleteCatalog(name: string) {
-		if (!confirm(`Are you sure you want to delete catalog "${name}"?`)) {
-			return;
-		}
+	function confirmDelete(name: string) {
+		catalogToDelete = name;
+		showDeleteModal = true;
+	}
+
+	async function deleteCatalog() {
+		if (!catalogToDelete) return;
 
 		try {
-			await api.deleteCatalog(name);
+			await api.deleteCatalog(catalogToDelete);
+			toastStore.success(`Catalog "${catalogToDelete}" deleted successfully`);
 			await loadCatalogs();
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to delete catalog';
+			const errorMsg = err instanceof Error ? err.message : 'Failed to delete catalog';
+			toastStore.error(errorMsg);
 		}
 	}
 
@@ -81,15 +92,13 @@
 			{/each}
 		</div>
 	{:else if catalogs.length === 0}
-		<Card>
-			<CardHeader>
-				<CardTitle>No Catalogs</CardTitle>
-				<CardDescription>Create your first catalog to get started</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Button href="/catalogs/new">Create Catalog</Button>
-			</CardContent>
-		</Card>
+		<EmptyState
+			title="No Catalogs"
+			description="Create your first catalog to organize and manage your items"
+			actionText="Create Catalog"
+			actionHref="/catalogs/new"
+			icon="📚"
+		/>
 	{:else}
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each catalogs as catalog}
@@ -125,7 +134,7 @@
 								<Button
 									variant="destructive"
 									size="sm"
-									onclick={() => deleteCatalog(catalog.name)}>Delete</Button
+									onclick={() => confirmDelete(catalog.name)}>Delete</Button
 								>
 							</div>
 						</div>
@@ -135,3 +144,14 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmModal
+	bind:isOpen={showDeleteModal}
+	onClose={() => (showDeleteModal = false)}
+	onConfirm={deleteCatalog}
+	title="Delete Catalog"
+	message="Are you sure you want to delete this catalog? This action cannot be undone."
+	confirmText="Delete"
+	isDanger={true}
+	details={catalogToDelete ? { Name: catalogToDelete } : undefined}
+/>

@@ -14,13 +14,13 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 
-	let name = '';
-	let schema_name = '';
-	let description = '';
-	let schemas: Schema[] = [];
-	let error: string | null = null;
-	let submitting = false;
-	let loadingSchemas = true;
+	let name = $state('');
+	let schema_name = $state('');
+	let description = $state('');
+	let schemas = $state<Schema[]>([]);
+	let error = $state<string | null>(null);
+	let submitting = $state(false);
+	let loadingSchemas = $state(true);
 
 	async function loadSchemas() {
 		try {
@@ -78,7 +78,7 @@
 	onMount(loadSchemas);
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold mb-2">Create Catalog</h1>
 		<p class="text-muted-foreground">Create a collection of items to evaluate</p>
