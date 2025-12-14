@@ -71,12 +71,15 @@ jobs:
         cache-dependency-path: web/package-lock.json
 
     - name: Install dependencies
+      working-directory: ./web
       run: npm ci
 
     - name: Run linting (ESLint)
+      working-directory: ./web
       run: npm run lint
 
     - name: Run unit tests
+      working-directory: ./web
       run: npm test
 
     - name: Upload coverage to Codecov
