@@ -31,7 +31,7 @@ export default defineConfig({
     setupFiles: ["./src/test-setup.ts"],
     coverage: {
       provider: "v8",
-      reporter: ["text", "html", "json-summary"],
+      reporter: ["text", "html", "json-summary", "json"],
       // Only include TypeScript files - v8 can't properly instrument Svelte components
       // Svelte components are tested via unit tests but not measurable by v8
       include: ["src/**/*.ts"],
