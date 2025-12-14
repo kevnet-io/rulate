@@ -17,8 +17,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    reviewers: []
-    assignees: []
 
   # Frontend dependencies
   - package-ecosystem: "npm"
@@ -34,8 +32,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    reviewers: []
-    assignees: []
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
