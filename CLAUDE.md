@@ -298,17 +298,52 @@ cd web && npm run check
 
 ### Development Servers
 
+For development, run two separate servers for optimal developer experience (hot module reloading):
+
 ```bash
-# Start API server (http://localhost:8000)
+# Terminal 1: Backend API on port 8000
 make dev-backend
 # Interactive API docs: http://localhost:8000/docs
 
-# Start web UI (http://localhost:5173)
+# Terminal 2: Frontend with HMR on port 5173
 make dev-frontend
 
 # Or use underlying commands:
 uv run uvicorn api.main:app --reload
 cd web && npm run dev
+```
+
+**Development setup:**
+- Frontend (Vite): `http://localhost:5173` - proxies `/api/*` requests to backend
+- Backend (FastAPI): `http://localhost:8000` - serves API only
+- CORS enabled for cross-origin requests between the two servers
+
+### Production Build & Serve
+
+For production, the FastAPI server serves both the API and the built frontend as a unified application:
+
+```bash
+# Build frontend and start unified server
+make serve-production
+
+# Or manually:
+cd web && npm run build
+uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+# Access at: http://localhost:8000
+```
+
+**Production setup:**
+- Single server on `http://localhost:8000` serves both API and frontend
+- Frontend built as static assets in `web/build/` directory
+- No CORS needed (same-origin requests)
+- API available at `/api/v1/*` routes
+- All other routes serve the SvelteKit SPA
+
+**To just build the frontend without serving:**
+```bash
+make build-frontend
+# Output: web/build/
 ```
 
 ### Using the CLI

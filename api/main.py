@@ -5,10 +5,14 @@ This provides a REST API for managing schemas, rulesets, catalogs, and items,
 as well as evaluating compatibility between items.
 """
 
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.database.connection import init_db
 from api.routers import catalogs, clusters, evaluation, import_export, rulesets, schemas
@@ -32,14 +36,29 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, specify actual origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Configure CORS - only in development mode
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+if ENVIRONMENT == "development":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+# Production: no CORS needed (same-origin)
+
+# Mount static files for frontend (if built)
+FRONTEND_BUILD_DIR = Path(__file__).parent.parent / "web" / "build"
+
+if FRONTEND_BUILD_DIR.exists():
+    # Mount _app directory for SvelteKit assets (JS, CSS, etc.)
+    app.mount(
+        "/_app",
+        StaticFiles(directory=str(FRONTEND_BUILD_DIR / "_app")),
+        name="frontend-assets",
+    )
 
 # Include routers
 app.include_router(schemas.router, prefix="/api/v1", tags=["schemas"])
@@ -50,18 +69,41 @@ app.include_router(clusters.router, prefix="/api/v1", tags=["clusters"])
 app.include_router(import_export.router, prefix="/api/v1", tags=["import-export"])
 
 
-@app.get("/")
-async def root():
-    """Root endpoint."""
-    return {
-        "message": "Welcome to Rulate API",
-        "version": "0.1.0",
-        "docs": "/docs",
-        "openapi": "/openapi.json",
-    }
-
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+@app.get("/")
+async def root():
+    """Serve frontend homepage."""
+    index_path = FRONTEND_BUILD_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    return {
+        "message": "Frontend not built. Run: cd web && npm run build",
+        "api_docs": "/docs",
+        "api_version": "0.1.0",
+    }
+
+
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    """Serve SvelteKit SPA for all routes not handled by API."""
+    # Don't intercept API routes
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404)
+
+    # Serve static files if they exist
+    file_path = FRONTEND_BUILD_DIR / full_path
+    if file_path.is_file():
+        return FileResponse(file_path)
+
+    # Otherwise serve index.html (SPA routing)
+    index_path = FRONTEND_BUILD_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(
+            status_code=503, detail="Frontend not built. Run: cd web && npm run build"
+        )
+    return FileResponse(index_path)

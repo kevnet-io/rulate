@@ -1,6 +1,9 @@
 // API Client for Rulate backend
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "http://localhost:8000/api/v1" // Dev: separate servers
+    : "/api/v1"); // Prod: same origin
 
 export interface Schema {
   id?: number;
