@@ -273,7 +273,7 @@ Run `make help` to see all available commands.
 
 ## License
 
-TBD
+[MIT](./LICENSE)
 
 ## Contributing
 
