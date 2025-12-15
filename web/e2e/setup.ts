@@ -19,6 +19,19 @@ export default async function globalSetup() {
   // Project root is 2 levels up from e2e/setup.ts: rulate/web/e2e -> rulate
   const projectRoot = resolve(__dirname, "..", "..");
 
+  // Build frontend for production
+  console.log("📦 Building frontend for E2E tests...");
+  try {
+    execSync("npm run build", {
+      cwd: resolve(projectRoot, "web"),
+      stdio: "inherit",
+    });
+    console.log("✓ Frontend built successfully\n");
+  } catch {
+    console.error("\n❌ Failed to build frontend\n");
+    process.exit(1);
+  }
+
   // Clear e2e database for fresh state
   console.log("🗑️  Clearing e2e database...");
   const e2eDbPath = resolve(projectRoot, "e2e_test.db");
@@ -33,12 +46,12 @@ export default async function globalSetup() {
     }
   }
 
-  // Start API server with e2e database
-  console.log("🚀 Starting API server with e2e database...");
+  // Start unified production server (serves API + built frontend)
+  console.log("🚀 Starting unified production server with e2e database...");
   try {
     apiProcess = spawn(
       "uv",
-      ["run", "uvicorn", "api.main:app", "--reload", "--port", "8000"],
+      ["run", "python3", "-m", "uvicorn", "api.main:app", "--port", "8000"],
       {
         cwd: projectRoot,
         env: {

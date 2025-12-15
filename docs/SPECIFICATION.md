@@ -100,6 +100,49 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
                    └─────────────────┘
 ```
 
+### Deployment Models
+
+#### Development
+Three separate processes for optimal developer experience:
+- **Core Engine**: Python library (`rulate/`)
+- **REST API**: FastAPI on port 8000 (`api/`)
+- **Web UI**: Vite dev server on port 5173 (`web/`)
+
+Development workflow:
+```bash
+# Terminal 1
+make dev-backend  # API on port 8000
+
+# Terminal 2
+make dev-frontend  # Vite HMR on port 5173
+```
+
+#### Production
+Single unified server for simplified deployment:
+- **FastAPI serves both**:
+  - API endpoints at `/api/v1/*`
+  - Static frontend assets from `web/build/`
+  - SPA routing with fallback to `index.html`
+- **Single port**: 8000
+- **No CORS needed**: Same-origin requests
+
+Production deployment:
+```bash
+# Build frontend
+cd web && npm run build
+
+# Start unified server
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+# Or use Makefile
+make serve-production
+```
+
+The server serves:
+- API endpoints at `/api/v1/*`
+- Frontend assets from `web/build/`
+- SPA routing for all non-API paths
+
 ### Directory Structure
 
 ```

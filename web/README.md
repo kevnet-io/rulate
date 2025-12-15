@@ -23,15 +23,18 @@ Modern web interface for the Rulate compatibility engine, built with SvelteKit a
 # Install dependencies
 npm install
 
-# Start dev server (default port 3000)
+# Start dev server (port 5173)
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
 ```
+
+## Production Build
+
+```bash
+npm run build  # Builds to web/build/ directory
+```
+
+The production build is served by the FastAPI backend at the project root.
+Run `make serve-production` from the project root to test locally.
 
 ## Testing
 
@@ -88,13 +91,18 @@ web/
 
 ## API Integration
 
-The web UI communicates with the Rulate REST API running on port 8000. The Vite dev server includes a proxy configuration to forward `/api` requests to `http://localhost:8000`.
+**Development**: Vite proxy forwards `/api/*` requests to `http://localhost:8000`
 
-Ensure the API server is running:
+**Production**: API client uses relative URLs (`/api/v1`) for same-origin requests
 
+The API base URL is automatically selected based on environment:
+- `import.meta.env.DEV` → absolute URL for proxy
+- Production build → relative URL for same-origin
+
+Ensure the API server is running during development:
 ```bash
 # From project root
-uv run uvicorn api.main:app --reload --port 8000
+make dev-backend
 ```
 
 ## Features by Page
