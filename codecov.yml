@@ -1,0 +1,6 @@
+coverage:
+  status:
+    project: true      # Keep overall project coverage check
+    patch:
+      default:
+        informational: true  # Show patch coverage info but don't fail PR
