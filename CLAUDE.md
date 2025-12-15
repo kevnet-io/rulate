@@ -244,6 +244,25 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pytest
 ```
 
+### Code Coverage & Codecov
+
+Rulate uses [Codecov](https://codecov.io) for coverage tracking and reporting. Coverage reports are automatically uploaded to Codecov during CI runs.
+
+**Coverage configuration** (`codecov.yml`):
+- **Project coverage**: Tracks overall project coverage trends
+- **Patch coverage**: Set to **informational mode** - shows coverage metrics for new code in PRs without blocking merges
+
+This configuration allows visibility into test coverage while learning coverage practices. The patch check can be made required later by changing `informational: true` to `informational: false` in `codecov.yml`.
+
+**Local coverage reports:**
+```bash
+# Backend coverage (HTML report in htmlcov/)
+make test-cov
+
+# Frontend coverage (HTML report in web/coverage/)
+cd web && npm run test:coverage
+```
+
 ### Individual Tools
 
 While `make` targets are recommended, you can run individual tools:
