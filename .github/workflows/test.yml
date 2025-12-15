@@ -47,9 +47,10 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
         flags: backend
         name: backend-${{ matrix.python-version }}
+        token: ${{ secrets.CODECOV_TOKEN }}
       if: matrix.python-version == '3.12'
 
   frontend-unit:
