@@ -44,6 +44,10 @@ help:
 	@echo "  make dev-frontend      Start SvelteKit dev server (port 5173)"
 	@echo "  make dev               Start both servers (requires terminal multiplexer)"
 	@echo ""
+	@echo "Production Build & Serve:"
+	@echo "  make build-frontend    Build frontend for production"
+	@echo "  make serve-production  Build and serve unified production server (port 8000)"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean             Remove build artifacts and caches"
 	@echo "  make clean-backend     Remove Python caches and build files"
@@ -172,7 +176,7 @@ pre-commit:
 dev-backend:
 	@echo "Starting FastAPI server on http://localhost:8000..."
 	@echo "API docs: http://localhost:8000/docs"
-	uv run uvicorn api.main:app --reload
+	uv run python3 -m uvicorn api.main:app --reload
 
 .PHONY: dev-frontend
 dev-frontend:
@@ -188,6 +192,22 @@ dev:
 	@echo "Terminal 2: make dev-frontend"
 	@echo ""
 	@echo "Alternatively, use a tool like 'make -j2' with background processes"
+
+#
+# Production build and serve targets
+#
+
+.PHONY: build-frontend
+build-frontend:
+	@echo "Building frontend for production..."
+	cd web && npm run build
+	@echo "✓ Frontend built to web/build/"
+
+.PHONY: serve-production
+serve-production: build-frontend
+	@echo "Starting production server on http://localhost:8000..."
+	@echo "Serving unified API + frontend"
+	uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 #
 # Cleanup targets
