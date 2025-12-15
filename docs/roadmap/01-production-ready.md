@@ -27,13 +27,30 @@ Rulate's core engine is complete and well-tested, but deploying to production re
 
 **Goal**: One-command deployment with Docker.
 
+#### Production Deployment Options
+
+**Option A: Single Container (Simple)**
+- One Dockerfile for unified server
+- Builds frontend during image build
+- FastAPI serves both API and frontend
+- Best for: Small deployments, quick setup
+
+**Option B: Multi-Container (Scalable)**
+- Separate API and frontend containers
+- Independent scaling
+- CDN for frontend assets
+- Best for: Production scale, high traffic
+
 **Tasks**:
-- [ ] Create `Dockerfile` for API server (multi-stage build for size optimization)
-- [ ] Create `Dockerfile` for Web UI (nginx serving built assets)
+- [ ] Create `Dockerfile` for unified server (Option A)
+- [ ] Create separate `Dockerfile` for API server (Option B, multi-stage build)
+- [ ] Create separate `Dockerfile` for Web UI (Option B, nginx serving built assets)
 - [ ] Create `docker-compose.yml` for full stack (API + Web + SQLite volume)
 - [ ] Create `docker-compose.dev.yml` for development with hot reload
 - [ ] Add health checks to container definitions
 - [ ] Document environment variables
+
+Current roadmap focuses on Option A first for simplicity, with Option B for future scalability needs.
 
 ### Health Check Endpoint
 

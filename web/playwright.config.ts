@@ -72,12 +72,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-
-  /* Run your local production server before starting the tests */
-  webServer: {
-    command: "cd .. && make serve-production",
-    url: "http://localhost:8000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000, // 2 minutes to allow for frontend build
-  },
 });

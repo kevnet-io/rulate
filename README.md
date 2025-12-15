@@ -142,16 +142,20 @@ rulate evaluate matrix \
 
 ### Using the REST API
 
+**Development** (with hot reload):
 ```bash
-# Start the API server
-make dev-backend
+make dev-backend  # API only on port 8000
+```
 
-# Or use uvicorn directly:
-# uvicorn api.main:app --reload
+**Production** (unified server):
+```bash
+make serve-production  # API + frontend on port 8000
+```
 
-# API is now available at http://localhost:8000
-# Interactive docs at http://localhost:8000/docs
+API docs available at: http://localhost:8000/docs
 
+**Example API calls:**
+```bash
 # Create a schema
 curl -X POST http://localhost:8000/api/v1/schemas \
   -H "Content-Type: application/json" \
@@ -170,19 +174,21 @@ curl -X POST http://localhost:8000/api/v1/evaluate/pair \
 
 ### Using the Web UI
 
+**Development** (with HMR):
 ```bash
-# Terminal 1: Start the API server
+# Terminal 1: Backend
 make dev-backend
 
-# Terminal 2: Start the web frontend
+# Terminal 2: Frontend
 make dev-frontend
-
-# Web UI is now available at http://localhost:5173
-
-# Or use the underlying commands:
-# Terminal 1: uvicorn api.main:app --reload --port 8000
-# Terminal 2: cd web && npm run dev
 ```
+Access at: http://localhost:5173 (proxies API calls to port 8000)
+
+**Production** (unified server):
+```bash
+make serve-production
+```
+Access at: http://localhost:8000 (single server serves both API and UI)
 
 The Web UI provides:
 - **Dashboard**: Overview of schemas, rulesets, and catalogs with statistics

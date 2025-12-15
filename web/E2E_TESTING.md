@@ -13,17 +13,33 @@ Before running e2e tests, you need:
 
 ## Setup
 
-The e2e test setup is fully automated! You don't need to manually start the API server.
+The E2E tests run against a production build of the application:
+
+```bash
+npm run test:e2e
+```
+
+Playwright will automatically:
+1. Build the frontend (`npm run build`)
+2. Start the unified production server on port 8000
+3. Run tests against http://localhost:8000
+4. Shut down the server after tests complete
+
+The global setup script:
+- ✓ Builds the frontend for production
+- ✓ Clears the e2e database (`e2e_test.db`) for a fresh state
+- ✓ Starts the unified production server (API + frontend) with the e2e database
+- ✓ Waits for the server to be ready
+- ✓ Seeds the database with test data (wardrobe schema, rules, catalog, items)
+
+**Manual server** (optional):
+```bash
+# From project root
+make serve-production
+npm run test:e2e  # Reuses existing server
+```
 
 ### Run E2E Tests
-
-The e2e test global setup automatically:
-
-- ✓ Clears the e2e database (`e2e_test.db`) for a fresh state
-- ✓ Starts the backend API server with the e2e database
-- ✓ Waits for the API server to be ready
-- ✓ Seeds the database with test data (wardrobe schema, rules, catalog, items)
-- ✓ Starts the frontend dev server on `http://localhost:5173`
 
 **Run all tests:**
 
@@ -224,6 +240,15 @@ test("should create a schema", async ({ page }) => {
 
 ## CI Integration
 
+GitHub Actions runs E2E tests in `.github/workflows/test.yml`:
+
+1. Builds the frontend
+2. Starts the production server on port 8000
+3. Runs Playwright tests across 3 browsers
+4. Uploads test reports as artifacts
+
+The CI setup matches local development - same unified server, same test configuration.
+
 For CI pipelines, set the `CI` environment variable:
 
 ```bash
@@ -231,8 +256,7 @@ CI=true npm run test:e2e
 ```
 
 This ensures:
-
-- Fresh frontend server each run
+- Fresh production build each run
 - No server reuse
 - Consistent test environment
 - Proper error reporting

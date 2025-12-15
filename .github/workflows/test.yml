@@ -127,13 +127,6 @@ jobs:
       working-directory: ./web
       run: npx playwright install --with-deps
 
-    - name: Start API server
-      run: |
-        uv run uvicorn api.main:app --host 0.0.0.0 --port 8000 &
-        # Wait for server to be ready
-        timeout 30 bash -c 'until curl -f http://localhost:8000/health 2>/dev/null; do sleep 1; done' || true
-        sleep 2
-
     - name: Run E2E tests
       working-directory: ./web
       run: npm run test:e2e

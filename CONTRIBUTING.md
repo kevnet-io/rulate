@@ -82,12 +82,24 @@ make test
 
 # Frontend tests
 make test-frontend
+```
 
-# Start the API server
-make dev-backend
+## Development Setup
 
-# Start the web UI (in another terminal)
-make dev-frontend
+### Option 1: Development Mode (Recommended)
+Separate servers with hot module reloading:
+```bash
+# Terminal 1
+make dev-backend  # API on port 8000
+
+# Terminal 2
+make dev-frontend  # Vite HMR on port 5173
+```
+
+### Option 2: Production Mode
+Test the production build locally:
+```bash
+make serve-production  # Unified server on port 8000
 ```
 
 ## Project Architecture
@@ -347,6 +359,22 @@ describe('parseAttributeValue', () => {
   });
 });
 ```
+
+## Testing Production Build
+
+Before submitting a PR, test the production build to ensure it works correctly:
+
+```bash
+make serve-production
+# Visit http://localhost:8000
+# Test navigation, forms, API calls
+```
+
+This tests the unified server configuration that will be used in production, ensuring:
+- Frontend builds correctly
+- Static file serving works
+- API endpoints are accessible
+- SPA routing handles all routes
 
 ## Commit Messages
 
