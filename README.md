@@ -2,7 +2,9 @@
 
 [![Tests](https://github.com/kevnet-io/rulate/actions/workflows/test.yml/badge.svg)](https://github.com/kevnet-io/rulate/actions/workflows/test.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Node.js](https://img.shields.io/badge/Node.js-25-6DA55F?logo=node.js&logoColor=white)](#)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![codecov](https://codecov.io/gh/kevnet-io/rulate/graph/badge.svg?token=54VYUXSBDF)](https://codecov.io/gh/kevnet-io/rulate)
 
 A generic, programmable rule-based comparison engine for evaluating and classifying relationships between pairs of objects.
 
