@@ -95,15 +95,26 @@ async def serve_spa(full_path: str):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404)
 
-    # Serve static files if they exist
-    file_path = FRONTEND_BUILD_DIR / full_path
-    if file_path.is_file():
-        return FileResponse(file_path)
-
-    # Otherwise serve index.html (SPA routing)
-    index_path = FRONTEND_BUILD_DIR / "index.html"
-    if not index_path.exists():
+    # Validate frontend exists
+    if not FRONTEND_BUILD_DIR.exists():
         raise HTTPException(
             status_code=503, detail="Frontend not built. Run: cd web && npm run build"
         )
+
+    # Security: Validate path stays within build directory to prevent traversal attacks
+    # Resolves symlinks and normalizes paths (e.g., '../../../etc/passwd')
+    build_root = FRONTEND_BUILD_DIR.resolve()
+    requested_path = (build_root / full_path.lstrip("/")).resolve(strict=False)
+
+    try:
+        requested_path.relative_to(build_root)
+    except ValueError:
+        raise HTTPException(status_code=404)
+
+    # Serve static files if they exist
+    if requested_path.is_file():
+        return FileResponse(requested_path)
+
+    # Otherwise serve index.html (SPA routing)
+    index_path = build_root / "index.html"
     return FileResponse(index_path)
