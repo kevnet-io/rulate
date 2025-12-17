@@ -41,7 +41,7 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 - **CLI**: Comprehensive command-line interface
 - **Database Persistence**: SQLite with SQLAlchemy ORM
 - **Import/Export**: Bulk data import/export for backup and migration
-- **Comprehensive Testing**: 697 backend tests (94% core, 88.5% API) + 671 frontend tests (100% production code)
+- **Comprehensive Testing**: 715 backend tests (94% core, 90% API) + 671 frontend tests (100% production code)
 
 ---
 
@@ -1053,8 +1053,8 @@ rulate show catalog <file>
 ### Testing
 
 **Backend Testing** (`tests/`):
-- **697 total tests** across 18 test files with **57% overall project coverage**
-- **88.5% API-specific coverage** (802/906 statements)
+- **715 total tests** across 19 test files with **58% overall project coverage**
+- **90% API-specific coverage** (860/906 statements)
 
 **Unit Tests** (`tests/unit/`):
 - **480 tests** across 11 test files with **94% core engine coverage**
@@ -1077,7 +1077,7 @@ rulate show catalog <file>
   - CLI: 91% coverage
 
 **Integration Tests** (`tests/integration/`):
-- **217 tests** across 7 test files with **88.5% API coverage**
+- **235 tests** across 8 test files with **90% API coverage**
 - **Test Infrastructure**:
   - `conftest.py` - Test fixtures with environment variable-based database isolation
   - FastAPI TestClient for realistic HTTP testing
@@ -1089,7 +1089,8 @@ rulate show catalog <file>
   - `test_api_catalogs.py` (29 tests) - Catalog CRUD endpoints → 100% coverage
   - `test_api_items.py` (42 tests) - Item CRUD endpoints → 100% coverage
   - `test_api_evaluation.py` (25 tests) - Evaluation endpoints → 100% coverage
-  - `test_api_import_export.py` (34 tests) - Import/Export endpoints → 66% coverage
+  - `test_api_import_export.py` (40 tests) - Import/Export endpoints → 90% coverage
+  - `test_api_import_export_cluster_rulesets.py` (12 tests) - Cluster ruleset import/export → 90% coverage
   - `test_api_clusters.py` (27 tests) - Cluster endpoints → 100% coverage
 - **Coverage by Router**:
   - `api/routers/schemas.py`: 97% (58 stmts, 2 miss)
@@ -1097,7 +1098,7 @@ rulate show catalog <file>
   - `api/routers/catalogs.py`: 100% (99 stmts)
   - `api/routers/evaluation.py`: 100% (71 stmts)
   - `api/routers/clusters.py`: 100% (88 stmts)
-  - `api/routers/import_export.py`: 66% (244 stmts, 82 miss)
+  - `api/routers/import_export.py`: 90% (244 stmts, 24 miss)
   - `api/database/models.py`: 100% (92 stmts)
   - `api/models/schemas.py`: 100% (137 stmts)
 
@@ -1170,12 +1171,12 @@ npm run test:e2e:ui              # E2E tests with UI
 - **API Endpoints**: 42 endpoints across 6 routers
 - **Web UI Pages**: 19 pages
 - **UI Components**: 19 reusable components (includes 10 UX polish components)
-- **Backend Tests**: 697 tests total
+- **Backend Tests**: 715 tests total
   - Unit tests: 480 tests (94% core engine coverage)
-  - Integration tests: 217 tests (88.5% API coverage)
+  - Integration tests: 235 tests (90% API coverage)
 - **Frontend Tests**: 671 tests (100% production code coverage)
-- **Total Test Count**: 1,368 tests
-- **Overall Coverage**: 57% project-wide (94% core, 88.5% API, 100% frontend)
+- **Total Test Count**: 1,386 tests
+- **Overall Coverage**: 58% project-wide (94% core, 90% API, 100% frontend)
 - **Dependencies**: Pydantic, FastAPI, SQLAlchemy, Click, SvelteKit, Vitest, Playwright
 
 ---
@@ -1190,9 +1191,9 @@ npm run test:e2e:ui              # E2E tests with UI
 - 19 Web UI pages including data management
 - 19 operators (9 pairwise + 8 cluster + 2 base)
 - Comprehensive wardrobe example
-- 1,368 total tests with comprehensive coverage:
+- 1,386 total tests with comprehensive coverage:
   - Core engine: 480 unit tests (94% coverage)
-  - API layer: 217 integration tests (88.5% coverage)
+  - API layer: 235 integration tests (90% coverage)
   - Frontend: 671 tests (100% production code coverage)
 
 ---
