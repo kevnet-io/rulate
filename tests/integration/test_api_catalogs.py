@@ -19,12 +19,11 @@ class TestCreateCatalog:
     def test_create_catalog_success(self, client, setup_schema, sample_catalog_payload):
         """Test creating a catalog with valid data."""
         response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == sample_catalog_payload["name"]
         assert data["description"] == sample_catalog_payload["description"]
-        assert data["schema_ref"] == sample_catalog_payload["schema_ref"]
+        assert data["schema_name"] == sample_catalog_payload["schema_name"]
         assert data["metadata"] == sample_catalog_payload["metadata"]
         assert "id" in data
         assert "created_at" in data
@@ -33,8 +32,7 @@ class TestCreateCatalog:
     def test_create_minimal_catalog(self, client, setup_schema, minimal_catalog_payload):
         """Test creating a catalog with only required fields."""
         response = client.post("/api/v1/catalogs", json=minimal_catalog_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == minimal_catalog_payload["name"]
         assert data["description"] is None
@@ -44,7 +42,7 @@ class TestCreateCatalog:
         """Test creating catalog with non-existent schema reference fails."""
         payload = {
             "name": "orphan_catalog",
-            "schema_ref": "nonexistent_schema",
+            "schema_name": "nonexistent_schema",
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
@@ -56,7 +54,7 @@ class TestCreateCatalog:
         """Test creating duplicate catalog returns 409 Conflict."""
         # Create first catalog
         response1 = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-        assert response1.status_code == 200
+        assert response1.status_code == 201
 
         # Attempt to create duplicate
         response2 = client.post("/api/v1/catalogs", json=sample_catalog_payload)
@@ -67,13 +65,12 @@ class TestCreateCatalog:
         """Test creating catalog with empty metadata."""
         payload = {
             "name": "empty_metadata_catalog",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "metadata": {},
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["metadata"] == {}
 
@@ -81,7 +78,7 @@ class TestCreateCatalog:
         """Test creating catalog with nested metadata."""
         payload = {
             "name": "complex_metadata_catalog",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "metadata": {
                 "season": "summer",
                 "year": 2024,
@@ -94,8 +91,7 @@ class TestCreateCatalog:
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["metadata"]["season"] == "summer"
         assert data["metadata"]["year"] == 2024
@@ -106,12 +102,11 @@ class TestCreateCatalog:
         """Test creating catalog without description field."""
         payload = {
             "name": "no_desc_catalog",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["description"] is None
 
@@ -119,12 +114,12 @@ class TestCreateCatalog:
         """Test creating catalog without required fields fails."""
         # Missing name
         payload1 = {
-            "schema_ref": "test_schema",
+            "schema_name": "test_schema",
         }
         response1 = client.post("/api/v1/catalogs", json=payload1)
         assert response1.status_code == 422
 
-        # Missing schema_ref
+        # Missing schema_name
         payload2 = {
             "name": "test",
         }
@@ -159,7 +154,7 @@ class TestListCatalogs:
             payload = sample_catalog_payload.copy()
             payload["name"] = f"catalog_{i}"
             response = client.post("/api/v1/catalogs", json=payload)
-            assert response.status_code == 200
+            assert response.status_code == 201
 
         # List all catalogs
         response = client.get("/api/v1/catalogs")
@@ -202,15 +197,15 @@ class TestListCatalogs:
         data = response.json()
         assert len(data) == 3
 
-    def test_list_catalogs_includes_schema_ref(self, client, setup_catalog):
-        """Test that listed catalogs include schema_ref."""
+    def test_list_catalogs_includes_schema_name(self, client, setup_catalog):
+        """Test that listed catalogs include schema_name."""
         response = client.get("/api/v1/catalogs")
 
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
-        assert "schema_ref" in data[0]
-        assert data[0]["schema_ref"] == setup_catalog["schema_ref"]
+        assert "schema_name" in data[0]
+        assert data[0]["schema_name"] == setup_catalog["schema_name"]
 
     def test_list_catalogs_includes_metadata(self, client, setup_catalog):
         """Test that listed catalogs include metadata."""
@@ -234,7 +229,7 @@ class TestGetCatalog:
         data = response.json()
         assert data["name"] == catalog_name
         assert data["id"] == setup_catalog["id"]
-        assert data["schema_ref"] == setup_catalog["schema_ref"]
+        assert data["schema_name"] == setup_catalog["schema_name"]
 
     def test_get_catalog_not_found(self, client):
         """Test getting non-existent catalog returns 404."""
@@ -286,7 +281,7 @@ class TestDeleteCatalog:
             f"/api/v1/catalogs/{catalog_name}/items",
             json=sample_item_payload,
         )
-        assert item_response.status_code == 200
+        assert item_response.status_code == 201
         item_id = item_response.json()["item_id"]
 
         # Delete the catalog
@@ -310,7 +305,7 @@ class TestDeleteCatalog:
                 f"/api/v1/catalogs/{catalog_name}/items",
                 json=payload,
             )
-            assert item_response.status_code == 200
+            assert item_response.status_code == 201
             item_ids.append(item_response.json()["item_id"])
 
         # Delete the catalog
@@ -342,8 +337,7 @@ class TestCatalogTimestamps:
     def test_catalog_has_created_at(self, client, setup_schema, sample_catalog_payload):
         """Test that created catalog has created_at timestamp."""
         response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "created_at" in data
         assert data["created_at"] is not None
@@ -351,8 +345,7 @@ class TestCatalogTimestamps:
     def test_catalog_has_updated_at(self, client, setup_schema, sample_catalog_payload):
         """Test that created catalog has updated_at timestamp."""
         response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "updated_at" in data
         assert data["updated_at"] is not None
@@ -366,27 +359,27 @@ class TestCatalogMetadata:
         # Create catalog without metadata field (should default to empty dict)
         payload1 = {
             "name": "no_metadata",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
         }
         response1 = client.post("/api/v1/catalogs", json=payload1)
-        assert response1.status_code == 200
+        assert response1.status_code == 201
         assert response1.json()["metadata"] == {}
 
         # Create catalog with explicit empty metadata
         payload2 = {
             "name": "empty_metadata",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "metadata": {},
         }
         response2 = client.post("/api/v1/catalogs", json=payload2)
-        assert response2.status_code == 200
+        assert response2.status_code == 201
         assert response2.json()["metadata"] == {}
 
     def test_catalog_metadata_preserves_types(self, client, setup_schema):
         """Test that metadata preserves various JSON types."""
         payload = {
             "name": "typed_metadata",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "metadata": {
                 "string": "text",
                 "integer": 42,
@@ -399,8 +392,7 @@ class TestCatalogMetadata:
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["metadata"]["string"] == "text"
         assert data["metadata"]["integer"] == 42
@@ -418,7 +410,7 @@ class TestCatalogSchemaReference:
         """Test that catalog creation fails if schema doesn't exist."""
         payload = {
             "name": "test_catalog",
-            "schema_ref": "nonexistent_schema",
+            "schema_name": "nonexistent_schema",
         }
 
         response = client.post("/api/v1/catalogs", json=payload)
@@ -432,13 +424,13 @@ class TestCatalogSchemaReference:
         payload1 = sample_catalog_payload.copy()
         payload1["name"] = "catalog_1"
         response1 = client.post("/api/v1/catalogs", json=payload1)
-        assert response1.status_code == 200
+        assert response1.status_code == 201
 
-        # Create second catalog with same schema_ref
+        # Create second catalog with same schema_name
         payload2 = sample_catalog_payload.copy()
         payload2["name"] = "catalog_2"
         response2 = client.post("/api/v1/catalogs", json=payload2)
-        assert response2.status_code == 200
+        assert response2.status_code == 201
 
         # Both should reference the same schema
-        assert response1.json()["schema_ref"] == response2.json()["schema_ref"]
+        assert response1.json()["schema_name"] == response2.json()["schema_name"]

@@ -19,8 +19,7 @@ class TestCreateSchema:
     def test_create_schema_success(self, client, sample_schema_payload):
         """Test creating a schema with valid data."""
         response = client.post("/api/v1/schemas", json=sample_schema_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == sample_schema_payload["name"]
         assert data["version"] == sample_schema_payload["version"]
@@ -33,8 +32,7 @@ class TestCreateSchema:
     def test_create_minimal_schema(self, client, minimal_schema_payload):
         """Test creating a schema with only required fields."""
         response = client.post("/api/v1/schemas", json=minimal_schema_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == minimal_schema_payload["name"]
         assert data["version"] == minimal_schema_payload["version"]
@@ -45,7 +43,7 @@ class TestCreateSchema:
         """Test creating duplicate schema returns 409 Conflict."""
         # Create first schema
         response1 = client.post("/api/v1/schemas", json=sample_schema_payload)
-        assert response1.status_code == 200
+        assert response1.status_code == 201
 
         # Attempt to create duplicate
         response2 = client.post("/api/v1/schemas", json=sample_schema_payload)
@@ -68,8 +66,7 @@ class TestCreateSchema:
         }
 
         response = client.post("/api/v1/schemas", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert len(data["dimensions"]) == 6
 
@@ -95,8 +92,7 @@ class TestCreateSchema:
         }
 
         response = client.post("/api/v1/schemas", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["dimensions"] == []
 
@@ -167,7 +163,7 @@ class TestListSchemas:
             payload = sample_schema_payload.copy()
             payload["name"] = f"schema_{i}"
             response = client.post("/api/v1/schemas", json=payload)
-            assert response.status_code == 200
+        assert response.status_code == 201
 
         # List all schemas
         response = client.get("/api/v1/schemas")
@@ -251,7 +247,7 @@ class TestGetSchema:
         """Test that dimension order is preserved."""
         # Create schema
         create_response = client.post("/api/v1/schemas", json=sample_schema_payload)
-        assert create_response.status_code == 200
+        assert create_response.status_code == 201
 
         # Get schema
         schema_name = sample_schema_payload["name"]
@@ -392,7 +388,7 @@ class TestDeleteSchema:
 
         # Create a ruleset that references this schema
         ruleset_response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-        assert ruleset_response.status_code == 200
+        assert ruleset_response.status_code == 201
         ruleset_name = ruleset_response.json()["name"]
 
         # Delete the schema
@@ -409,7 +405,7 @@ class TestDeleteSchema:
 
         # Create a catalog that references this schema
         catalog_response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-        assert catalog_response.status_code == 200
+        assert catalog_response.status_code == 201
         catalog_name = catalog_response.json()["name"]
 
         # Delete the schema
@@ -428,7 +424,7 @@ class TestDeleteSchema:
 
         # Create catalog
         catalog_response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-        assert catalog_response.status_code == 200
+        assert catalog_response.status_code == 201
         catalog_name = catalog_response.json()["name"]
 
         # Create item in catalog
@@ -436,7 +432,7 @@ class TestDeleteSchema:
             f"/api/v1/catalogs/{catalog_name}/items",
             json=sample_item_payload,
         )
-        assert item_response.status_code == 200
+        assert item_response.status_code == 201
         item_id = item_response.json()["item_id"]
 
         # Delete the schema
@@ -458,8 +454,7 @@ class TestSchemaTimestamps:
     def test_schema_has_created_at(self, client, sample_schema_payload):
         """Test that created schema has created_at timestamp."""
         response = client.post("/api/v1/schemas", json=sample_schema_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "created_at" in data
         assert data["created_at"] is not None
@@ -467,8 +462,7 @@ class TestSchemaTimestamps:
     def test_schema_has_updated_at(self, client, sample_schema_payload):
         """Test that created schema has updated_at timestamp."""
         response = client.post("/api/v1/schemas", json=sample_schema_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "updated_at" in data
         assert data["updated_at"] is not None
