@@ -10,7 +10,6 @@ Tests cover:
 """
 
 
-
 class TestExportSchemas:
     """Tests for schema export endpoints."""
 
@@ -611,8 +610,6 @@ class TestImportErrorHandling:
         data = response.json()
         assert "error" in data["message"].lower() or "imported 0" in data["message"].lower()
 
-
-
     def test_import_catalogs_with_malformed_data(self, client, setup_schema):
         """Test importing catalogs with malformed data triggers exception handling."""
         catalogs = [
@@ -688,9 +685,12 @@ class TestImportErrorHandling:
 
         # This should trigger validation error or exception
         response = client.post("/api/v1/import/schemas", json=schemas)
-        
+
         # Even with errors, import endpoints return 200 with error details
-        assert response.status_code in [200, 422]  # Accept both graceful handling or validation error
+        assert response.status_code in [
+            200,
+            422,
+        ]  # Accept both graceful handling or validation error
 
     def test_import_catalog_with_invalid_item_structure(self, client, setup_schema):
         """Test importing catalog with malformed item structure."""
@@ -709,7 +709,7 @@ class TestImportErrorHandling:
         ]
 
         response = client.post("/api/v1/import/catalogs", json=catalogs)
-        
+
         # Should handle gracefully with error message
         assert response.status_code == 200
         data = response.json()

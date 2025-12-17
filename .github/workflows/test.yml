@@ -75,6 +75,10 @@ jobs:
       working-directory: ./web
       run: npm ci
 
+    - name: Run format check (Prettier)
+      working-directory: ./web
+      run: npm run format:check
+
     - name: Run linting (ESLint)
       working-directory: ./web
       run: npm run lint

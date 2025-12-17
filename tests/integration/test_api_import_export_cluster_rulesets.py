@@ -254,9 +254,7 @@ class TestImportExportRoundtrip:
             "description": "Roundtrip test",
             "schema_name": setup_schema["name"],
             "pairwise_ruleset_name": setup_ruleset["name"],
-            "rules": [
-                {"name": "size_rule", "enabled": True, "condition": {"min_cluster_size": 2}}
-            ],
+            "rules": [{"name": "size_rule", "enabled": True, "condition": {"min_cluster_size": 2}}],
         }
         create_response = client.post("/api/v1/cluster-rulesets", json=cluster_ruleset)
         assert create_response.status_code == 201
