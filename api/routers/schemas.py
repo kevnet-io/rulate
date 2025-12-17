@@ -46,7 +46,7 @@ def create_schema(schema_data: SchemaCreate, db: Session = Depends(get_db)):
         )
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Schema validation failed: {str(e)}",
         )
 

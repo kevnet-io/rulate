@@ -7,7 +7,7 @@ These are distinct from the core rulate models and are used for API serializatio
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Schema models
@@ -31,6 +31,8 @@ class SchemaUpdate(BaseModel):
 class SchemaResponse(BaseModel):
     """Schema for Schema API responses."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     version: str
@@ -38,9 +40,6 @@ class SchemaResponse(BaseModel):
     dimensions: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # RuleSet models
@@ -65,6 +64,8 @@ class RuleSetUpdate(BaseModel):
 class RuleSetResponse(BaseModel):
     """Schema for RuleSet API responses."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     version: str
@@ -73,9 +74,6 @@ class RuleSetResponse(BaseModel):
     rules: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # ClusterRuleSet models
@@ -101,6 +99,8 @@ class ClusterRuleSetUpdate(BaseModel):
 class ClusterRuleSetResponse(BaseModel):
     """Schema for ClusterRuleSet API responses."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     version: str
@@ -110,9 +110,6 @@ class ClusterRuleSetResponse(BaseModel):
     rules: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Catalog models
@@ -135,6 +132,8 @@ class CatalogUpdate(BaseModel):
 class CatalogResponse(BaseModel):
     """Schema for Catalog API responses."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: str | None
@@ -143,9 +142,6 @@ class CatalogResponse(BaseModel):
     item_count: int
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Item models
@@ -169,6 +165,8 @@ class ItemUpdate(BaseModel):
 class ItemResponse(BaseModel):
     """Schema for Item API responses."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     item_id: str
     name: str
@@ -177,9 +175,6 @@ class ItemResponse(BaseModel):
     catalog_name: str
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Evaluation models
