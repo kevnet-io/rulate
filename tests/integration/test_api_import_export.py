@@ -589,3 +589,129 @@ class TestImportValidation:
         assert data["metadata"]["string"] == "value"
         assert data["metadata"]["number"] == 42
         assert data["metadata"]["nested"]["key"] == "value"
+
+
+class TestImportErrorHandling:
+    """Tests for error handling in import endpoints."""
+
+    def test_import_schemas_with_malformed_data(self, client):
+        """Test importing schemas with malformed data triggers exception handling."""
+        schemas = [
+            {
+                "name": "malformed_schema",
+                "version": "1.0.0",
+                "dimensions": "this should be a list not a string",  # Invalid type
+            }
+        ]
+
+        response = client.post("/api/v1/import/schemas", json=schemas)
+
+        # Should return 200 with error message (graceful handling)
+        assert response.status_code == 200
+        data = response.json()
+        assert "error" in data["message"].lower() or "imported 0" in data["message"].lower()
+
+
+
+    def test_import_catalogs_with_malformed_data(self, client, setup_schema):
+        """Test importing catalogs with malformed data triggers exception handling."""
+        catalogs = [
+            {
+                "name": "malformed_catalog",
+                "schema_ref": setup_schema["name"],
+                "items": "this should be a list not a string",  # Invalid type
+            }
+        ]
+
+        response = client.post("/api/v1/import/catalogs", json=catalogs)
+
+        # Should return 200 with error message (graceful handling)
+        assert response.status_code == 200
+        data = response.json()
+        assert "error" in data["message"].lower() or "imported 0" in data["message"].lower()
+
+    def test_import_all_with_malformed_schemas(self, client):
+        """Test importing all data with malformed schemas."""
+        data = {
+            "schemas": [
+                {
+                    "name": "bad_schema",
+                    "version": "1.0.0",
+                    "dimensions": None,  # Invalid - should be a list
+                }
+            ],
+            "rulesets": [],
+            "cluster_rulesets": [],
+            "catalogs": [],
+        }
+
+        response = client.post("/api/v1/import/all", json=data)
+
+        # Should return 200 with errors reported
+        assert response.status_code == 200
+        result = response.json()
+        # Should have error in schema import
+        assert "schema" in result["message"].lower()
+
+    def test_import_all_with_dependency_errors(self, client):
+        """Test importing all data with missing dependencies."""
+        data = {
+            "schemas": [],
+            "rulesets": [
+                {
+                    "name": "orphan_ruleset",
+                    "version": "1.0.0",
+                    "schema_ref": "nonexistent_schema",
+                    "rules": [],
+                }
+            ],
+            "cluster_rulesets": [],
+            "catalogs": [],
+        }
+
+        response = client.post("/api/v1/import/all", json=data)
+
+        # Should return 200 with dependency errors
+        assert response.status_code == 200
+        result = response.json()
+        assert "error" in result["message"].lower() or "not found" in result["message"].lower()
+
+    def test_import_schemas_missing_required_field(self, client):
+        """Test importing schema missing required field triggers exception handling."""
+        schemas = [
+            {
+                # Missing 'name' field - should be required
+                "version": "1.0.0",
+                "dimensions": [],
+            }
+        ]
+
+        # This should trigger validation error or exception
+        response = client.post("/api/v1/import/schemas", json=schemas)
+        
+        # Even with errors, import endpoints return 200 with error details
+        assert response.status_code in [200, 422]  # Accept both graceful handling or validation error
+
+    def test_import_catalog_with_invalid_item_structure(self, client, setup_schema):
+        """Test importing catalog with malformed item structure."""
+        catalogs = [
+            {
+                "name": "bad_items_catalog",
+                "schema_ref": setup_schema["name"],
+                "items": [
+                    # Missing item_id - should cause error
+                    {
+                        "name": "Item without ID",
+                        "attributes": {},
+                    }
+                ],
+            }
+        ]
+
+        response = client.post("/api/v1/import/catalogs", json=catalogs)
+        
+        # Should handle gracefully with error message
+        assert response.status_code == 200
+        data = response.json()
+        # Check that the error was captured
+        assert "imported 0" in data["message"].lower() or "error" in data["message"].lower()
