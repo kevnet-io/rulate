@@ -485,7 +485,7 @@ class TestEvaluateClusters:
         ]
 
         for item in items:
-            item_response = client.post(f"/api/v1/catalogs/cluster_catalog/items", json=item)
+            item_response = client.post("/api/v1/catalogs/cluster_catalog/items", json=item)
             assert item_response.status_code == 201
 
         return {

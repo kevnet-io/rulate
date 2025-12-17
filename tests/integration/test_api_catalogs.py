@@ -10,7 +10,6 @@ Tests all CRUD operations for the /api/v1/catalogs endpoints including:
 - Error handling (404, 409, 422)
 """
 
-import pytest
 
 
 class TestCreateCatalog:

@@ -12,7 +12,6 @@ Tests cover:
 - Error handling (404, 409, 422)
 """
 
-import pytest
 
 
 class TestCreateItem:

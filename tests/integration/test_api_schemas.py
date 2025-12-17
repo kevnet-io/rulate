@@ -10,7 +10,6 @@ Tests all CRUD operations for the /api/v1/schemas endpoints including:
 - Error handling (404, 409, 422)
 """
 
-import pytest
 
 
 class TestCreateSchema:
@@ -470,7 +469,6 @@ class TestSchemaTimestamps:
     def test_updated_at_changes_on_update(self, client, setup_schema):
         """Test that updated_at timestamp changes when schema is updated."""
         schema_name = setup_schema["name"]
-        original_updated_at = setup_schema["updated_at"]
 
         # Update schema
         update_payload = {"version": "2.0.0"}

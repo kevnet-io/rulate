@@ -20,12 +20,14 @@ npm run test:e2e
 ```
 
 Playwright will automatically:
+
 1. Build the frontend (`npm run build`)
 2. Start the unified production server on port 8000
 3. Run tests against http://localhost:8000
 4. Shut down the server after tests complete
 
 The global setup script:
+
 - ✓ Builds the frontend for production
 - ✓ Clears the e2e database (`e2e_test.db`) for a fresh state
 - ✓ Starts the unified production server (API + frontend) with the e2e database
@@ -33,6 +35,7 @@ The global setup script:
 - ✓ Seeds the database with test data (wardrobe schema, rules, catalog, items)
 
 **Manual server** (optional):
+
 ```bash
 # From project root
 make serve-production
@@ -256,6 +259,7 @@ CI=true npm run test:e2e
 ```
 
 This ensures:
+
 - Fresh production build each run
 - No server reuse
 - Consistent test environment

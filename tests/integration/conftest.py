@@ -7,8 +7,8 @@ for testing the FastAPI application with a test SQLite database.
 
 import os
 import tempfile
+
 import pytest
-from pathlib import Path
 from fastapi.testclient import TestClient
 
 # Set test database path BEFORE importing any API modules
@@ -18,8 +18,8 @@ TEST_DB_PATH = os.path.join(TEST_DB_DIR, "test_rulate.db")
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH}"
 
 # Now safe to import API modules - they will use the test database
-from api.database.connection import init_db
-from api.main import app
+from api.database.connection import init_db  # noqa: E402
+from api.main import app  # noqa: E402
 
 
 def pytest_configure(config):
