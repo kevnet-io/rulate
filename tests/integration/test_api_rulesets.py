@@ -20,13 +20,12 @@ class TestCreateRuleSet:
     def test_create_ruleset_success(self, client, setup_schema, sample_ruleset_payload):
         """Test creating a ruleset with valid data."""
         response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == sample_ruleset_payload["name"]
         assert data["version"] == sample_ruleset_payload["version"]
         assert data["description"] == sample_ruleset_payload["description"]
-        assert data["schema_ref"] == sample_ruleset_payload["schema_ref"]
+        assert data["schema_name"] == sample_ruleset_payload["schema_name"]
         assert len(data["rules"]) == len(sample_ruleset_payload["rules"])
         assert "id" in data
         assert "created_at" in data
@@ -35,8 +34,7 @@ class TestCreateRuleSet:
     def test_create_minimal_ruleset(self, client, setup_schema, minimal_ruleset_payload):
         """Test creating a ruleset with only required fields."""
         response = client.post("/api/v1/rulesets", json=minimal_ruleset_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["name"] == minimal_ruleset_payload["name"]
         assert data["version"] == minimal_ruleset_payload["version"]
@@ -48,7 +46,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "orphan_ruleset",
             "version": "1.0.0",
-            "schema_ref": "nonexistent_schema",
+            "schema_name": "nonexistent_schema",
             "rules": [],
         }
 
@@ -61,7 +59,7 @@ class TestCreateRuleSet:
         """Test creating duplicate ruleset returns 409 Conflict."""
         # Create first ruleset
         response1 = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-        assert response1.status_code == 200
+        assert response1.status_code == 201
 
         # Attempt to create duplicate
         response2 = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
@@ -73,7 +71,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "exclusion_rules",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "same_category",
@@ -85,8 +83,7 @@ class TestCreateRuleSet:
         }
 
         response = client.post("/api/v1/rulesets", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert len(data["rules"]) == 1
         assert data["rules"][0]["type"] == "exclusion"
@@ -97,7 +94,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "requirement_rules",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "similar_formality",
@@ -109,8 +106,7 @@ class TestCreateRuleSet:
         }
 
         response = client.post("/api/v1/rulesets", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert len(data["rules"]) == 1
         assert data["rules"][0]["type"] == "requirement"
@@ -120,7 +116,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "mixed_rules",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "exclusion_rule",
@@ -138,8 +134,7 @@ class TestCreateRuleSet:
         }
 
         response = client.post("/api/v1/rulesets", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert len(data["rules"]) == 2
         rule_types = [r["type"] for r in data["rules"]]
@@ -151,7 +146,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "disabled_rule",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "disabled",
@@ -163,8 +158,7 @@ class TestCreateRuleSet:
         }
 
         response = client.post("/api/v1/rulesets", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["rules"][0]["enabled"] is False
 
@@ -173,7 +167,7 @@ class TestCreateRuleSet:
         payload = {
             "name": "complex_rules",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "complex_condition",
@@ -190,8 +184,7 @@ class TestCreateRuleSet:
         }
 
         response = client.post("/api/v1/rulesets", json=payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "all" in data["rules"][0]["condition"]
 
@@ -200,7 +193,7 @@ class TestCreateRuleSet:
         # Missing name
         payload1 = {
             "version": "1.0.0",
-            "schema_ref": "test_schema",
+            "schema_name": "test_schema",
             "rules": [],
         }
         response1 = client.post("/api/v1/rulesets", json=payload1)
@@ -209,13 +202,13 @@ class TestCreateRuleSet:
         # Missing version
         payload2 = {
             "name": "test",
-            "schema_ref": "test_schema",
+            "schema_name": "test_schema",
             "rules": [],
         }
         response2 = client.post("/api/v1/rulesets", json=payload2)
         assert response2.status_code == 422
 
-        # Missing schema_ref
+        # Missing schema_name
         payload3 = {
             "name": "test",
             "version": "1.0.0",
@@ -252,7 +245,7 @@ class TestListRuleSets:
             payload = sample_ruleset_payload.copy()
             payload["name"] = f"ruleset_{i}"
             response = client.post("/api/v1/rulesets", json=payload)
-            assert response.status_code == 200
+            assert response.status_code == 201
 
         # List all rulesets
         response = client.get("/api/v1/rulesets")
@@ -295,15 +288,15 @@ class TestListRuleSets:
         data = response.json()
         assert len(data) == 3
 
-    def test_list_rulesets_includes_schema_ref(self, client, setup_ruleset):
-        """Test that listed rulesets include schema_ref."""
+    def test_list_rulesets_includes_schema_name(self, client, setup_ruleset):
+        """Test that listed rulesets include schema_name."""
         response = client.get("/api/v1/rulesets")
 
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
-        assert "schema_ref" in data[0]
-        assert data[0]["schema_ref"] == setup_ruleset["schema_ref"]
+        assert "schema_name" in data[0]
+        assert data[0]["schema_name"] == setup_ruleset["schema_name"]
 
 
 class TestGetRuleSet:
@@ -331,7 +324,7 @@ class TestGetRuleSet:
         """Test that rule order is preserved."""
         # Create ruleset
         create_response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-        assert create_response.status_code == 200
+        assert create_response.status_code == 201
 
         # Get ruleset
         ruleset_name = sample_ruleset_payload["name"]
@@ -412,7 +405,7 @@ class TestUpdateRuleSet:
         create_payload = {
             "name": "test_add_rule",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "rule1",
@@ -423,7 +416,7 @@ class TestUpdateRuleSet:
             ],
         }
         create_response = client.post("/api/v1/rulesets", json=create_payload)
-        assert create_response.status_code == 200
+        assert create_response.status_code == 201
 
         # Update to add another rule
         update_payload = {
@@ -455,7 +448,7 @@ class TestUpdateRuleSet:
         create_payload = {
             "name": "test_disable",
             "version": "1.0.0",
-            "schema_ref": setup_schema["name"],
+            "schema_name": setup_schema["name"],
             "rules": [
                 {
                     "name": "rule1",
@@ -540,8 +533,7 @@ class TestRuleSetTimestamps:
     def test_ruleset_has_created_at(self, client, setup_schema, sample_ruleset_payload):
         """Test that created ruleset has created_at timestamp."""
         response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "created_at" in data
         assert data["created_at"] is not None
@@ -549,8 +541,7 @@ class TestRuleSetTimestamps:
     def test_ruleset_has_updated_at(self, client, setup_schema, sample_ruleset_payload):
         """Test that created ruleset has updated_at timestamp."""
         response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "updated_at" in data
         assert data["updated_at"] is not None

@@ -2,75 +2,68 @@
 Test fixtures for API integration tests.
 
 This module provides database setup, TestClient, and helper fixtures
-for testing the FastAPI application with an in-memory SQLite database.
+for testing the FastAPI application with a test SQLite database.
 """
 
+import os
+import tempfile
 import pytest
-from unittest.mock import patch
+from pathlib import Path
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
 
-import api.database.connection as db_connection
-from api.database.models import Base
+# Set test database path BEFORE importing any API modules
+# This ensures the test database is used when modules initialize
+TEST_DB_DIR = tempfile.mkdtemp()
+TEST_DB_PATH = os.path.join(TEST_DB_DIR, "test_rulate.db")
+os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH}"
+
+# Now safe to import API modules - they will use the test database
+from api.database.connection import init_db
+from api.main import app
 
 
-# Create app without lifespan to avoid production DB initialization
-from fastapi import FastAPI
-from api.routers import catalogs, clusters, evaluation, import_export, rulesets, schemas
+def pytest_configure(config):
+    """Pytest hook called before test collection."""
+    # Ensure test database directory exists
+    os.makedirs(TEST_DB_DIR, exist_ok=True)
+
+
+def pytest_unconfigure(config):
+    """Pytest hook called after all tests finish."""
+    # Cleanup test database
+    import shutil
+    if os.path.exists(TEST_DB_DIR):
+        shutil.rmtree(TEST_DB_DIR)
 
 
 @pytest.fixture(scope="function")
-def test_db_engine():
+def client():
     """
-    Create an in-memory SQLite database engine for testing.
+    FastAPI TestClient using the test database.
 
-    Each test gets a fresh database that is automatically cleaned up.
+    The test database is automatically reset before each test,
+    ensuring complete test isolation.
     """
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-    )
-    Base.metadata.create_all(bind=engine)
-    yield engine
-    Base.metadata.drop_all(bind=engine)
+    from api.database.connection import engine
+
+    # Dispose of any existing database connections
     engine.dispose()
 
+    # Remove existing database file
+    if os.path.exists(TEST_DB_PATH):
+        os.remove(TEST_DB_PATH)
 
-@pytest.fixture(scope="function")
-def client(test_db_engine):
-    """
-    FastAPI TestClient with patched database connection to use test database.
+    # Initialize fresh database with all tables
+    init_db()
 
-    This client makes HTTP requests to the API using an in-memory database,
-    ensuring test isolation and fast execution.
-    """
-    # Create test sessionmaker
-    TestingSessionLocal = sessionmaker(
-        autocommit=False,
-        autoflush=False,
-        bind=test_db_engine,
-    )
+    # Create and yield the test client
+    with TestClient(app) as test_client:
+        yield test_client
 
-    # Patch the SessionLocal in the connection module
-    with patch.object(db_connection, 'SessionLocal', TestingSessionLocal):
-        # Create a fresh app for each test
-        app = FastAPI(
-            title="Rulate API Test",
-            description="Test version of Rulate API",
-            version="0.1.0",
-        )
-
-        # Include routers
-        app.include_router(schemas.router, prefix="/api/v1", tags=["schemas"])
-        app.include_router(rulesets.router, prefix="/api/v1", tags=["rulesets"])
-        app.include_router(catalogs.router, prefix="/api/v1", tags=["catalogs"])
-        app.include_router(evaluation.router, prefix="/api/v1", tags=["evaluation"])
-        app.include_router(clusters.router, prefix="/api/v1", tags=["clusters"])
-        app.include_router(import_export.router, prefix="/api/v1", tags=["import_export"])
-
-        with TestClient(app) as test_client:
-            yield test_client
+    # Cleanup after test - dispose connections first
+    engine.dispose()
+    if os.path.exists(TEST_DB_PATH):
+        os.remove(TEST_DB_PATH)
 
 
 # ============================================================================
@@ -158,7 +151,7 @@ def sample_ruleset_payload():
         "name": "test_rules",
         "version": "1.0.0",
         "description": "Test ruleset for integration tests",
-        "schema_ref": "test_schema",
+        "schema_name": "test_schema",
         "rules": [
             {
                 "name": "different_categories",
@@ -182,7 +175,7 @@ def minimal_ruleset_payload():
     return {
         "name": "minimal_rules",
         "version": "1.0.0",
-        "schema_ref": "test_schema",
+        "schema_name": "test_schema",
         "rules": [],
     }
 
@@ -198,7 +191,7 @@ def sample_catalog_payload():
     return {
         "name": "test_catalog",
         "description": "Test catalog for integration tests",
-        "schema_ref": "test_schema",
+        "schema_name": "test_schema",
         "metadata": {"season": "summer", "year": 2024},
     }
 
@@ -208,7 +201,7 @@ def minimal_catalog_payload():
     """Minimal catalog payload with only required fields."""
     return {
         "name": "minimal_catalog",
-        "schema_ref": "test_schema",
+        "schema_name": "test_schema",
     }
 
 
@@ -258,7 +251,7 @@ def minimal_item_payload():
 def setup_schema(client, sample_schema_payload):
     """Create a schema in the test database."""
     response = client.post("/api/v1/schemas", json=sample_schema_payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     return response.json()
 
 
@@ -266,7 +259,7 @@ def setup_schema(client, sample_schema_payload):
 def setup_ruleset(client, setup_schema, sample_ruleset_payload):
     """Create a ruleset in the test database (requires schema)."""
     response = client.post("/api/v1/rulesets", json=sample_ruleset_payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     return response.json()
 
 
@@ -274,7 +267,7 @@ def setup_ruleset(client, setup_schema, sample_ruleset_payload):
 def setup_catalog(client, setup_schema, sample_catalog_payload):
     """Create a catalog in the test database (requires schema)."""
     response = client.post("/api/v1/catalogs", json=sample_catalog_payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     return response.json()
 
 
@@ -286,7 +279,7 @@ def setup_item(client, setup_catalog, sample_item_payload):
         f"/api/v1/catalogs/{catalog_name}/items",
         json=sample_item_payload,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     return response.json()
 
 
