@@ -9,7 +9,6 @@ Tests cover:
 - End-to-end export/import workflows
 """
 
-import pytest
 
 
 class TestExportSchemas:

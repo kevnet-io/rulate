@@ -96,10 +96,12 @@ web/
 **Production**: API client uses relative URLs (`/api/v1`) for same-origin requests
 
 The API base URL is automatically selected based on environment:
+
 - `import.meta.env.DEV` → absolute URL for proxy
 - Production build → relative URL for same-origin
 
 Ensure the API server is running during development:
+
 ```bash
 # From project root
 make dev-backend

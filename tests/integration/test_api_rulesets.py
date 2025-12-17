@@ -11,7 +11,6 @@ Tests all CRUD operations for the /api/v1/rulesets endpoints including:
 - Error handling (404, 409, 422)
 """
 
-import pytest
 
 
 class TestCreateRuleSet:
