@@ -219,20 +219,29 @@ make pre-commit
 ### Testing
 
 ```bash
-# Backend tests
-make test              # Run pytest suite
+# All backend tests (unit + integration)
+make test              # Run all 697 backend tests
 make test-cov          # Run with coverage report (HTML + terminal)
 
+# Backend unit tests (core engine - 480 tests)
+uv run pytest tests/unit/                    # Unit tests only
+uv run pytest tests/unit/ --cov=rulate       # With coverage (94%)
+uv run pytest tests/unit/test_schema.py      # Specific test file
+uv run pytest tests/unit/test_schema.py::TestSchema::test_create_simple_schema  # Specific test
+
+# Backend integration tests (API layer - 217 tests)
+uv run pytest tests/integration/             # Integration tests only
+uv run pytest tests/integration/ --cov=api   # API coverage (88.5%)
+uv run pytest tests/integration/test_api_schemas.py  # Specific API test file
+
+# Full backend coverage
+uv run pytest --cov=rulate --cov=api --cov-report=html
+
 # Frontend tests
-make test-frontend     # Unit tests (vitest)
-make test-e2e          # E2E tests (playwright) - requires API server running
+make test-frontend     # Unit tests (vitest) - 671 tests (100% production code)
+make test-e2e          # E2E tests (playwright) - 72 tests across 3 browsers
 
-# Or use pytest/npm directly:
-uv run pytest
-uv run pytest tests/unit/test_schema.py
-uv run pytest tests/unit/test_schema.py::TestSchema::test_create_simple_schema
-uv run pytest --cov=rulate --cov-report=html
-
+# Frontend test commands:
 cd web && npm test
 cd web && npm run test:ui          # Interactive test UI
 cd web && npm run test:coverage    # With coverage report
@@ -241,7 +250,9 @@ cd web && npm run test:coverage    # With coverage report
 Alternatively, activate the virtual environment first:
 ```bash
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pytest
+pytest                     # Run all backend tests
+pytest tests/unit/         # Unit tests only
+pytest tests/integration/  # Integration tests only
 ```
 
 ### Code Coverage & Codecov
@@ -546,10 +557,20 @@ items:
 
 ## Current Status
 
-- **Phase 1 (Complete)**: Core engine with 9 operators, comprehensive tests (94% coverage)
+- **Phase 1 (Complete)**: Core engine with 9 operators, comprehensive unit tests (480 tests, 94% coverage)
 - **Phase 2 (Complete)**: REST API with SQLite, CLI tool with multiple output formats
+  - **API Integration Tests (Complete)**: 217 integration tests achieving 88.5% API coverage
 - **Phase 3 (Complete)**: SvelteKit web UI with interactive explorer and matrix visualization
-- **Phases 4-7 (Complete)**: Comprehensive frontend test suite (671 tests, 100% production code coverage)
+- **Phases 4-7 (Complete)**: Comprehensive test suite across all layers (1,368 total tests)
+
+### Backend Testing & Quality
+- **Unit Tests**: 480 tests across 11 files with 94% core engine coverage
+  - Schema validation, rule definitions, operators, evaluators, loaders, CLI
+- **Integration Tests**: 217 tests across 7 files with 88.5% API coverage
+  - All CRUD operations for 6 routers (schemas, rulesets, catalogs, items, evaluation, clusters, import/export)
+  - Database isolation using environment variables with FastAPI TestClient
+  - 5 of 6 routers at 100% coverage (import_export at 66%)
+- **Test Infrastructure**: Function-scoped fixtures, in-memory SQLite, proper cleanup with engine.dispose()
 
 ### Frontend Testing & Quality
 - **Test Suite**: 671 tests across 22 files with 100% pass rate
@@ -560,6 +581,13 @@ items:
 - **Test Infrastructure**: Cleaned up unused utilities, excluded test code from coverage metrics (standard practice)
 
 ### Recent Changes
+- **API Integration Tests (December 2025)**: Comprehensive test coverage for REST API layer
+  - 217 integration tests across 7 test files (88.5% API coverage)
+  - All CRUD endpoints for schemas, rulesets, catalogs, items tested
+  - Evaluation endpoints (pair, matrix, item) at 100% coverage
+  - Cluster endpoints at 100% coverage
+  - Import/export endpoints at 66% coverage
+  - Test infrastructure with environment variable-based database isolation
 - **UX Polish (December 2025)**: Comprehensive user experience improvements
   - Toast notifications replacing browser alerts (4 types, auto-dismiss, stacking)
   - Modal dialogs replacing browser confirms (accessible, focus trap, keyboard nav)

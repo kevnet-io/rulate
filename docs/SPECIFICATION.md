@@ -41,7 +41,7 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 - **CLI**: Comprehensive command-line interface
 - **Database Persistence**: SQLite with SQLAlchemy ORM
 - **Import/Export**: Bulk data import/export for backup and migration
-- **Comprehensive Testing**: 480 backend tests (94% coverage) + 671 frontend tests (100% production code coverage)
+- **Comprehensive Testing**: 697 backend tests (94% core, 88.5% API) + 671 frontend tests (100% production code)
 
 ---
 
@@ -195,8 +195,8 @@ rulate/
 │   │       ├── api/client.ts             # TypeScript API client
 │   │       ├── stores/                   # Svelte 5 stores (toast, modal)
 │   │       └── components/               # 19 UI components
-├── tests/                    # Test suite
-│   ├── unit/                # 11 test files with 480 tests
+├── tests/                    # Test suite (697 tests)
+│   ├── unit/                # 11 test files with 480 unit tests
 │   │   ├── test_schema.py
 │   │   ├── test_rule.py
 │   │   ├── test_catalog.py
@@ -208,7 +208,15 @@ rulate/
 │   │   ├── test_loaders.py
 │   │   ├── test_exporters.py
 │   │   └── test_cli.py
-│   ├── integration/         # Integration test infrastructure
+│   ├── integration/         # 7 test files with 217 integration tests
+│   │   ├── conftest.py      # Test fixtures and database setup
+│   │   ├── test_api_schemas.py
+│   │   ├── test_api_rulesets.py
+│   │   ├── test_api_catalogs.py
+│   │   ├── test_api_items.py
+│   │   ├── test_api_evaluation.py
+│   │   ├── test_api_import_export.py
+│   │   └── test_api_clusters.py
 │   └── conftest.py          # Shared test fixtures
 ├── examples/                 # Example configurations
 │   └── wardrobe/
@@ -1045,7 +1053,11 @@ rulate show catalog <file>
 ### Testing
 
 **Backend Testing** (`tests/`):
-- **480 tests** across 11 test files with **94% overall code coverage**
+- **697 total tests** across 18 test files with **57% overall project coverage**
+- **88.5% API-specific coverage** (802/906 statements)
+
+**Unit Tests** (`tests/unit/`):
+- **480 tests** across 11 test files with **94% core engine coverage**
 - **Test Files**:
   - `test_schema.py` - Schema validation and dimension types
   - `test_rule.py` - Rule definitions and validation
@@ -1063,6 +1075,31 @@ rulate show catalog <file>
   - Engine (operators, evaluators): 91-98% coverage
   - Utils (loaders, exporters): 90-100% coverage
   - CLI: 91% coverage
+
+**Integration Tests** (`tests/integration/`):
+- **217 tests** across 7 test files with **88.5% API coverage**
+- **Test Infrastructure**:
+  - `conftest.py` - Test fixtures with environment variable-based database isolation
+  - FastAPI TestClient for realistic HTTP testing
+  - SQLite in-memory database with proper cleanup between tests
+  - Reusable payload fixtures for all entity types
+- **Test Files**:
+  - `test_api_schemas.py` (30 tests) - Schema CRUD endpoints → 97% coverage
+  - `test_api_rulesets.py` (30 tests) - RuleSet CRUD endpoints → 100% coverage
+  - `test_api_catalogs.py` (29 tests) - Catalog CRUD endpoints → 100% coverage
+  - `test_api_items.py` (42 tests) - Item CRUD endpoints → 100% coverage
+  - `test_api_evaluation.py` (25 tests) - Evaluation endpoints → 100% coverage
+  - `test_api_import_export.py` (34 tests) - Import/Export endpoints → 66% coverage
+  - `test_api_clusters.py` (27 tests) - Cluster endpoints → 100% coverage
+- **Coverage by Router**:
+  - `api/routers/schemas.py`: 97% (58 stmts, 2 miss)
+  - `api/routers/rulesets.py`: 100% (52 stmts)
+  - `api/routers/catalogs.py`: 100% (99 stmts)
+  - `api/routers/evaluation.py`: 100% (71 stmts)
+  - `api/routers/clusters.py`: 100% (88 stmts)
+  - `api/routers/import_export.py`: 66% (244 stmts, 82 miss)
+  - `api/database/models.py`: 100% (92 stmts)
+  - `api/models/schemas.py`: 100% (137 stmts)
 
 **Frontend Testing** (`web/src/`):
 - **671 tests** across 22 test files with **100% production code coverage**
@@ -1092,9 +1129,22 @@ rulate show catalog <file>
 
 **Running Tests**:
 ```bash
-# Backend tests
-uv run pytest                    # Run all tests
-uv run pytest --cov=rulate       # With coverage report
+# Backend unit tests (core engine)
+uv run pytest tests/unit/                    # Run unit tests only
+uv run pytest tests/unit/ --cov=rulate       # With coverage report
+
+# Backend integration tests (API layer)
+uv run pytest tests/integration/                    # Run integration tests only
+uv run pytest tests/integration/ --cov=api          # API coverage only
+uv run pytest tests/integration/ --cov=api --cov-report=html  # HTML report
+
+# All backend tests
+uv run pytest                                 # Run all backend tests
+uv run pytest --cov=rulate --cov=api         # Full coverage report
+
+# Or use Makefile shortcuts
+make test           # All backend tests
+make test-cov       # With HTML coverage report
 
 # Frontend tests
 cd web
@@ -1115,14 +1165,17 @@ npm run test:e2e:ui              # E2E tests with UI
 ## Project Metrics
 
 - **Python Files**: 30+ files
-- **Lines of Code**: ~10,000+ lines
+- **Lines of Code**: ~14,000+ lines (including ~4,200 lines of test code)
 - **Operators**: 19 total (9 pairwise + 8 cluster + 2 base)
 - **API Endpoints**: 42 endpoints across 6 routers
 - **Web UI Pages**: 19 pages
 - **UI Components**: 19 reusable components (includes 10 UX polish components)
-- **Backend Tests**: 480 tests (94% coverage)
+- **Backend Tests**: 697 tests total
+  - Unit tests: 480 tests (94% core engine coverage)
+  - Integration tests: 217 tests (88.5% API coverage)
 - **Frontend Tests**: 671 tests (100% production code coverage)
-- **Total Test Count**: 1,151 tests
+- **Total Test Count**: 1,368 tests
+- **Overall Coverage**: 57% project-wide (94% core, 88.5% API, 100% frontend)
 - **Dependencies**: Pydantic, FastAPI, SQLAlchemy, Click, SvelteKit, Vitest, Playwright
 
 ---
@@ -1137,7 +1190,10 @@ npm run test:e2e:ui              # E2E tests with UI
 - 19 Web UI pages including data management
 - 19 operators (9 pairwise + 8 cluster + 2 base)
 - Comprehensive wardrobe example
-- 1,151 total tests with high coverage (94% backend, 100% frontend production code)
+- 1,368 total tests with comprehensive coverage:
+  - Core engine: 480 unit tests (94% coverage)
+  - API layer: 217 integration tests (88.5% coverage)
+  - Frontend: 671 tests (100% production code coverage)
 
 ---
 

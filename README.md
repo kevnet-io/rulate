@@ -60,8 +60,11 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 
 **Phases 4-7: Testing & Data Management** ✅ COMPLETE
 
-- [x] Comprehensive test suite (backend unit, frontend unit, E2E)
-- [x] High test coverage across all layers
+- [x] Comprehensive test suite with 1,368 total tests:
+  - [x] Core engine: 480 unit tests (94% coverage)
+  - [x] API layer: 217 integration tests (88.5% coverage)
+  - [x] Frontend: 671 tests (100% production code coverage)
+  - [x] E2E testing: 72 tests across 3 browsers
 - [x] Import/export functionality for data backup and migration
 - [x] Bulk operations via API and Web UI
 
@@ -230,18 +233,26 @@ make help
 
 ```bash
 # Backend tests
-make test              # Run pytest suite
-make test-cov          # With coverage report
+make test              # Run all backend tests (unit + integration)
+make test-cov          # With HTML coverage report
+
+# Backend unit tests (core engine)
+uv run pytest tests/unit/                    # Unit tests only
+uv run pytest tests/unit/ --cov=rulate       # With coverage
+
+# Backend integration tests (API layer)
+uv run pytest tests/integration/             # Integration tests only
+uv run pytest tests/integration/ --cov=api   # API coverage
 
 # Frontend tests
 make test-frontend     # Unit tests (vitest)
 make test-e2e          # E2E tests (playwright)
 
 # Or use underlying commands:
-# uv run pytest
-# uv run pytest --cov=rulate
-# cd web && npm test
-# cd web && npm run test:e2e
+# uv run pytest                    # All backend tests
+# uv run pytest --cov=rulate --cov=api  # Full coverage
+# cd web && npm test              # Frontend unit tests
+# cd web && npm run test:e2e      # Frontend E2E tests
 ```
 
 For detailed testing information, see [docs/SPECIFICATION.md](docs/SPECIFICATION.md#testing).
