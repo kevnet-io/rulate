@@ -315,9 +315,7 @@ class TestUpdateClusterRuleSet:
         )
 
         # Update
-        new_rules = [
-            {"name": "new_rule", "type": "requirement", "enabled": True, "condition": {}}
-        ]
+        new_rules = [{"name": "new_rule", "type": "requirement", "enabled": True, "condition": {}}]
         response = client.put("/api/v1/cluster-rulesets/update_test", json={"rules": new_rules})
 
         assert response.status_code == 200

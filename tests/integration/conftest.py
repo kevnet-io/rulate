@@ -32,6 +32,7 @@ def pytest_unconfigure(config):
     """Pytest hook called after all tests finish."""
     # Cleanup test database
     import shutil
+
     if os.path.exists(TEST_DB_DIR):
         shutil.rmtree(TEST_DB_DIR)
 

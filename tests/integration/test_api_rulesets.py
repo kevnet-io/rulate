@@ -12,7 +12,6 @@ Tests all CRUD operations for the /api/v1/rulesets endpoints including:
 """
 
 
-
 class TestCreateRuleSet:
     """Tests for POST /api/v1/rulesets endpoint."""
 

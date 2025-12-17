@@ -11,7 +11,6 @@ Tests all CRUD operations for the /api/v1/catalogs endpoints including:
 """
 
 
-
 class TestCreateCatalog:
     """Tests for POST /api/v1/catalogs endpoint."""
 

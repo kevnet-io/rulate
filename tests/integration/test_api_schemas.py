@@ -11,7 +11,6 @@ Tests all CRUD operations for the /api/v1/schemas endpoints including:
 """
 
 
-
 class TestCreateSchema:
     """Tests for POST /api/v1/schemas endpoint."""
 
@@ -57,7 +56,13 @@ class TestCreateSchema:
             "dimensions": [
                 {"name": "str_field", "type": "string", "required": True},
                 {"name": "int_field", "type": "integer", "min": 1, "max": 10, "required": True},
-                {"name": "float_field", "type": "float", "min": 0.0, "max": 100.0, "required": False},
+                {
+                    "name": "float_field",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 100.0,
+                    "required": False,
+                },
                 {"name": "bool_field", "type": "boolean", "required": False},
                 {"name": "enum_field", "type": "enum", "values": ["a", "b", "c"], "required": True},
                 {"name": "list_field", "type": "list", "item_type": "string", "required": False},
@@ -126,9 +131,7 @@ class TestCreateSchema:
         payload = {
             "name": "invalid_schema",
             "version": "1.0.0",
-            "dimensions": [
-                {"name": "field1", "type": "invalid_type", "required": True}
-            ],
+            "dimensions": [{"name": "field1", "type": "invalid_type", "required": True}],
         }
 
         response = client.post("/api/v1/schemas", json=payload)
@@ -270,9 +273,7 @@ class TestUpdateSchema:
         update_payload = {
             "version": "2.0.0",
             "description": "Updated description",
-            "dimensions": [
-                {"name": "new_field", "type": "string", "required": True}
-            ],
+            "dimensions": [{"name": "new_field", "type": "string", "required": True}],
         }
 
         response = client.put(f"/api/v1/schemas/{schema_name}", json=update_payload)
@@ -320,9 +321,7 @@ class TestUpdateSchema:
         """Test updating only dimensions."""
         schema_name = setup_schema["name"]
         update_payload = {
-            "dimensions": [
-                {"name": "single_field", "type": "integer", "required": True}
-            ],
+            "dimensions": [{"name": "single_field", "type": "integer", "required": True}],
         }
 
         response = client.put(f"/api/v1/schemas/{schema_name}", json=update_payload)

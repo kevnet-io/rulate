@@ -13,7 +13,6 @@ Tests cover:
 """
 
 
-
 class TestCreateItem:
     """Tests for POST /catalogs/{catalog_name}/items"""
 
