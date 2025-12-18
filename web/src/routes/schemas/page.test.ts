@@ -57,7 +57,7 @@ describe("Schemas List Page (+page)", () => {
     });
 
     it("initializes with empty schema array", () => {
-      const schemas: any[] = [];
+      const schemas: unknown[] = [];
       expect(schemas).toEqual([]);
     });
   });

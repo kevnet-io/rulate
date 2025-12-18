@@ -14,7 +14,7 @@
 	let skipExisting = $state(true);
 
 	// Export functions
-	async function downloadJSON(data: any, filename: string) {
+	async function downloadJSON(data: unknown, filename: string) {
 		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -34,8 +34,8 @@
 			const data = await api.exportAll();
 			await downloadJSON(data, 'rulate-export-all.json');
 			success = 'All data exported successfully';
-		} catch (e: any) {
-			error = e.message;
+		} catch (e: unknown) {
+			error = e instanceof Error ? e.message : 'Failed to export data';
 		} finally {
 			loading = false;
 		}
@@ -49,8 +49,8 @@
 			const data = await api.exportSchemas();
 			await downloadJSON(data, 'rulate-schemas.json');
 			success = 'Schemas exported successfully';
-		} catch (e: any) {
-			error = e.message;
+		} catch (e: unknown) {
+			error = e instanceof Error ? e.message : 'Failed to export schemas';
 		} finally {
 			loading = false;
 		}
@@ -64,8 +64,8 @@
 			const data = await api.exportRuleSets();
 			await downloadJSON(data, 'rulate-rulesets.json');
 			success = 'RuleSets exported successfully';
-		} catch (e: any) {
-			error = e.message;
+		} catch (e: unknown) {
+			error = e instanceof Error ? e.message : 'Failed to export rulesets';
 		} finally {
 			loading = false;
 		}
@@ -79,8 +79,8 @@
 			const data = await api.exportClusterRuleSets();
 			await downloadJSON(data, 'rulate-cluster-rulesets.json');
 			success = 'ClusterRuleSets exported successfully';
-		} catch (e: any) {
-			error = e.message;
+		} catch (e: unknown) {
+			error = e instanceof Error ? e.message : 'Failed to export cluster rulesets';
 		} finally {
 			loading = false;
 		}
@@ -94,8 +94,8 @@
 			const data = await api.exportCatalogs();
 			await downloadJSON(data, 'rulate-catalogs.json');
 			success = 'Catalogs exported successfully';
-		} catch (e: any) {
-			error = e.message;
+		} catch (e: unknown) {
+			error = e instanceof Error ? e.message : 'Failed to export catalogs';
 		} finally {
 			loading = false;
 		}
@@ -111,6 +111,8 @@
 		}
 	}
 
+	type ImportResult = { message: string; detail?: string };
+
 	async function importData() {
 		if (!selectedFile) {
 			error = 'Please select a file to import';
@@ -122,27 +124,27 @@
 			error = null;
 			success = null;
 
-			const fileContent = await selectedFile.text();
-			const data = JSON.parse(fileContent);
+				const fileContent = await selectedFile.text();
+				const data: unknown = JSON.parse(fileContent);
 
-			let result;
-			switch (importType) {
-				case 'all':
-					result = await api.importAll(data, skipExisting);
-					break;
-				case 'schemas':
-					result = await api.importSchemas(Array.isArray(data) ? data : [data], skipExisting);
-					break;
-				case 'rulesets':
-					result = await api.importRuleSets(Array.isArray(data) ? data : [data], skipExisting);
-					break;
-				case 'cluster-rulesets':
-					result = await api.importClusterRuleSets(Array.isArray(data) ? data : [data], skipExisting);
-					break;
-				case 'catalogs':
-					result = await api.importCatalogs(Array.isArray(data) ? data : [data], skipExisting);
-					break;
-			}
+				let result: ImportResult;
+				switch (importType) {
+					case 'all':
+						result = await api.importAll(data, skipExisting);
+						break;
+					case 'schemas':
+						result = await api.importSchemas(Array.isArray(data) ? data : [data], skipExisting);
+						break;
+					case 'rulesets':
+						result = await api.importRuleSets(Array.isArray(data) ? data : [data], skipExisting);
+						break;
+					case 'cluster-rulesets':
+						result = await api.importClusterRuleSets(Array.isArray(data) ? data : [data], skipExisting);
+						break;
+					case 'catalogs':
+						result = await api.importCatalogs(Array.isArray(data) ? data : [data], skipExisting);
+						break;
+				}
 
 			success = result.message;
 			if (result.detail) {
@@ -151,16 +153,16 @@
 
 			// Clear the file input
 			selectedFile = null;
-			if (fileInput) {
-				fileInput.value = '';
+				if (fileInput) {
+					fileInput.value = '';
+				}
+			} catch (e: unknown) {
+				error = e instanceof Error ? e.message : 'Failed to import data';
+			} finally {
+				loading = false;
 			}
-		} catch (e: any) {
-			error = e.message;
-		} finally {
-			loading = false;
 		}
-	}
-</script>
+	</script>
 
 <svelte:head>
 	<title>Import/Export - Rulate</title>

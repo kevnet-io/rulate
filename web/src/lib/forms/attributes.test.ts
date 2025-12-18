@@ -10,6 +10,10 @@ import {
 } from "./attributes";
 import type { Dimension } from "$lib/api/client";
 
+function isNumberArray(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every((n) => typeof n === "number");
+}
+
 describe("Form Attributes Utilities", () => {
   describe("updateAttribute", () => {
     describe("Integer type", () => {
@@ -133,9 +137,7 @@ describe("Form Attributes Utilities", () => {
             intListDimension,
           );
           expect(result.numbers).toEqual([1, 2, 3]);
-          expect(
-            result.numbers.every((n: unknown) => typeof n === "number"),
-          ).toBe(true);
+          expect(isNumberArray(result.numbers)).toBe(true);
         });
 
         it("handles negative integers in list", () => {

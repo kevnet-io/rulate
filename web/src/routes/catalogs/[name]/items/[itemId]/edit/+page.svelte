@@ -24,7 +24,7 @@
 	let submitting = $state(false);
 
 	let name = $state('');
-	let attributes = $state<Record<string, any>>({});
+	let attributes = $state<Record<string, unknown>>({});
 
 	async function loadData() {
 		try {
@@ -46,17 +46,20 @@
 		}
 	}
 
-	function updateAttribute(key: string, value: any, dimension: Dimension) {
+	function updateAttribute(key: string, value: unknown, dimension: Dimension) {
 		// Convert value based on dimension type
 		if (dimension.type === 'integer') {
-			attributes[key] = value === '' ? 0 : parseInt(value, 10);
+			const numericValue = typeof value === 'string' ? value : String(value ?? '');
+			attributes[key] = numericValue === '' ? 0 : parseInt(numericValue, 10);
 		} else if (dimension.type === 'float') {
-			attributes[key] = value === '' ? 0 : parseFloat(value);
+			const numericValue = typeof value === 'string' ? value : String(value ?? '');
+			attributes[key] = numericValue === '' ? 0 : parseFloat(numericValue);
 		} else if (dimension.type === 'boolean') {
 			attributes[key] = value;
 		} else if (dimension.type === 'list') {
 			// Parse comma-separated values
-			const items = value
+			const listValue = typeof value === 'string' ? value : String(value ?? '');
+			const items = listValue
 				.split(',')
 				.map((v: string) => v.trim())
 				.filter((v: string) => v);
@@ -82,7 +85,7 @@
 	function getListValueAsString(key: string): string {
 		const value = attributes[key];
 		if (Array.isArray(value)) {
-			return value.join(', ');
+			return value.map((v) => String(v)).join(', ');
 		}
 		return '';
 	}
@@ -268,14 +271,14 @@
 										{/if}
 									{:else if dim.type === 'boolean'}
 										<div class="flex items-center gap-2">
-											<input
-												type="checkbox"
-												id={dim.name}
-												checked={attributes[dim.name]}
-												onchange={(e) =>
-													updateAttribute(dim.name, e.currentTarget.checked, dim)}
-												class="rounded border-input"
-											/>
+												<input
+													type="checkbox"
+													id={dim.name}
+													checked={attributes[dim.name] === true}
+													onchange={(e) =>
+														updateAttribute(dim.name, e.currentTarget.checked, dim)}
+													class="rounded border-input"
+												/>
 											<label for={dim.name} class="text-sm">
 												{attributes[dim.name] ? 'Yes' : 'No'}
 											</label>

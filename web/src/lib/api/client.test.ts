@@ -1035,7 +1035,7 @@ describe("API Client", () => {
 
     describe("importSchemas", () => {
       it("imports schemas", async () => {
-        const mockImportData: any[] = [];
+        const mockImportData: unknown[] = [];
         const mockResult = { message: "ok" };
 
         mockFetch.mockResolvedValueOnce({
@@ -1057,7 +1057,7 @@ describe("API Client", () => {
 
     describe("importRuleSets", () => {
       it("imports rulesets", async () => {
-        const mockImportData: any[] = [];
+        const mockImportData: unknown[] = [];
         const mockResult = { message: "ok" };
 
         mockFetch.mockResolvedValueOnce({
@@ -1079,7 +1079,7 @@ describe("API Client", () => {
 
     describe("importCatalogs", () => {
       it("imports catalogs", async () => {
-        const mockImportData: any[] = [];
+        const mockImportData: unknown[] = [];
         const mockResult = { message: "ok" };
 
         mockFetch.mockResolvedValueOnce({
@@ -1101,7 +1101,7 @@ describe("API Client", () => {
 
     describe("importClusterRuleSets", () => {
       it("imports cluster rulesets", async () => {
-        const mockImportData: any[] = [];
+        const mockImportData: unknown[] = [];
         const mockResult = { message: "ok" };
 
         mockFetch.mockResolvedValueOnce({

@@ -6,6 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as api from "$lib/api/client";
+import type { Dimension, Schema } from "$lib/api/client";
 import {
   createMockItem,
   createMockCatalog,
@@ -30,9 +31,9 @@ async function loadItem(catalogName: string, itemId: string) {
 }
 
 // Helper for dimension lookup
-function getDimensionInfo(schema: any, key: string) {
+function getDimensionInfo(schema: Schema | null, key: string) {
   if (!schema) return null;
-  return schema.dimensions.find((d: any) => d.name === key);
+  return schema.dimensions.find((d: Dimension) => d.name === key);
 }
 
 describe("Item Detail Page (+page)", () => {
@@ -223,9 +224,12 @@ describe("Item Detail Page (+page)", () => {
 
       const { item } = await loadItem("cat", "id");
 
-      expect(Array.isArray(item.attributes.tags)).toBe(true);
-      expect(item.attributes.tags).toHaveLength(3);
-      expect(item.attributes.tags[0]).toBe("cotton");
+      const tags = item.attributes.tags;
+      expect(Array.isArray(tags)).toBe(true);
+      expect(tags).toHaveLength(3);
+      if (Array.isArray(tags)) {
+        expect(tags[0]).toBe("cotton");
+      }
     });
   });
 

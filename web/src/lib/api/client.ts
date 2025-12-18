@@ -37,7 +37,7 @@ export interface RuleSet {
 export interface Rule {
   name: string;
   type: "exclusion" | "requirement";
-  condition: Record<string, any>;
+  condition: Record<string, unknown>;
   enabled?: boolean;
 }
 
@@ -46,7 +46,7 @@ export interface Catalog {
   name: string;
   schema_name: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at?: string;
   updated_at?: string;
 }
@@ -55,8 +55,8 @@ export interface Item {
   id?: number;
   item_id: string;
   name: string;
-  attributes: Record<string, any>;
-  metadata?: Record<string, any>;
+  attributes: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   created_at?: string;
   updated_at?: string;
 }
@@ -87,7 +87,7 @@ export interface EvaluationMatrix {
 export interface ClusterRule {
   name: string;
   type: "exclusion" | "requirement";
-  condition: Record<string, any>;
+  condition: Record<string, unknown>;
   enabled?: boolean;
   description?: string;
 }
@@ -113,7 +113,7 @@ export interface Cluster {
   is_maximal: boolean;
   is_maximum: boolean;
   rule_evaluations: RuleEvaluation[];
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface ClusterRelationship {
@@ -411,45 +411,45 @@ class ApiClient {
   }
 
   // Export endpoints
-  async exportSchemas(): Promise<any[]> {
-    return this.request<any[]>("/export/schemas");
+  async exportSchemas(): Promise<unknown[]> {
+    return this.request<unknown[]>("/export/schemas");
   }
 
-  async exportSchema(name: string): Promise<any> {
-    return this.request<any>(`/export/schemas/${name}`);
+  async exportSchema(name: string): Promise<unknown> {
+    return this.request<unknown>(`/export/schemas/${name}`);
   }
 
-  async exportRuleSets(): Promise<any[]> {
-    return this.request<any[]>("/export/rulesets");
+  async exportRuleSets(): Promise<unknown[]> {
+    return this.request<unknown[]>("/export/rulesets");
   }
 
-  async exportRuleSet(name: string): Promise<any> {
-    return this.request<any>(`/export/rulesets/${name}`);
+  async exportRuleSet(name: string): Promise<unknown> {
+    return this.request<unknown>(`/export/rulesets/${name}`);
   }
 
-  async exportClusterRuleSets(): Promise<any[]> {
-    return this.request<any[]>("/export/cluster-rulesets");
+  async exportClusterRuleSets(): Promise<unknown[]> {
+    return this.request<unknown[]>("/export/cluster-rulesets");
   }
 
-  async exportClusterRuleSet(name: string): Promise<any> {
-    return this.request<any>(`/export/cluster-rulesets/${name}`);
+  async exportClusterRuleSet(name: string): Promise<unknown> {
+    return this.request<unknown>(`/export/cluster-rulesets/${name}`);
   }
 
-  async exportCatalog(name: string): Promise<any> {
-    return this.request<any>(`/export/catalogs/${name}`);
+  async exportCatalog(name: string): Promise<unknown> {
+    return this.request<unknown>(`/export/catalogs/${name}`);
   }
 
-  async exportCatalogs(): Promise<any[]> {
-    return this.request<any[]>("/export/catalogs");
+  async exportCatalogs(): Promise<unknown[]> {
+    return this.request<unknown[]>("/export/catalogs");
   }
 
-  async exportAll(): Promise<any> {
-    return this.request<any>("/export/all");
+  async exportAll(): Promise<unknown> {
+    return this.request<unknown>("/export/all");
   }
 
   // Import endpoints
   async importSchemas(
-    schemas: any[],
+    schemas: unknown[],
     skipExisting: boolean = false,
   ): Promise<{ message: string; detail?: string }> {
     return this.request<{ message: string; detail?: string }>(
@@ -462,7 +462,7 @@ class ApiClient {
   }
 
   async importRuleSets(
-    rulesets: any[],
+    rulesets: unknown[],
     skipExisting: boolean = false,
   ): Promise<{ message: string; detail?: string }> {
     return this.request<{ message: string; detail?: string }>(
@@ -475,7 +475,7 @@ class ApiClient {
   }
 
   async importClusterRuleSets(
-    clusterRulesets: any[],
+    clusterRulesets: unknown[],
     skipExisting: boolean = false,
   ): Promise<{ message: string; detail?: string }> {
     return this.request<{ message: string; detail?: string }>(
@@ -488,7 +488,7 @@ class ApiClient {
   }
 
   async importCatalogs(
-    catalogs: any[],
+    catalogs: unknown[],
     skipExisting: boolean = false,
   ): Promise<{ message: string; detail?: string }> {
     return this.request<{ message: string; detail?: string }>(
@@ -501,7 +501,7 @@ class ApiClient {
   }
 
   async importAll(
-    data: any,
+    data: unknown,
     skipExisting: boolean = false,
   ): Promise<{ message: string; detail?: string }> {
     return this.request<{ message: string; detail?: string }>(

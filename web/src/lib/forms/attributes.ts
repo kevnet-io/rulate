@@ -10,22 +10,27 @@ import type { Dimension } from "$lib/api/client";
  * Handles type conversion for integer, float, boolean, list, enum, and string types
  */
 export function updateAttribute(
-  attributes: Record<string, any>,
+  attributes: Record<string, unknown>,
   key: string,
-  value: any,
+  value: unknown,
   dimension: Dimension,
-): Record<string, any> {
+): Record<string, unknown> {
   const updated = { ...attributes };
 
   if (dimension.type === "integer") {
-    updated[key] = value === "" ? 0 : parseInt(value, 10);
+    const numericValue =
+      typeof value === "string" ? value : String(value ?? "");
+    updated[key] = numericValue === "" ? 0 : parseInt(numericValue, 10);
   } else if (dimension.type === "float") {
-    updated[key] = value === "" ? 0 : parseFloat(value);
+    const numericValue =
+      typeof value === "string" ? value : String(value ?? "");
+    updated[key] = numericValue === "" ? 0 : parseFloat(numericValue);
   } else if (dimension.type === "boolean") {
     updated[key] = value;
   } else if (dimension.type === "list") {
     // Parse comma-separated values
-    const items = value
+    const listValue = typeof value === "string" ? value : String(value ?? "");
+    const items = listValue
       .split(",")
       .map((v: string) => v.trim())
       .filter((v: string) => v);
@@ -51,12 +56,12 @@ export function updateAttribute(
  * Get a list value as a comma-separated string for form display
  */
 export function getListValueAsString(
-  attributes: Record<string, any>,
+  attributes: Record<string, unknown>,
   key: string,
 ): string {
   const value = attributes[key];
   if (Array.isArray(value)) {
-    return value.join(", ");
+    return value.map((v) => String(v)).join(", ");
   }
   return "";
 }
@@ -66,8 +71,8 @@ export function getListValueAsString(
  */
 export function initializeAttributes(
   dimensions: Dimension[],
-): Record<string, any> {
-  const attributes: Record<string, any> = {};
+): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {};
 
   for (const dim of dimensions) {
     if (dim.type === "boolean") {

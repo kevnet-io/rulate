@@ -152,7 +152,10 @@ describe("Matrix Page (+page)", () => {
     });
 
     it("clears selected pair on new evaluation", () => {
-      let selectedPair: any = { item1_id: "item1", item2_id: "item2" };
+      let selectedPair: { item1_id: string; item2_id: string } | null = {
+        item1_id: "item1",
+        item2_id: "item2",
+      };
       selectedPair = null;
 
       expect(selectedPair).toBeNull();

@@ -57,7 +57,7 @@ describe("Catalogs List Page (+page)", () => {
     });
 
     it("initializes with empty catalog array", () => {
-      const catalogs: any[] = [];
+      const catalogs: unknown[] = [];
       expect(catalogs).toEqual([]);
     });
 
@@ -271,7 +271,7 @@ describe("Catalogs List Page (+page)", () => {
     });
 
     it("handles non-Error exceptions", () => {
-      const error: any = "String error";
+      const error: unknown = "String error";
       expect(error).toBe("String error");
     });
   });

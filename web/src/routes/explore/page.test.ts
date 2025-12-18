@@ -381,9 +381,11 @@ describe("Explore Page (+page)", () => {
     });
 
     it("clears results on catalog change", () => {
-      let currentItem: any = { item_id: "item1" };
-      let compatibleResults: any[] = [{ item2_id: "item2", compatible: true }];
-      let incompatibleResults: any[] = [];
+      let currentItem: { item_id: string } | null = { item_id: "item1" };
+      let compatibleResults: { item2_id: string; compatible: boolean }[] = [
+        { item2_id: "item2", compatible: true },
+      ];
+      let incompatibleResults: { item2_id: string; compatible: boolean }[] = [];
 
       // Simulate reset
       currentItem = null;
@@ -400,12 +402,15 @@ describe("Explore Page (+page)", () => {
         createMockItem({ item_id: "item1", name: "First" }),
         createMockItem({ item_id: "item2", name: "Second" }),
       ];
-      let currentItem: any = null;
+      let currentItem: (typeof items)[number] | null = null;
       const selectedItemId = "item1";
 
       currentItem = items.find((i) => i.item_id === selectedItemId) || null;
 
       expect(currentItem).not.toBeNull();
+      if (!currentItem) {
+        throw new Error("Expected currentItem to be set");
+      }
       expect(currentItem.item_id).toBe("item1");
     });
   });
@@ -550,8 +555,10 @@ describe("Explore Page (+page)", () => {
     });
 
     it("resets results when catalog changes", () => {
-      let currentItem: any = { item_id: "item1" };
-      let _compatibleResults: any[] = [{ compatible: true }];
+      let currentItem: { item_id: string } | null = { item_id: "item1" };
+      let _compatibleResults: { compatible: boolean }[] = [
+        { compatible: true },
+      ];
       let selectedCatalog = "cat1";
 
       // Simulate catalog change

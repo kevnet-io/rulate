@@ -2,10 +2,10 @@
  * Form validation utilities
  */
 
-export type ValidationRule<T = any> = (value: T) => string | undefined;
+export type ValidationRule<T = unknown> = (value: T) => string | undefined;
 
 export function required(message = "This field is required"): ValidationRule {
-  return (value: any) => {
+  return (value: unknown) => {
     if (value === undefined || value === null || value === "") {
       return message;
     }
@@ -111,7 +111,7 @@ export function compose<T>(...rules: ValidationRule<T>[]): ValidationRule<T> {
   };
 }
 
-export function validateForm<T extends Record<string, any>>(
+export function validateForm<T extends Record<string, unknown>>(
   values: T,
   rules: Partial<Record<keyof T, ValidationRule | ValidationRule[]>>,
 ): Partial<Record<keyof T, string>> {
