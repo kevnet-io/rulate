@@ -7,7 +7,7 @@ name = "rulate"
 version = "0.1.0"
 description = "A generic rule-based comparison engine for evaluating relationships between objects"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 authors = [
     { name = "Kevin", email = "your.email@example.com" }
 ]
