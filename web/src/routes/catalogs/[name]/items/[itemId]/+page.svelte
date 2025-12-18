@@ -17,8 +17,8 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let catalogName = $derived($page.params.name);
-	let itemId = $derived($page.params.itemId);
+	let catalogName = $derived($page.params.name ?? '');
+	let itemId = $derived($page.params.itemId ?? '');
 	let pageTitle = $derived(`${itemId} - ${catalogName} - Rulate`);
 
 	async function loadItem() {

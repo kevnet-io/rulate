@@ -39,7 +39,9 @@ function createMockComparisonResult(
     rules_evaluated: Array.from({ length: rulesTotal }, (_, i) => ({
       rule_name: `Rule${i + 1}`,
       passed: i < rulesPassed,
+      reason: i < rulesPassed ? "allowed" : "blocked",
     })),
+    evaluated_at: "2024-01-01T00:00:00Z",
   };
 }
 

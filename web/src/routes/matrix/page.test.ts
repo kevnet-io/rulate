@@ -23,24 +23,48 @@ function createMockMatrix(itemCount: number): EvaluationMatrix {
 
   for (let i = 0; i < items.length; i++) {
     for (let j = i + 1; j < items.length; j++) {
+      const compatible = Math.random() > 0.5;
       results.push({
         item1_id: items[i],
         item2_id: items[j],
-        compatible: Math.random() > 0.5,
+        compatible,
         rules_evaluated: [
-          { rule_name: "Rule1", passed: true },
-          { rule_name: "Rule2", passed: Math.random() > 0.5 },
+          { rule_name: "Rule1", passed: true, reason: "allowed" },
+          {
+            rule_name: "Rule2",
+            passed: compatible,
+            reason: compatible ? "allowed" : "blocked",
+          },
         ],
+        evaluated_at: "2024-01-01T00:00:00Z",
       });
     }
   }
-  return { results };
+
+  const totalComparisons = results.length;
+  const compatibleCount = results.filter((r) => r.compatible).length;
+
+  return {
+    catalog_name: "catalog1",
+    ruleset_name: "ruleset1",
+    results,
+    total_comparisons: totalComparisons,
+    compatible_count: compatibleCount,
+    compatibility_rate:
+      totalComparisons === 0 ? 0 : compatibleCount / totalComparisons,
+  };
 }
 
 describe("Matrix Page (+page)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+
+  function findResult(matrix: EvaluationMatrix | null) {
+    return matrix?.results.find(
+      (r: ComparisonResult) => r.item1_id === "item1",
+    );
+  }
 
   describe("Data Loading", () => {
     it("loads catalogs and rulesets on mount", async () => {
@@ -168,13 +192,8 @@ describe("Matrix Page (+page)", () => {
     });
 
     it("returns null when matrix is null", () => {
-      const matrix = null;
-      if (matrix) {
-        const result = matrix.results.find((r) => r.item1_id === "item1");
-        expect(result).toBeDefined();
-      } else {
-        expect(matrix).toBeNull();
-      }
+      const matrix: EvaluationMatrix | null = null;
+      expect(findResult(matrix)).toBeUndefined();
     });
   });
 
@@ -246,6 +265,7 @@ describe("Matrix Page (+page)", () => {
         item2_id: "item2",
         compatible: true,
         rules_evaluated: [],
+        evaluated_at: "2024-01-01T00:00:00Z",
       };
 
       expect(result.compatible).toBe(true);
@@ -257,6 +277,7 @@ describe("Matrix Page (+page)", () => {
         item2_id: "item2",
         compatible: false,
         rules_evaluated: [],
+        evaluated_at: "2024-01-01T00:00:00Z",
       };
 
       expect(result.compatible).toBe(false);

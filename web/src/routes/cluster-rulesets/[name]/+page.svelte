@@ -16,7 +16,7 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let clusterRulesetName = $derived($page.params.name);
+	let clusterRulesetName = $derived($page.params.name ?? '');
 	let pageTitle = $derived(`${clusterRulesetName} - Cluster RuleSet - Rulate`);
 
 	async function loadClusterRuleSet() {

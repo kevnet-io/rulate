@@ -16,7 +16,7 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let rulesetName = $derived($page.params.name);
+	let rulesetName = $derived($page.params.name ?? '');
 	let pageTitle = $derived(`${rulesetName} - RuleSet - Rulate`);
 
 	async function loadRuleSet() {

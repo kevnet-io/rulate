@@ -30,8 +30,8 @@ describe("RuleSets List Page (+page)", () => {
   describe("Data Loading", () => {
     it("loads rulesets on mount", async () => {
       const mockRuleSets = [
-        createMockRuleSet({ name: "Wardrobe Rules", schema_ref: "Wardrobe" }),
-        createMockRuleSet({ name: "Kitchen Rules", schema_ref: "Kitchen" }),
+        createMockRuleSet({ name: "Wardrobe Rules", schema_name: "Wardrobe" }),
+        createMockRuleSet({ name: "Kitchen Rules", schema_name: "Kitchen" }),
       ];
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue(mockRuleSets);
 
@@ -103,12 +103,12 @@ describe("RuleSets List Page (+page)", () => {
     });
 
     it("displays schema name", async () => {
-      const mockRuleSet = createMockRuleSet({ schema_ref: "Wardrobe" });
+      const mockRuleSet = createMockRuleSet({ schema_name: "Wardrobe" });
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue([mockRuleSet]);
 
       const rulesets = await loadRuleSets();
 
-      expect(rulesets[0].schema_ref).toBe("Wardrobe");
+      expect(rulesets[0].schema_name).toBe("Wardrobe");
     });
 
     it("displays first 3 rules", async () => {
@@ -379,27 +379,27 @@ describe("RuleSets List Page (+page)", () => {
 
   describe("Schema Reference", () => {
     it("displays associated schema for each ruleset", async () => {
-      const mockRuleSet = createMockRuleSet({ schema_ref: "Wardrobe" });
+      const mockRuleSet = createMockRuleSet({ schema_name: "Wardrobe" });
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue([mockRuleSet]);
 
       const rulesets = await loadRuleSets();
 
-      expect(rulesets[0].schema_ref).toBe("Wardrobe");
+      expect(rulesets[0].schema_name).toBe("Wardrobe");
     });
 
     it("handles different schema references", async () => {
       const mockRuleSets = [
-        createMockRuleSet({ name: "RS1", schema_ref: "Schema1" }),
-        createMockRuleSet({ name: "RS2", schema_ref: "Schema2" }),
-        createMockRuleSet({ name: "RS3", schema_ref: "Schema3" }),
+        createMockRuleSet({ name: "RS1", schema_name: "Schema1" }),
+        createMockRuleSet({ name: "RS2", schema_name: "Schema2" }),
+        createMockRuleSet({ name: "RS3", schema_name: "Schema3" }),
       ];
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue(mockRuleSets);
 
       const rulesets = await loadRuleSets();
 
-      expect(rulesets[0].schema_ref).toBe("Schema1");
-      expect(rulesets[1].schema_ref).toBe("Schema2");
-      expect(rulesets[2].schema_ref).toBe("Schema3");
+      expect(rulesets[0].schema_name).toBe("Schema1");
+      expect(rulesets[1].schema_name).toBe("Schema2");
+      expect(rulesets[2].schema_name).toBe("Schema3");
     });
   });
 });

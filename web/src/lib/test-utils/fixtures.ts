@@ -131,13 +131,14 @@ export const mockCompatibleResult: ComparisonResult = {
   item1_id: "item-001",
   item2_id: "item-002",
   compatible: true,
-  rule_evaluations: [
+  rules_evaluated: [
     {
       rule_name: "color-exclusion",
-      rule_type: "exclusion",
       passed: true,
+      reason: "allowed",
     },
   ],
+  evaluated_at: "2024-01-01T00:00:00Z",
 };
 
 /**
@@ -147,13 +148,14 @@ export const mockIncompatibleResult: ComparisonResult = {
   item1_id: "item-001",
   item2_id: "item-003",
   compatible: false,
-  rule_evaluations: [
+  rules_evaluated: [
     {
       rule_name: "color-exclusion",
-      rule_type: "exclusion",
       passed: false,
+      reason: "blocked",
     },
   ],
+  evaluated_at: "2024-01-01T00:00:00Z",
 };
 
 // ============= Builder Functions =============
@@ -299,13 +301,14 @@ export function createMockComparisonMatrix(items: Item[]): ComparisonResult[] {
         item1_id: items[i].item_id,
         item2_id: items[j].item_id,
         compatible,
-        rule_evaluations: [
+        rules_evaluated: [
           {
             rule_name: "test-rule",
-            rule_type: "exclusion",
             passed: compatible,
+            reason: compatible ? "allowed" : "blocked",
           },
         ],
+        evaluated_at: "2024-01-01T00:00:00Z",
       });
     }
   }

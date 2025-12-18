@@ -22,7 +22,7 @@
 	let showDeleteModal = $state(false);
 	let itemToDelete = $state<string | null>(null);
 
-	let catalogName = $derived($page.params.name);
+	let catalogName = $derived($page.params.name ?? '');
 	let pageTitle = $derived(`${catalogName} - Catalog - Rulate`);
 
 	async function loadData() {

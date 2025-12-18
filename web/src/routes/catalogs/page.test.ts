@@ -30,8 +30,8 @@ describe("Catalogs List Page (+page)", () => {
   describe("Data Loading", () => {
     it("loads catalogs on mount", async () => {
       const mockCatalogs = [
-        createMockCatalog({ name: "Summer", schema_ref: "Wardrobe" }),
-        createMockCatalog({ name: "Winter", schema_ref: "Wardrobe" }),
+        createMockCatalog({ name: "Summer", schema_name: "Wardrobe" }),
+        createMockCatalog({ name: "Winter", schema_name: "Wardrobe" }),
       ];
       vi.spyOn(api.api, "getCatalogs").mockResolvedValue(mockCatalogs);
 
@@ -100,12 +100,12 @@ describe("Catalogs List Page (+page)", () => {
     });
 
     it("displays schema name", async () => {
-      const mockCatalog = createMockCatalog({ schema_ref: "Wardrobe" });
+      const mockCatalog = createMockCatalog({ schema_name: "Wardrobe" });
       vi.spyOn(api.api, "getCatalogs").mockResolvedValue([mockCatalog]);
 
       const catalogs = await loadCatalogs();
 
-      expect(catalogs[0].schema_ref).toBe("Wardrobe");
+      expect(catalogs[0].schema_name).toBe("Wardrobe");
     });
 
     it("displays created_at date if present", async () => {
@@ -293,27 +293,27 @@ describe("Catalogs List Page (+page)", () => {
 
   describe("Schema Reference", () => {
     it("displays associated schema for each catalog", async () => {
-      const mockCatalog = createMockCatalog({ schema_ref: "Wardrobe" });
+      const mockCatalog = createMockCatalog({ schema_name: "Wardrobe" });
       vi.spyOn(api.api, "getCatalogs").mockResolvedValue([mockCatalog]);
 
       const catalogs = await loadCatalogs();
 
-      expect(catalogs[0].schema_ref).toBe("Wardrobe");
+      expect(catalogs[0].schema_name).toBe("Wardrobe");
     });
 
     it("handles different schema references", async () => {
       const mockCatalogs = [
-        createMockCatalog({ name: "C1", schema_ref: "Schema1" }),
-        createMockCatalog({ name: "C2", schema_ref: "Schema2" }),
-        createMockCatalog({ name: "C3", schema_ref: "Schema3" }),
+        createMockCatalog({ name: "C1", schema_name: "Schema1" }),
+        createMockCatalog({ name: "C2", schema_name: "Schema2" }),
+        createMockCatalog({ name: "C3", schema_name: "Schema3" }),
       ];
       vi.spyOn(api.api, "getCatalogs").mockResolvedValue(mockCatalogs);
 
       const catalogs = await loadCatalogs();
 
-      expect(catalogs[0].schema_ref).toBe("Schema1");
-      expect(catalogs[1].schema_ref).toBe("Schema2");
-      expect(catalogs[2].schema_ref).toBe("Schema3");
+      expect(catalogs[0].schema_name).toBe("Schema1");
+      expect(catalogs[1].schema_name).toBe("Schema2");
+      expect(catalogs[2].schema_name).toBe("Schema3");
     });
   });
 });
