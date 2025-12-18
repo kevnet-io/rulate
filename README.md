@@ -217,13 +217,15 @@ make dev-backend    # API server (http://localhost:8000)
 make dev-frontend   # Web UI (http://localhost:5173)
 
 # Run tests
-make test           # Backend tests
-make test-frontend  # Frontend unit tests
+make test           # All unit tests (backend + frontend)
+make test-backend   # Backend tests only
+make test-frontend  # Frontend unit tests only
 make test-e2e       # Frontend E2E tests (requires API running)
 
 # Code quality
 make format         # Auto-fix formatting issues
-make check-all      # Verify all checks pass (run before pushing)
+make check          # Verify all checks pass (run before committing)
+make check-all      # Comprehensive checks including e2e
 
 # See all available commands
 make help
@@ -232,9 +234,12 @@ make help
 ### Running Tests
 
 ```bash
-# Backend tests
-make test              # Run all backend tests (unit + integration)
-make test-cov          # With HTML coverage report
+# All unit tests
+make test              # Run all unit tests (backend + frontend)
+make test-backend      # Run backend tests only (unit + integration)
+make test-frontend     # Run frontend unit tests only
+make test-e2e          # Run E2E tests (playwright)
+make test-cov          # Backend tests with HTML coverage report
 
 # Backend unit tests (core engine)
 uv run pytest tests/unit/                    # Unit tests only
@@ -243,10 +248,6 @@ uv run pytest tests/unit/ --cov=rulate       # With coverage
 # Backend integration tests (API layer)
 uv run pytest tests/integration/             # Integration tests only
 uv run pytest tests/integration/ --cov=api   # API coverage
-
-# Frontend tests
-make test-frontend     # Unit tests (vitest)
-make test-e2e          # E2E tests (playwright)
 
 # Or use underlying commands:
 # uv run pytest                    # All backend tests
@@ -265,13 +266,21 @@ Use the two-tier workflow for code quality:
 # 1. During development - auto-fix issues (modifies files)
 make format
 
-# 2. Before pushing - verify all checks pass (read-only)
+# 2. Before committing - verify all checks pass (read-only, fast ~30-40s)
+make check
+
+# Comprehensive checks including e2e (~90s)
 make check-all
 
 # Individual quality checks (read-only)
-make lint              # Ruff linting
-make typecheck         # Mypy type checking
-make lint-frontend     # ESLint
+make lint              # All linting (backend + frontend)
+make lint-backend      # Python linting only
+make lint-frontend     # Frontend linting only
+make typecheck         # All type checking (backend + frontend)
+make typecheck-backend # Python type checking only
+make typecheck-frontend # Frontend type checking only
+make check-backend     # All backend checks
+make check-frontend    # All frontend checks
 
 # Or use individual tools:
 # uv run black .              # Format Python
@@ -281,6 +290,7 @@ make lint-frontend     # ESLint
 ```
 
 Pre-commit hooks run automatically on commit to enforce code quality.
+CI runs all checks in parallel (9 fine-grained jobs with Python 3.14).
 Run `make help` to see all available commands.
 
 ## Documentation

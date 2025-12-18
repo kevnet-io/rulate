@@ -23,20 +23,25 @@ help:
 	@echo "  make format-frontend   Format frontend code with prettier"
 	@echo ""
 	@echo "Linting & Type Checking (read-only):"
-	@echo "  make lint              Check Python code with ruff (no fixes)"
-	@echo "  make typecheck         Run mypy on rulate/ (core only)"
+	@echo "  make lint              Check all code (backend + frontend)"
+	@echo "  make lint-backend      Check Python code with ruff (no fixes)"
 	@echo "  make lint-frontend     Check frontend with ESLint"
+	@echo "  make typecheck         Run all type checking (backend + frontend)"
+	@echo "  make typecheck-backend Run mypy on rulate/ (core only)"
+	@echo "  make typecheck-frontend Run svelte-check on frontend"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test              Run backend pytest suite"
-	@echo "  make test-cov          Run backend tests with coverage report"
+	@echo "  make test              Run all unit tests (backend + frontend)"
+	@echo "  make test-backend      Run backend pytest suite"
 	@echo "  make test-frontend     Run frontend unit tests (vitest)"
+	@echo "  make test-cov          Run backend tests with coverage report"
 	@echo "  make test-e2e          Run frontend E2E tests (playwright)"
 	@echo ""
 	@echo "Comprehensive Checks (CI-ready):"
-	@echo "  make check             Run all backend checks (lint + typecheck + test)"
-	@echo "  make check-frontend    Run all frontend checks (prettier + eslint + svelte + tests)"
-	@echo "  make check-all         Run ALL checks (backend + frontend) - mirrors CI"
+	@echo "  make check             Run all checks except e2e (lint + typecheck + test)"
+	@echo "  make check-backend     Run all backend checks (lint + typecheck + test)"
+	@echo "  make check-frontend    Run all frontend checks (format + lint + typecheck + tests)"
+	@echo "  make check-all         Run ALL checks including e2e - mirrors CI"
 	@echo "  make pre-commit        Run pre-commit hooks on all files"
 	@echo ""
 	@echo "Development Servers:"
@@ -107,38 +112,55 @@ format-frontend:
 #
 
 .PHONY: lint
-lint:
+lint: lint-backend lint-frontend
+	@echo "✓ All linting passed"
+
+.PHONY: lint-backend
+lint-backend:
 	@echo "Linting Python code with ruff (check only)..."
 	uv run ruff check .
-
-.PHONY: typecheck
-typecheck:
-	@echo "Type checking core engine with mypy..."
-	uv run mypy rulate
 
 .PHONY: lint-frontend
 lint-frontend:
 	@echo "Linting frontend code with ESLint..."
 	cd web && npm run lint
 
+.PHONY: typecheck
+typecheck: typecheck-backend typecheck-frontend
+	@echo "✓ All type checking passed"
+
+.PHONY: typecheck-backend
+typecheck-backend:
+	@echo "Type checking core engine with mypy..."
+	uv run mypy rulate
+
+.PHONY: typecheck-frontend
+typecheck-frontend:
+	@echo "Type checking frontend with svelte-check..."
+	cd web && npm run check
+
 #
 # Testing targets
 #
 
 .PHONY: test
-test:
+test: test-backend test-frontend
+	@echo "✓ All unit tests passed"
+
+.PHONY: test-backend
+test-backend:
 	@echo "Running backend tests..."
 	uv run pytest
-
-.PHONY: test-cov
-test-cov:
-	@echo "Running backend tests with coverage..."
-	uv run pytest --cov=rulate --cov=api --cov-report=html --cov-report=term
 
 .PHONY: test-frontend
 test-frontend:
 	@echo "Running frontend unit tests..."
 	cd web && npm test
+
+.PHONY: test-cov
+test-cov:
+	@echo "Running backend tests with coverage..."
+	uv run pytest --cov=rulate --cov=api --cov-report=html --cov-report=term
 
 .PHONY: test-e2e
 test-e2e:
@@ -152,16 +174,20 @@ test-e2e:
 
 .PHONY: check
 check: lint typecheck test
+	@echo "✓ All checks passed (excluding e2e)"
+
+.PHONY: check-backend
+check-backend: lint-backend typecheck-backend test-backend
 	@echo "✓ All backend checks passed"
 
 .PHONY: check-frontend
 check-frontend:
 	@echo "Running all frontend checks..."
-	cd web && npm run check:full
+	cd web && npm run check:all
 
 .PHONY: check-all
-check-all: check check-frontend
-	@echo "✓ All checks passed (backend + frontend)"
+check-all: check test-e2e
+	@echo "✓ All checks passed (including e2e)"
 
 .PHONY: pre-commit
 pre-commit:

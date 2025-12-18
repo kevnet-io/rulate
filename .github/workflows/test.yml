@@ -7,21 +7,17 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  backend:
-    name: Backend Tests (Python ${{ matrix.python-version }})
+  backend-lint:
+    name: Backend Lint
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.14
       uses: actions/setup-python@v6
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.14'
 
     - name: Install uv
       uses: astral-sh/setup-uv@v7
@@ -36,9 +32,51 @@ jobs:
       run: |
         uv run ruff check .
 
+  backend-typecheck:
+    name: Backend Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+
     - name: Run type checking (Mypy)
       run: |
         uv run mypy rulate
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Install dependencies
+      run: |
+        uv sync --dev
 
     - name: Run tests with coverage
       run: |
@@ -49,11 +87,82 @@ jobs:
       with:
         files: ./coverage.xml
         flags: backend
-        name: backend-${{ matrix.python-version }}
+        name: backend-tests
         token: ${{ secrets.CODECOV_TOKEN }}
-      if: matrix.python-version == '3.12'
 
-  frontend-unit:
+  frontend-format:
+    name: Frontend Format Check
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./web
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '25'
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run format check (Prettier)
+      run: npm run format:check
+
+  frontend-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./web
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '25'
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting (ESLint)
+      run: npm run lint
+
+  frontend-typecheck:
+    name: Frontend Type Check
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./web
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '25'
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run type checking (svelte-check)
+      run: npm run check
+
+  frontend-tests-unit:
     name: Frontend Unit Tests
     runs-on: ubuntu-latest
 
@@ -72,19 +181,9 @@ jobs:
         cache-dependency-path: web/package-lock.json
 
     - name: Install dependencies
-      working-directory: ./web
       run: npm ci
 
-    - name: Run format check (Prettier)
-      working-directory: ./web
-      run: npm run format:check
-
-    - name: Run linting (ESLint)
-      working-directory: ./web
-      run: npm run lint
-
     - name: Run unit tests
-      working-directory: ./web
       run: npm run test:coverage
 
     - name: Upload coverage to Codecov
@@ -92,20 +191,20 @@ jobs:
       with:
         files: ./web/coverage/coverage-final.json
         flags: frontend-unit
-        name: frontend-unit
+        name: frontend-tests-unit
         token: ${{ secrets.CODECOV_TOKEN }}
 
-  frontend-e2e:
+  frontend-tests-e2e:
     name: Frontend E2E Tests
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python 3.14
       uses: actions/setup-python@v6
       with:
-        python-version: '3.12'
+        python-version: '3.14'
 
     - name: Install uv
       uses: astral-sh/setup-uv@v7
@@ -145,8 +244,8 @@ jobs:
         path: web/playwright-report/
         retention-days: 30
 
-  build-check:
-    name: Build Check
+  frontend-build:
+    name: Frontend Build Check
     runs-on: ubuntu-latest
 
     steps:
