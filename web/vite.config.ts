@@ -1,7 +1,8 @@
 import { sveltekit } from "@sveltejs/kit/vite";
-import { defineConfig } from "vitest/config";
+import { defineConfig, type UserConfig } from "vite";
+import type { TestUserConfig } from "vitest/config";
 
-export default defineConfig({
+const config = {
   plugins: [sveltekit()],
   resolve: {
     alias: {
@@ -24,10 +25,6 @@ export default defineConfig({
     globals: true,
     // Use happy-dom for better Svelte 5 compatibility
     environment: "happy-dom",
-    // Ensure Svelte components are transformed for the browser, not SSR, during Vitest runs
-    transformMode: {
-      web: [/\.svelte$/],
-    },
     setupFiles: ["./src/test-setup.ts"],
     coverage: {
       provider: "v8",
@@ -48,5 +45,7 @@ export default defineConfig({
         lines: 30,
       },
     },
-  },
-});
+  } satisfies TestUserConfig,
+} satisfies UserConfig & { test: TestUserConfig };
+
+export default defineConfig(config);

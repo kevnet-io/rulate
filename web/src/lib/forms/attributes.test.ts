@@ -133,7 +133,9 @@ describe("Form Attributes Utilities", () => {
             intListDimension,
           );
           expect(result.numbers).toEqual([1, 2, 3]);
-          expect(result.numbers.every((n) => typeof n === "number")).toBe(true);
+          expect(
+            result.numbers.every((n: unknown) => typeof n === "number"),
+          ).toBe(true);
         });
 
         it("handles negative integers in list", () => {

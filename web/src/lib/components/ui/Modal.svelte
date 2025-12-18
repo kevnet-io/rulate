@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		isOpen: boolean;
 		onClose: () => void;
 		title?: string;
 		size?: 'sm' | 'md' | 'lg' | 'xl';
+		children?: Snippet;
 	}
 
 	let { isOpen = $bindable(false), onClose, title, size = 'md', children }: Props = $props();

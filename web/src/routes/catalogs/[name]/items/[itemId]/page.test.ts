@@ -25,7 +25,7 @@ vi.mock("$lib/api/client", () => ({
 async function loadItem(catalogName: string, itemId: string) {
   const item = await api.api.getItem(catalogName, itemId);
   const catalog = await api.api.getCatalog(catalogName);
-  const schema = await api.api.getSchema(catalog.schema_ref);
+  const schema = await api.api.getSchema(catalog.schema_name);
   return { item, schema, catalog };
 }
 
@@ -60,7 +60,7 @@ describe("Item Detail Page (+page)", () => {
       const mockItem = createMockItem();
       const mockCatalog = createMockCatalog({
         name: "TestCat",
-        schema_ref: "TestSchema",
+        schema_name: "TestSchema",
       });
       const mockSchema = createMockSchema();
 
@@ -70,13 +70,13 @@ describe("Item Detail Page (+page)", () => {
 
       const { catalog } = await loadItem("TestCat", "item1");
 
-      expect(catalog.schema_ref).toBe("TestSchema");
+      expect(catalog.schema_name).toBe("TestSchema");
       expect(api.api.getCatalog).toHaveBeenCalledWith("TestCat");
     });
 
     it("loads schema using schema name from catalog", async () => {
       const mockItem = createMockItem();
-      const mockCatalog = createMockCatalog({ schema_ref: "Wardrobe" });
+      const mockCatalog = createMockCatalog({ schema_name: "Wardrobe" });
       const mockSchema = createMockSchema({ name: "Wardrobe" });
 
       vi.spyOn(api.api, "getItem").mockResolvedValue(mockItem);
@@ -298,7 +298,7 @@ describe("Item Detail Page (+page)", () => {
       const { item } = await loadItem("cat", "id");
 
       expect(item.metadata).not.toBeUndefined();
-      expect(Object.keys(item.metadata).length).toBeGreaterThan(0);
+      expect(Object.keys(item.metadata ?? {}).length).toBeGreaterThan(0);
     });
 
     it("skips metadata section when empty", async () => {
@@ -311,7 +311,7 @@ describe("Item Detail Page (+page)", () => {
 
       const { item } = await loadItem("cat", "id");
 
-      expect(Object.keys(item.metadata).length).toBe(0);
+      expect(Object.keys(item.metadata ?? {}).length).toBe(0);
     });
   });
 

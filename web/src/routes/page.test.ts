@@ -52,8 +52,8 @@ describe("Dashboard Page (+page)", () => {
 
     it("loads rulesets on mount", async () => {
       const mockRulesets = [
-        createMockRuleSet({ name: "Wardrobe Rules", schema_ref: "Wardrobe" }),
-        createMockRuleSet({ name: "Kitchen Rules", schema_ref: "Kitchen" }),
+        createMockRuleSet({ name: "Wardrobe Rules", schema_name: "Wardrobe" }),
+        createMockRuleSet({ name: "Kitchen Rules", schema_name: "Kitchen" }),
       ];
       vi.spyOn(api.api, "getSchemas").mockResolvedValue([]);
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue(mockRulesets);
@@ -67,8 +67,8 @@ describe("Dashboard Page (+page)", () => {
 
     it("loads catalogs on mount", async () => {
       const mockCatalogs = [
-        createMockCatalog({ name: "Summer Wardrobe", schema_ref: "Wardrobe" }),
-        createMockCatalog({ name: "Winter Wardrobe", schema_ref: "Wardrobe" }),
+        createMockCatalog({ name: "Summer Wardrobe", schema_name: "Wardrobe" }),
+        createMockCatalog({ name: "Winter Wardrobe", schema_name: "Wardrobe" }),
       ];
       vi.spyOn(api.api, "getSchemas").mockResolvedValue([]);
       vi.spyOn(api.api, "getRuleSets").mockResolvedValue([]);

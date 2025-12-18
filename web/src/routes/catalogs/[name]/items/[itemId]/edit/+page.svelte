@@ -12,8 +12,8 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let catalogName = $derived($page.params.name);
-	let itemId = $derived($page.params.itemId);
+	let catalogName = $derived($page.params.name ?? '');
+	let itemId = $derived($page.params.itemId ?? '');
 	let pageTitle = $derived(`Edit ${itemId} - ${catalogName} - Rulate`);
 
 	let catalog = $state<Catalog | null>(null);

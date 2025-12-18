@@ -16,7 +16,7 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let schemaName = $derived($page.params.name);
+	let schemaName = $derived($page.params.name ?? '');
 	let pageTitle = $derived(`${schemaName} - Schema - Rulate`);
 
 	async function loadSchema() {

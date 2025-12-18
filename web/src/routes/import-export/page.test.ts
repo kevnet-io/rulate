@@ -18,7 +18,7 @@ vi.mock("$lib/api/client", () => ({
     importSchemas: vi.fn(),
     importRuleSets: vi.fn(),
     importCatalogs: vi.fn(),
-    importItems: vi.fn(),
+    importClusterRuleSets: vi.fn(),
   },
 }));
 
@@ -111,7 +111,7 @@ describe("Import/Export Page (+page)", () => {
   describe("Import Functionality", () => {
     it("imports schemas", async () => {
       const schemas = [createMockSchema()];
-      vi.spyOn(api.api, "importSchemas").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importSchemas").mockResolvedValue({ message: "ok" });
 
       await api.api.importSchemas(schemas, false);
 
@@ -120,7 +120,7 @@ describe("Import/Export Page (+page)", () => {
 
     it("imports rulesets", async () => {
       const rulesets = [createMockRuleSet()];
-      vi.spyOn(api.api, "importRuleSets").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importRuleSets").mockResolvedValue({ message: "ok" });
 
       await api.api.importRuleSets(rulesets, false);
 
@@ -129,25 +129,16 @@ describe("Import/Export Page (+page)", () => {
 
     it("imports catalogs", async () => {
       const catalogs = [createMockCatalog()];
-      vi.spyOn(api.api, "importCatalogs").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importCatalogs").mockResolvedValue({ message: "ok" });
 
       await api.api.importCatalogs(catalogs, false);
 
       expect(api.api.importCatalogs).toHaveBeenCalledWith(catalogs, false);
     });
 
-    it("imports items", async () => {
-      const _items = { catalog_name: "TestCatalog", items: [] };
-      vi.spyOn(api.api, "importItems").mockResolvedValue(undefined);
-
-      await api.api.importItems("TestCatalog", [], false);
-
-      expect(api.api.importItems).toHaveBeenCalled();
-    });
-
     it("respects skip_existing flag when true", async () => {
       const schemas = [createMockSchema()];
-      vi.spyOn(api.api, "importSchemas").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importSchemas").mockResolvedValue({ message: "ok" });
 
       await api.api.importSchemas(schemas, true);
 
@@ -156,7 +147,7 @@ describe("Import/Export Page (+page)", () => {
 
     it("respects skip_existing flag when false", async () => {
       const schemas = [createMockSchema()];
-      vi.spyOn(api.api, "importSchemas").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importSchemas").mockResolvedValue({ message: "ok" });
 
       await api.api.importSchemas(schemas, false);
 
@@ -205,9 +196,9 @@ describe("Import/Export Page (+page)", () => {
       };
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(exportData);
-      vi.spyOn(api.api, "importSchemas").mockResolvedValue(undefined);
-      vi.spyOn(api.api, "importRuleSets").mockResolvedValue(undefined);
-      vi.spyOn(api.api, "importCatalogs").mockResolvedValue(undefined);
+      vi.spyOn(api.api, "importSchemas").mockResolvedValue({ message: "ok" });
+      vi.spyOn(api.api, "importRuleSets").mockResolvedValue({ message: "ok" });
+      vi.spyOn(api.api, "importCatalogs").mockResolvedValue({ message: "ok" });
 
       const exported = await api.api.exportAll();
       await api.api.importSchemas(exported.schemas, false);
@@ -290,9 +281,11 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "importSchemas").mockImplementation(async () => {
         callOrder.push("schemas");
+        return { message: "ok" };
       });
       vi.spyOn(api.api, "importRuleSets").mockImplementation(async () => {
         callOrder.push("rulesets");
+        return { message: "ok" };
       });
 
       await api.api.importSchemas([], false);
@@ -306,9 +299,11 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "importRuleSets").mockImplementation(async () => {
         callOrder.push("rulesets");
+        return { message: "ok" };
       });
       vi.spyOn(api.api, "importCatalogs").mockImplementation(async () => {
         callOrder.push("catalogs");
+        return { message: "ok" };
       });
 
       await api.api.importRuleSets([], false);

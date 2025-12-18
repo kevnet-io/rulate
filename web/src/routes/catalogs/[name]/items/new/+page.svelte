@@ -12,7 +12,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 
-	let catalogName = $derived($page.params.name);
+	let catalogName = $derived($page.params.name ?? '');
 	let pageTitle = $derived(`Add Item - ${catalogName} - Rulate`);
 
 	let catalog = $state<Catalog | null>(null);

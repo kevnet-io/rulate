@@ -98,15 +98,15 @@ describe("Item Creation Form (+page)", () => {
       expect(api.api.getCatalog).toHaveBeenCalledWith("TestCat");
     });
 
-    it("loads schema using catalog schema_ref", async () => {
-      const mockCatalog = createMockCatalog({ schema_ref: "TestSchema" });
+    it("loads schema using catalog schema_name", async () => {
+      const mockCatalog = createMockCatalog({ schema_name: "TestSchema" });
       const mockSchema = createMockSchema({ name: "TestSchema" });
 
       vi.spyOn(api.api, "getCatalog").mockResolvedValue(mockCatalog);
       vi.spyOn(api.api, "getSchema").mockResolvedValue(mockSchema);
 
       const catalog = await api.api.getCatalog("TestCat");
-      const schema = await api.api.getSchema(catalog.schema_ref);
+      const schema = await api.api.getSchema(catalog.schema_name);
 
       expect(schema.name).toBe("TestSchema");
       expect(api.api.getSchema).toHaveBeenCalledWith("TestSchema");
