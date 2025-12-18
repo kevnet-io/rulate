@@ -40,7 +40,7 @@ help:
 	@echo "Comprehensive Checks (CI-ready):"
 	@echo "  make check             Run all checks except e2e (lint + typecheck + test)"
 	@echo "  make check-backend     Run all backend checks (lint + typecheck + test)"
-	@echo "  make check-frontend    Run all frontend checks (format + lint + typecheck + tests)"
+	@echo "  make check-frontend    Run all frontend checks (format + lint + typecheck + tests + e2e)"
 	@echo "  make check-all         Run ALL checks including e2e - mirrors CI"
 	@echo "  make pre-commit        Run pre-commit hooks on all files"
 	@echo ""

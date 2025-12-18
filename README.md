@@ -280,7 +280,7 @@ make typecheck         # All type checking (backend + frontend)
 make typecheck-backend # Python type checking only
 make typecheck-frontend # Frontend type checking only
 make check-backend     # All backend checks
-make check-frontend    # All frontend checks
+make check-frontend    # All frontend checks (includes e2e)
 
 # Or use individual tools:
 # uv run black .              # Format Python
