@@ -163,7 +163,9 @@ make test
 make test-backend      # Backend only (pytest suite)
 make test-frontend     # Frontend unit tests only (vitest)
 make test-e2e          # E2E tests (playwright)
-make test-cov          # Backend with coverage report
+make test-cov          # All tests with coverage (backend + frontend)
+make test-cov-backend  # Backend with coverage report
+make test-cov-frontend # Frontend with coverage report
 
 # Or use underlying commands:
 # uv run pytest
