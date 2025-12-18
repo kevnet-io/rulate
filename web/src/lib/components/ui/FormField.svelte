@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import Tooltip from './Tooltip.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		label: string;
@@ -9,7 +10,14 @@
 		hint?: string;
 		required?: boolean;
 		class?: string;
-		children?: any;
+		children?: Snippet<
+			[
+				{
+					id: string;
+					ariaDescribedBy?: string;
+				}
+			]
+		>;
 	}
 
 	let { label, name, error, hint, required = false, class: className, children }: Props = $props();

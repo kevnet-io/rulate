@@ -57,7 +57,7 @@ describe("RuleSets List Page (+page)", () => {
     });
 
     it("initializes with empty ruleset array", () => {
-      const rulesets: any[] = [];
+      const rulesets: unknown[] = [];
       expect(rulesets).toEqual([]);
     });
 
@@ -357,7 +357,7 @@ describe("RuleSets List Page (+page)", () => {
     });
 
     it("handles non-Error exceptions", () => {
-      const error: any = "String error";
+      const error: unknown = "String error";
       expect(error).toBe("String error");
     });
   });

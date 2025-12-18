@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { cn } from '$lib/utils';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		text: string;
 		position?: 'top' | 'bottom' | 'left' | 'right';
 		class?: string;
-		children?: any;
+		children?: Snippet;
 	}
 
 	let { text, position = 'top', class: className, children }: Props = $props();

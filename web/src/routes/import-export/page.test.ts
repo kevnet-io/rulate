@@ -11,6 +11,7 @@ import {
   createMockCatalog,
   createMockRuleSet,
 } from "$lib/test-utils/fixtures";
+import type { Catalog, RuleSet, Schema } from "$lib/api/client";
 
 vi.mock("$lib/api/client", () => ({
   api: {
@@ -23,6 +24,12 @@ vi.mock("$lib/api/client", () => ({
 }));
 
 describe("Import/Export Page (+page)", () => {
+  type ExportAllResult = {
+    schemas: Schema[];
+    rulesets: RuleSet[];
+    catalogs: Catalog[];
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -37,7 +44,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(api.api.exportAll).toHaveBeenCalled();
       expect(result).toEqual(mockData);
@@ -55,7 +62,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(result.schemas).toHaveLength(2);
       expect(result.schemas[0].name).toBe("Schema1");
@@ -73,7 +80,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(result.rulesets).toHaveLength(2);
     });
@@ -90,7 +97,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(result.catalogs).toHaveLength(2);
     });
@@ -100,7 +107,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(result.schemas).toHaveLength(0);
       expect(result.rulesets).toHaveLength(0);
@@ -200,7 +207,7 @@ describe("Import/Export Page (+page)", () => {
       vi.spyOn(api.api, "importRuleSets").mockResolvedValue({ message: "ok" });
       vi.spyOn(api.api, "importCatalogs").mockResolvedValue({ message: "ok" });
 
-      const exported = await api.api.exportAll();
+      const exported = (await api.api.exportAll()) as ExportAllResult;
       await api.api.importSchemas(exported.schemas, false);
       await api.api.importRuleSets(exported.rulesets, false);
       await api.api.importCatalogs(exported.catalogs, false);
@@ -251,7 +258,7 @@ describe("Import/Export Page (+page)", () => {
 
   describe("State Management", () => {
     it("initializes with no selected file", () => {
-      const selectedFile: any = null;
+      const selectedFile: File | null = null;
       expect(selectedFile).toBeNull();
     });
 
@@ -341,7 +348,7 @@ describe("Import/Export Page (+page)", () => {
 
       vi.spyOn(api.api, "exportAll").mockResolvedValue(mockData);
 
-      const result = await api.api.exportAll();
+      const result = (await api.api.exportAll()) as ExportAllResult;
 
       expect(result).toHaveProperty("schemas");
       expect(result).toHaveProperty("rulesets");

@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as api from "$lib/api/client";
-import type { Dimension } from "$lib/api/client";
+import type { Dimension, Schema } from "$lib/api/client";
 import {
   createMockCatalog,
   createMockSchema,
@@ -28,8 +28,8 @@ vi.mock("$app/navigation", () => ({
 }));
 
 // Helper: Initialize form state
-function initializeFormState(schema: any) {
-  const attributes: Record<string, any> = {};
+function initializeFormState(schema: Schema) {
+  const attributes: Record<string, unknown> = {};
   for (const dim of schema.dimensions) {
     if (dim.type === "boolean") {
       attributes[dim.name] = false;
@@ -48,19 +48,24 @@ function initializeFormState(schema: any) {
 
 // Helper: Update attribute with type conversion
 function updateAttribute(
-  attributes: Record<string, any>,
+  attributes: Record<string, unknown>,
   key: string,
-  value: any,
+  value: unknown,
   dimension: Dimension,
 ) {
   if (dimension.type === "integer") {
-    attributes[key] = value === "" ? 0 : parseInt(value, 10);
+    const numericValue =
+      typeof value === "string" ? value : String(value ?? "");
+    attributes[key] = numericValue === "" ? 0 : parseInt(numericValue, 10);
   } else if (dimension.type === "float") {
-    attributes[key] = value === "" ? 0 : parseFloat(value);
+    const numericValue =
+      typeof value === "string" ? value : String(value ?? "");
+    attributes[key] = numericValue === "" ? 0 : parseFloat(numericValue);
   } else if (dimension.type === "boolean") {
     attributes[key] = value;
   } else if (dimension.type === "list") {
-    const items = value
+    const listValue = typeof value === "string" ? value : String(value ?? "");
+    const items = listValue
       .split(",")
       .map((v: string) => v.trim())
       .filter((v: string) => v);

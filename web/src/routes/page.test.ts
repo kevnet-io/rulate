@@ -388,9 +388,9 @@ describe("Dashboard Page (+page)", () => {
     });
 
     it("initializes with empty arrays", () => {
-      const schemas: any[] = [];
-      const rulesets: any[] = [];
-      const catalogs: any[] = [];
+      const schemas: unknown[] = [];
+      const rulesets: unknown[] = [];
+      const catalogs: unknown[] = [];
 
       expect(schemas).toEqual([]);
       expect(rulesets).toEqual([]);

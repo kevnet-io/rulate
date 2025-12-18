@@ -31,7 +31,7 @@
 		}
 	}
 
-	function formatCondition(condition: Record<string, any>, indent = 0): string {
+	function formatCondition(condition: Record<string, unknown>, indent = 0): string {
 		const spaces = '  '.repeat(indent);
 		let result = '';
 
@@ -45,12 +45,12 @@
 						result += `${spaces}  - ${item}\n`;
 					}
 				});
-			} else if (typeof value === 'object' && value !== null) {
-				result += `${spaces}${key}:\n${formatCondition(value, indent + 1)}`;
-			} else {
-				result += `${spaces}${key}: ${value}\n`;
+				} else if (typeof value === 'object' && value !== null) {
+					result += `${spaces}${key}:\n${formatCondition(value as Record<string, unknown>, indent + 1)}`;
+				} else {
+					result += `${spaces}${key}: ${value}\n`;
+				}
 			}
-		}
 
 		return result;
 	}
