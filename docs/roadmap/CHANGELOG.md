@@ -44,7 +44,7 @@ See [UX_POLISH_SUMMARY.md](../UX_POLISH_SUMMARY.md) for full details.
 
 **Impact**: Automated quality gates and contributor onboarding
 
-- **GitHub Actions CI/CD** - Automated testing across Python 3.10/3.11/3.12, frontend unit tests, E2E tests
+- **GitHub Actions CI/CD** - Automated testing with Python 3.14, frontend unit tests, E2E tests (9 parallel jobs)
 - **Pre-commit hooks** - Black, Ruff, Mypy, Prettier, ESLint with auto-fix
 - **GitHub templates** - Bug reports, feature requests, and PR templates
 - **CONTRIBUTING.md** - Comprehensive contributor guide with setup, workflow, and coding standards

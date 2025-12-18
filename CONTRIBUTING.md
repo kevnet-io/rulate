@@ -33,7 +33,7 @@ Rulate is a generic, programmable rule-based comparison engine. Before contribut
 
 ### Prerequisites
 
-- **Python 3.10+** (3.10, 3.11, or 3.12 recommended)
+- **Python 3.14**
 - **Node.js 20+** (for web UI development)
 - **uv** (Python package installer) - Install via [official guide](https://docs.astral.sh/uv/getting-started/installation/)
 - **Git**
