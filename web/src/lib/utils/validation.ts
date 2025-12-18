@@ -4,8 +4,10 @@
 
 export type ValidationRule<T = unknown> = (value: T) => string | undefined;
 
-export function required(message = "This field is required"): ValidationRule {
-  return (value: unknown) => {
+export function required<T = unknown>(
+  message = "This field is required",
+): ValidationRule<T> {
+  return (value: T) => {
     if (value === undefined || value === null || value === "") {
       return message;
     }
@@ -113,20 +115,23 @@ export function compose<T>(...rules: ValidationRule<T>[]): ValidationRule<T> {
 
 export function validateForm<T extends Record<string, unknown>>(
   values: T,
-  rules: Partial<Record<keyof T, ValidationRule | ValidationRule[]>>,
+  rules: Partial<{
+    [K in keyof T]: ValidationRule<T[K]> | Array<ValidationRule<T[K]>>;
+  }>,
 ): Partial<Record<keyof T, string>> {
   const errors: Partial<Record<keyof T, string>> = {};
 
   for (const field in rules) {
-    const fieldRules = rules[field];
-    const value = values[field];
+    const typedField = field as keyof T;
+    const fieldRules = rules[typedField];
+    const value = values[typedField];
 
     if (Array.isArray(fieldRules)) {
       const error = compose(...fieldRules)(value);
-      if (error) errors[field] = error;
+      if (error) errors[typedField] = error;
     } else if (fieldRules) {
       const error = fieldRules(value);
-      if (error) errors[field] = error;
+      if (error) errors[typedField] = error;
     }
   }
 
