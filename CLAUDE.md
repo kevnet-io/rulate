@@ -309,7 +309,7 @@ cd web && npm run lint
 cd web && npm run lint:fix
 
 # Frontend type checking
-cd web && npm run check
+cd web && npm run typecheck
 ```
 
 ### Development Servers
