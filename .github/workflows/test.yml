@@ -164,7 +164,7 @@ jobs:
       run: npm ci
 
     - name: Run type checking (svelte-check)
-      run: npm run check || true
+      run: npm run typecheck || true
 
   frontend-tests-unit:
     name: Frontend Unit Tests

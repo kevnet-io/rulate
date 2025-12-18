@@ -138,7 +138,7 @@ typecheck-backend:
 typecheck-frontend:
 	@echo "Type checking frontend with svelte-check..."
 	@echo "Note: Currently non-blocking due to pre-existing TypeScript errors (85 errors in 21 files)"
-	cd web && npm run check || true
+	cd web && npm run typecheck || true
 
 #
 # Testing targets
@@ -184,7 +184,7 @@ check-backend: lint-backend typecheck-backend test-backend
 .PHONY: check-frontend
 check-frontend:
 	@echo "Running all frontend checks..."
-	cd web && npm run check:all
+	cd web && npm run check
 
 .PHONY: check-all
 check-all: check test-e2e
