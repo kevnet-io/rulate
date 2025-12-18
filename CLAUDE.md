@@ -205,7 +205,7 @@ make check
 # Check all backend checks (lint + typecheck + test)
 make check-backend
 
-# Check all frontend checks (format + lint + typecheck + tests)
+# Check all frontend checks (format + lint + typecheck + tests + e2e)
 make check-frontend
 
 # Check everything including e2e (comprehensive ~90s)
