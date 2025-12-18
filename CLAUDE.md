@@ -15,15 +15,17 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 - `make dev-backend` - Start API server on http://localhost:8000
 - `make dev-frontend` - Start web UI on http://localhost:5173
 - `make format` - Auto-fix all formatting issues (modifies files)
-- `make check-all` - Run all checks before pushing (CI-safe, read-only)
-- `make test` - Run backend tests
-- `make test-frontend` - Run frontend unit tests
+- `make check` - Run all checks except e2e (fast, CI-safe, read-only, ~30-40s)
+- `make check-all` - Run all checks including e2e (comprehensive, ~90s)
+- `make test` - Run all unit tests (backend + frontend, ~15-20s)
+- `make test-backend` - Run backend tests only (~10s)
+- `make test-frontend` - Run frontend unit tests only (~5s)
 
 **Workflow:**
 1. **During development:** `make format` (auto-fix code style)
-2. **Before committing:** `make check-all` (verify all checks pass)
+2. **Before committing:** `make check` (verify all checks pass except e2e)
 3. **Commit:** Pre-commit hooks run automatically
-4. **Push:** CI runs equivalent of `make check-all`
+4. **Push:** CI runs all checks in parallel (9 fine-grained jobs)
 
 For all available commands: `make` or `make help`
 
@@ -197,14 +199,17 @@ make format-frontend
 Use these before committing or in CI to verify code quality without modifying files:
 
 ```bash
-# Check everything (matches CI) - RECOMMENDED before pushing
-make check-all
-
-# Check only backend (ruff + mypy + pytest)
+# Check everything except e2e (fast ~30-40s) - RECOMMENDED before pushing
 make check
 
-# Check only frontend (prettier + eslint + svelte-check + tests)
+# Check all backend checks (lint + typecheck + test)
+make check-backend
+
+# Check all frontend checks (format + lint + typecheck + tests)
 make check-frontend
+
+# Check everything including e2e (comprehensive ~90s)
+make check-all
 
 # Run pre-commit hooks on all files
 make pre-commit
@@ -212,16 +217,19 @@ make pre-commit
 
 **Best Practice:**
 1. During development: `make format` to auto-fix issues
-2. Before committing: `make check-all` to verify everything passes
+2. Before committing: `make check` to verify all checks pass (fast, excludes e2e)
 3. Commit triggers pre-commit hooks automatically
-4. CI runs `make check-all` equivalent
+4. CI runs all checks in parallel (9 fine-grained jobs with Python 3.14)
 
 ### Testing
 
 ```bash
-# All backend tests (unit + integration)
-make test              # Run all 697 backend tests
-make test-cov          # Run with coverage report (HTML + terminal)
+# All unit tests (backend + frontend ~15-20s)
+make test              # Run all unit tests (backend 697 + frontend 671)
+make test-backend      # Run backend tests only (697 tests ~10s)
+make test-frontend     # Run frontend unit tests only (671 tests ~5s)
+make test-cov          # Run backend tests with coverage report
+make test-e2e          # Run E2E tests (72 tests across 3 browsers ~60s)
 
 # Backend unit tests (core engine - 480 tests)
 uv run pytest tests/unit/                    # Unit tests only
@@ -237,14 +245,11 @@ uv run pytest tests/integration/test_api_schemas.py  # Specific API test file
 # Full backend coverage
 uv run pytest --cov=rulate --cov=api --cov-report=html
 
-# Frontend tests
-make test-frontend     # Unit tests (vitest) - 671 tests (100% production code)
-make test-e2e          # E2E tests (playwright) - 72 tests across 3 browsers
-
 # Frontend test commands:
 cd web && npm test
 cd web && npm run test:ui          # Interactive test UI
 cd web && npm run test:coverage    # With coverage report
+cd web && npm run test:e2e         # E2E tests (playwright)
 ```
 
 Alternatively, activate the virtual environment first:
@@ -412,7 +417,7 @@ uv run pre-commit run mypy --all-files
 
 **IMPORTANT:**
 - If you bypass hooks with `git commit --no-verify`, CI will fail
-- Run `make check-all` before pushing to verify all checks pass
+- Run `make check` before pushing to verify all checks pass (or `make check-all` for comprehensive e2e checks)
 - The `.claude/settings.json` file includes a Stop hook for automated pre-commit checking
 
 ### Type Checking Note

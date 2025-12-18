@@ -73,14 +73,17 @@ npm install
 ### Verify Installation
 
 ```bash
-# Run all checks
-make check-all
+# Run all checks (fast ~30-40s)
+make check
 
 # Or test individual components:
-# Backend tests
+# All unit tests
 make test
 
-# Frontend tests
+# Backend tests only
+make test-backend
+
+# Frontend tests only
 make test-frontend
 ```
 
@@ -153,16 +156,14 @@ git checkout -b fix/bug-description
 ### 3. Run Tests Locally
 
 ```bash
-# All tests (backend + frontend)
-make test && make test-frontend
+# All unit tests (backend + frontend)
+make test
 
-# Backend tests
-make test              # Run pytest suite
-make test-cov          # With coverage report
-
-# Frontend tests
-make test-frontend     # Unit tests (vitest)
+# Individual test suites
+make test-backend      # Backend only (pytest suite)
+make test-frontend     # Frontend unit tests only (vitest)
 make test-e2e          # E2E tests (playwright)
+make test-cov          # Backend with coverage report
 
 # Or use underlying commands:
 # uv run pytest
@@ -179,13 +180,21 @@ make test-e2e          # E2E tests (playwright)
 # 1. During development - auto-fix issues (modifies files)
 make format
 
-# 2. Before committing - verify all checks pass (read-only)
+# 2. Before committing - verify all checks pass (read-only, fast ~30-40s)
+make check
+
+# Comprehensive checks including e2e (~90s)
 make check-all
 
 # Individual quality checks (read-only):
-make lint              # Python linting
-make typecheck         # Python type checking
-make lint-frontend     # Frontend linting
+make lint              # All linting (backend + frontend)
+make lint-backend      # Python linting only
+make lint-frontend     # Frontend linting only
+make typecheck         # All type checking (backend + frontend)
+make typecheck-backend # Python type checking only
+make typecheck-frontend # Frontend type checking only
+make check-backend     # All backend checks
+make check-frontend    # All frontend checks
 
 # Or use individual tools:
 # uv run black .              # Format Python
@@ -194,9 +203,10 @@ make lint-frontend     # Frontend linting
 # cd web && npm run lint      # Lint frontend
 ```
 
-**Best practice:** Run `make format` during development, then `make check-all` before committing.
+**Best practice:** Run `make format` during development, then `make check` before committing.
 
 Pre-commit hooks will automatically run quality checks on commit (equivalent to `make format`).
+CI runs all checks in parallel (9 fine-grained jobs with Python 3.14).
 
 ### 5. Commit Your Changes
 
@@ -424,7 +434,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 1. **Ensure all tests pass and code quality checks succeed:**
    ```bash
-   # Run all checks (mirrors CI)
+   # Run all checks except e2e (fast ~30-40s, recommended)
+   make check
+
+   # Or comprehensive checks including e2e (~90s)
    make check-all
    ```
 
