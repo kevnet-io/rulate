@@ -137,8 +137,7 @@ typecheck-backend:
 .PHONY: typecheck-frontend
 typecheck-frontend:
 	@echo "Type checking frontend with svelte-check..."
-	@echo "Note: Currently non-blocking due to pre-existing TypeScript errors (85 errors in 21 files)"
-	cd web && npm run typecheck || true
+	cd web && npm run typecheck
 
 #
 # Testing targets
