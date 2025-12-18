@@ -228,7 +228,9 @@ make pre-commit
 make test              # Run all unit tests (backend 697 + frontend 671)
 make test-backend      # Run backend tests only (697 tests ~10s)
 make test-frontend     # Run frontend unit tests only (671 tests ~5s)
-make test-cov          # Run backend tests with coverage report
+make test-cov          # Run all tests with coverage (backend + frontend)
+make test-cov-backend  # Run backend tests with coverage report
+make test-cov-frontend # Run frontend tests with coverage report
 make test-e2e          # Run E2E tests (72 tests across 3 browsers ~60s)
 
 # Backend unit tests (core engine - 480 tests)
@@ -272,11 +274,15 @@ This configuration allows visibility into test coverage while learning coverage 
 
 **Local coverage reports:**
 ```bash
-# Backend coverage (HTML report in htmlcov/)
+# All coverage reports (backend + frontend)
 make test-cov
 
+# Backend coverage (HTML report in htmlcov/)
+make test-cov-backend
+
 # Frontend coverage (HTML report in web/coverage/)
-cd web && npm run test:coverage
+make test-cov-frontend
+# Or: cd web && npm run test:coverage
 ```
 
 ### Individual Tools

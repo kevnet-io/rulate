@@ -65,7 +65,7 @@ Use the `Makefile` targets as the default interface:
 - Frontend unit: `vitest` (`make test-frontend` / `cd web && npm test`).
 - E2E: `playwright` (`make test-e2e`; API must be running on `:8000`).
 - Coverage expectations are high (see `CONTRIBUTING.md`); add tests for user-facing behavior changes.
-- Coverage: `make test-cov` (backend) and `cd web && npm run test:coverage` (frontend).
+- Coverage: `make test-cov` (both), `make test-cov-backend` (backend), or `make test-cov-frontend` (frontend).
 
 ## Architecture Notes (High Signal)
 

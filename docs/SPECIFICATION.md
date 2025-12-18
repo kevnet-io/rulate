@@ -1144,8 +1144,11 @@ uv run pytest                                 # Run all backend tests
 uv run pytest --cov=rulate --cov=api         # Full coverage report
 
 # Or use Makefile shortcuts
-make test           # All backend tests
-make test-cov       # With HTML coverage report
+make test              # All tests (backend + frontend)
+make test-backend      # Backend tests only
+make test-cov          # All tests with coverage (backend + frontend)
+make test-cov-backend  # Backend with HTML coverage report
+make test-cov-frontend # Frontend with HTML coverage report
 
 # Frontend tests
 cd web

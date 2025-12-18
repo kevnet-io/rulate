@@ -34,7 +34,9 @@ help:
 	@echo "  make test              Run all unit tests (backend + frontend)"
 	@echo "  make test-backend      Run backend pytest suite"
 	@echo "  make test-frontend     Run frontend unit tests (vitest)"
-	@echo "  make test-cov          Run backend tests with coverage report"
+	@echo "  make test-cov          Run all tests with coverage (backend + frontend)"
+	@echo "  make test-cov-backend  Run backend tests with coverage report"
+	@echo "  make test-cov-frontend Run frontend tests with coverage report"
 	@echo "  make test-e2e          Run frontend E2E tests (playwright)"
 	@echo ""
 	@echo "Comprehensive Checks (CI-ready):"
@@ -158,9 +160,18 @@ test-frontend:
 	cd web && npm test
 
 .PHONY: test-cov
-test-cov:
+test-cov: test-cov-backend test-cov-frontend
+	@echo "✓ All unit tests passed"
+
+.PHONY: test-cov-backend
+test-cov-backend:
 	@echo "Running backend tests with coverage..."
 	uv run pytest --cov=rulate --cov=api --cov-report=html --cov-report=term
+
+.PHONY: test-cov-frontend
+test-cov-frontend:
+	@echo "Running frontend tests with coverage..."
+	cd web && npm run test:coverage
 
 .PHONY: test-e2e
 test-e2e:

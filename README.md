@@ -239,7 +239,9 @@ make test              # Run all unit tests (backend + frontend)
 make test-backend      # Run backend tests only (unit + integration)
 make test-frontend     # Run frontend unit tests only
 make test-e2e          # Run E2E tests (playwright)
-make test-cov          # Backend tests with HTML coverage report
+make test-cov          # All tests with coverage (backend + frontend)
+make test-cov-backend  # Backend tests with HTML coverage report
+make test-cov-frontend # Frontend tests with HTML coverage report
 
 # Backend unit tests (core engine)
 uv run pytest tests/unit/                    # Unit tests only
