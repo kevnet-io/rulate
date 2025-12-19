@@ -6,6 +6,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 
+type MatchMediaFn = (query: string) => MediaQueryList;
+
 // Mock localStorage BEFORE importing the store
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -78,7 +80,9 @@ describe("Theme Store", () => {
 
     // Reset matchMedia mock (default to light mode)
     matchMediaMock = createMatchMediaMock(false);
-    globalThis.matchMedia = vi.fn(() => matchMediaMock) as any;
+    globalThis.matchMedia = vi.fn(
+      () => matchMediaMock,
+    ) as unknown as MatchMediaFn;
 
     // Clear document classes
     document.documentElement.classList.remove("dark");
@@ -114,7 +118,9 @@ describe("Theme Store", () => {
 
     it("resolves system theme to light when OS preference is light", () => {
       matchMediaMock = createMatchMediaMock(false);
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
 
       themeStore.setTheme("system");
       expect(themeStore.resolvedTheme).toBe("light");
@@ -122,7 +128,9 @@ describe("Theme Store", () => {
 
     it("resolves system theme to dark when OS preference is dark", () => {
       matchMediaMock = createMatchMediaMock(true);
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
 
       themeStore.setTheme("system");
       expect(themeStore.resolvedTheme).toBe("dark");
@@ -202,7 +210,9 @@ describe("Theme Store", () => {
 
     it("adds dark class when system theme resolves to dark", () => {
       matchMediaMock = createMatchMediaMock(true); // OS prefers dark
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
 
       themeStore.setTheme("system");
       expect(document.documentElement.classList.contains("dark")).toBe(true);
@@ -210,7 +220,9 @@ describe("Theme Store", () => {
 
     it("removes dark class when system theme resolves to light", () => {
       matchMediaMock = createMatchMediaMock(false); // OS prefers light
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
 
       themeStore.setTheme("system");
       expect(document.documentElement.classList.contains("dark")).toBe(false);
@@ -220,7 +232,9 @@ describe("Theme Store", () => {
   describe("System Preference Changes", () => {
     it("listens to OS preference via matchMedia", () => {
       matchMediaMock = createMatchMediaMock(false); // Start with light
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
 
       themeStore.setTheme("system");
       expect(themeStore.resolvedTheme).toBe("light");
@@ -257,13 +271,17 @@ describe("Theme Store", () => {
     it("resolved theme depends on OS for system", () => {
       // Test with light OS preference
       matchMediaMock = createMatchMediaMock(false);
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
       themeStore.setTheme("system");
       expect(themeStore.resolvedTheme).toBe("light");
 
       // Test with dark OS preference
       matchMediaMock = createMatchMediaMock(true);
-      window.matchMedia = vi.fn(() => matchMediaMock) as any;
+      window.matchMedia = vi.fn(
+        () => matchMediaMock,
+      ) as unknown as MatchMediaFn;
       themeStore.setTheme("system");
       expect(themeStore.resolvedTheme).toBe("dark");
     });

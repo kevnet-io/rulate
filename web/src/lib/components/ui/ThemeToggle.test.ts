@@ -137,23 +137,25 @@ describe("ThemeToggle Component", () => {
 
   describe("Edge Cases", () => {
     it("handles undefined gracefully", () => {
-      expect(getThemeIcon(undefined as any)).toBe("💻");
-      expect(getThemeLabel(undefined as any)).toBe("System theme");
+      expect(getThemeIcon(undefined as unknown as string)).toBe("💻");
+      expect(getThemeLabel(undefined as unknown as string)).toBe(
+        "System theme",
+      );
     });
 
     it("handles null gracefully", () => {
-      expect(getThemeIcon(null as any)).toBe("💻");
-      expect(getThemeLabel(null as any)).toBe("System theme");
+      expect(getThemeIcon(null as unknown as string)).toBe("💻");
+      expect(getThemeLabel(null as unknown as string)).toBe("System theme");
     });
 
     it("handles numeric input gracefully", () => {
-      expect(getThemeIcon(123 as any)).toBe("💻");
-      expect(getThemeLabel(123 as any)).toBe("System theme");
+      expect(getThemeIcon(123 as unknown as string)).toBe("💻");
+      expect(getThemeLabel(123 as unknown as string)).toBe("System theme");
     });
 
     it("handles object input gracefully", () => {
-      expect(getThemeIcon({} as any)).toBe("💻");
-      expect(getThemeLabel({} as any)).toBe("System theme");
+      expect(getThemeIcon({} as unknown as string)).toBe("💻");
+      expect(getThemeLabel({} as unknown as string)).toBe("System theme");
     });
   });
 

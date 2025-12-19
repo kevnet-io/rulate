@@ -70,26 +70,36 @@ function saveTheme(theme: Theme): void {
   }
 }
 
+function getSystemPrefersDark(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
 function createThemeStore(): ThemeStore {
   let theme = $state<Theme>(loadTheme());
-  let resolvedTheme = $state<ResolvedTheme>(getResolvedTheme(theme));
+  let systemPrefersDark = $state<boolean>(getSystemPrefersDark());
 
-  // Apply initial theme
-  applyTheme(resolvedTheme);
+  const resolvedTheme = $derived<ResolvedTheme>(
+    theme === "system" ? (systemPrefersDark ? "dark" : "light") : theme,
+  );
+
+  // Apply initial theme after initialization.
+  // (Referencing state inside a closure avoids capturing only the initial value.)
+  queueMicrotask(() => applyTheme(resolvedTheme));
 
   // Listen for system theme changes (browser only)
   if (typeof window !== "undefined") {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-    const handleChange = () => {
+    const handleChange = (event: MediaQueryListEvent) => {
+      systemPrefersDark = event.matches;
       if (theme === "system") {
-        const newResolved = getResolvedTheme("system");
-        resolvedTheme = newResolved;
-        applyTheme(newResolved);
+        applyTheme(event.matches ? "dark" : "light");
       }
     };
 
-    // Modern browsers
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener("change", handleChange);
     } else {
@@ -100,9 +110,11 @@ function createThemeStore(): ThemeStore {
 
   function setTheme(newTheme: Theme) {
     theme = newTheme;
-    resolvedTheme = getResolvedTheme(newTheme);
+    if (newTheme === "system") {
+      systemPrefersDark = getSystemPrefersDark();
+    }
     saveTheme(newTheme);
-    applyTheme(resolvedTheme);
+    applyTheme(getResolvedTheme(newTheme));
   }
 
   function toggle() {
