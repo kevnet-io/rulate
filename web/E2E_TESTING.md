@@ -7,9 +7,12 @@ This document explains how to run end-to-end tests for the Rulate web frontend.
 Before running e2e tests, you need:
 
 1. **uv** installed (Python package manager)
-2. **Python 3.7+** (for database seeding script)
-3. **Frontend dependencies** installed via `npm install`
-4. **Backend dependencies** installed via `uv sync --dev`
+2. **Python 3.14** (for backend and database seeding)
+3. **Node.js 22 LTS** (for frontend)
+4. **Frontend dependencies** installed via `npm install`
+5. **Backend dependencies** installed via `uv sync --dev`
+
+**Note**: Playwright browsers will be installed automatically when running tests via `make test-e2e` or `npm run test:e2e`. The test script includes `npx playwright install --with-deps` to ensure all required browsers and system dependencies are present.
 
 ## Setup
 
