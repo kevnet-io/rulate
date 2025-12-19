@@ -114,8 +114,9 @@ format-backend:
 .PHONY: format-frontend
 format-frontend:
 	@echo "Formatting frontend code with prettier..."
-	cd web && npx prettier --write .
-
+	cd web && npm run format
+	@echo "Fixing frontend code with eslint..."
+	cd web && npm run lint:fix
 #
 # Linting & type checking targets (read-only)
 #
