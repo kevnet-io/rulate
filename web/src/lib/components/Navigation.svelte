@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
 
 	const navItems = [
 		{ href: '/', label: 'Home' },
@@ -38,6 +39,9 @@
 						</a>
 					{/each}
 				</div>
+			</div>
+			<div class="flex items-center gap-4">
+				<ThemeToggle />
 			</div>
 		</div>
 	</div>
