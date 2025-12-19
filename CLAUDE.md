@@ -175,6 +175,15 @@ This command:
 
 **IMPORTANT:** Pre-commit hooks are REQUIRED before committing. They run automatically on `git commit`.
 
+#### Claude Code Remote Environment
+
+When running in a Claude Code remote environment, `make install` automatically:
+- Updates `uv` to the latest version
+- Installs Python 3.14 (upgraded to latest patch version)
+- Sets Python 3.14 as the default Python version
+
+This happens via the `setup-claude-code-env` target, which detects the `CLAUDE_CODE_ENTRYPOINT=remote` environment variable. In other environments, this step is skipped silently.
+
 ### Code Quality Workflow
 
 Rulate uses a **two-tier workflow** for code quality:

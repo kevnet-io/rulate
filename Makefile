@@ -70,12 +70,19 @@ help:
 # Installation targets
 #
 
+.PHONY: setup-claude-code-env
+setup-claude-code-env:
+	@if [ "$$CLAUDE_CODE_ENTRYPOINT" = "remote" ]; then \
+		echo "Detected Claude Code remote environment - setting up Python 3.14..."; \
+		uv self update && (uv python find --show-version 3.14 2>&1 || uv python install --upgrade --default 3.14); \
+	fi
+
 .PHONY: install
 install: install-backend install-frontend install-hooks
 	@echo "✓ All dependencies installed"
 
 .PHONY: install-backend
-install-backend:
+install-backend: setup-claude-code-env
 	@echo "Installing Python dependencies..."
 	uv sync --dev
 
@@ -152,7 +159,7 @@ test: test-backend test-frontend
 .PHONY: test-backend
 test-backend:
 	@echo "Running backend tests..."
-	uv run pytest
+	uv run pytest -qq
 
 .PHONY: test-frontend
 test-frontend:
@@ -166,7 +173,7 @@ test-cov: test-cov-backend test-cov-frontend
 .PHONY: test-cov-backend
 test-cov-backend:
 	@echo "Running backend tests with coverage..."
-	uv run pytest --cov=rulate --cov=api --cov-report=html --cov-report=term
+	uv run pytest -qq --cov=rulate --cov=api --cov-report=html --cov-report=term
 
 .PHONY: test-cov-frontend
 test-cov-frontend:
@@ -176,7 +183,8 @@ test-cov-frontend:
 .PHONY: test-e2e
 test-e2e:
 	@echo "Running E2E tests..."
-	@echo "Note: Requires API server running on port 8000"
+	@echo "Installing Playwright browsers..."
+	cd web && npx playwright install --with-deps
 	cd web && npm run test:e2e
 
 #
@@ -184,24 +192,23 @@ test-e2e:
 #
 
 .PHONY: check
-check: lint typecheck test
+check: install lint typecheck test
 	@echo "✓ All checks passed (excluding e2e)"
 
 .PHONY: check-backend
-check-backend: lint-backend typecheck-backend test-backend
+check-backend: install-backend lint-backend typecheck-backend test-backend
 	@echo "✓ All backend checks passed"
 
 .PHONY: check-frontend
-check-frontend:
-	@echo "Running all frontend checks..."
-	cd web && npm run check
+check-frontend: install-frontend lint-frontend typecheck-frontend test-frontend
+	@echo "✓ All frontend checks passed"
 
 .PHONY: check-all
 check-all: check test-e2e
 	@echo "✓ All checks passed (including e2e)"
 
 .PHONY: pre-commit
-pre-commit:
+pre-commit: install
 	@echo "Running pre-commit hooks on all files..."
 	uv run pre-commit run --all-files
 
