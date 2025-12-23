@@ -267,12 +267,12 @@ class TestAnyMissingOperator:
 class TestPartLayerConflictOperator:
     """Tests for PartLayerConflictOperator."""
 
-    def test_no_overlap_returns_true(self, item_dress_shirt, item_jeans):
+    def test_no_overlap_returns_false(self, item_dress_shirt, item_jeans):
         """Test that items with no overlapping parts have no conflict."""
         # Shirt covers chest/waist/back, jeans cover hips/legs → no overlap
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item_dress_shirt, item_jeans)
-        assert result is True
+        assert result is False
         assert "no overlapping" in explanation.lower()
 
     def test_different_layers_same_parts_no_conflict(self, item_dress_shirt, item_undershirt):
@@ -280,7 +280,7 @@ class TestPartLayerConflictOperator:
         # Shirt at layer 2.0, undershirt at layer 1.0 → consistent layering
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item_dress_shirt, item_undershirt)
-        assert result is True
+        assert result is False
         assert "no conflicts" in explanation.lower()
         assert "chest" in explanation
 
@@ -298,7 +298,7 @@ class TestPartLayerConflictOperator:
         )
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item1, item2)
-        assert result is False
+        assert result is True
         assert "conflict" in explanation.lower()
         assert "chest" in explanation
         assert "2.0" in explanation
@@ -310,7 +310,7 @@ class TestPartLayerConflictOperator:
         # → A over B on chest, but under on legs → PHASING VIOLATION
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item_phasing_hybrid_a, item_phasing_hybrid_b)
-        assert result is False
+        assert result is True
         assert "conflict" in explanation.lower()
 
     def test_consistent_layering_multiple_overlaps(self):
@@ -327,23 +327,23 @@ class TestPartLayerConflictOperator:
         )
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item1, item2)
-        assert result is True
+        assert result is False
         assert "no conflicts" in explanation.lower()
 
-    def test_missing_field_returns_true(self, item_dress_shirt, item_minimal):
+    def test_missing_field_returns_false(self, item_dress_shirt, item_minimal):
         """Test that missing field is treated as no conflict."""
         # item_minimal doesn't have coverage_layers
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item_dress_shirt, item_minimal)
-        assert result is True
+        assert result is False
         assert "missing" in explanation.lower()
 
-    def test_both_missing_field_returns_true(self, item_minimal):
+    def test_both_missing_field_returns_false(self, item_minimal):
         """Test that both items missing field returns no conflict."""
         item2 = Item(id="i2", name="I2", attributes={"category": "pants"})
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item_minimal, item2)
-        assert result is True
+        assert result is False
         assert "missing" in explanation.lower()
 
     def test_no_field_specified_returns_false(self, item_dress_shirt, item_jeans):
@@ -368,7 +368,7 @@ class TestPartLayerConflictOperator:
         # Only 'waist' overlaps, item1 (2.0) > item2 (1.0) → OK
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item1, item2)
-        assert result is True
+        assert result is False
         assert "waist" in explanation
 
     def test_partial_overlap_with_conflict(self):
@@ -385,7 +385,7 @@ class TestPartLayerConflictOperator:
         )
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item1, item2)
-        assert result is False
+        assert result is True
         assert "waist" in explanation
 
     def test_multiple_tuples_per_item(self):
@@ -414,7 +414,7 @@ class TestPartLayerConflictOperator:
         # waist: item1(1.5) > item2(1.0) ✓ → consistent
         op = PartLayerConflictOperator({"field": "coverage_layers"})
         result, explanation = op.evaluate(item1, item2)
-        assert result is True
+        assert result is False
 
     def test_operator_in_registry(self):
         """Test that operator is registered."""
