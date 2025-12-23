@@ -214,8 +214,8 @@ This document summarizes the comprehensive UX Polish improvements implemented fo
 - ✅ Template categories (pairwise vs cluster)
 
 **Operator Registry**:
-- ✅ 17 total operators documented
-- ✅ 9 pairwise operators (equals, has_different, abs_diff, etc.)
+- ✅ 18 total operators documented
+- ✅ 10 pairwise operators (equals, has_different, abs_diff, part_layer_conflict, etc.)
 - ✅ 8 cluster operators (min/max size, unique_values, etc.)
 - ✅ Full parameter documentation
 - ✅ Usage examples
