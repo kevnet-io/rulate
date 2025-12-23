@@ -35,7 +35,8 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 
 - **Dual Evaluation Modes**: Pairwise compatibility and cluster finding
 - **Two-Level Rule System**: Pairwise rules + cluster-level constraints
-- **19 Built-in Operators**: 9 pairwise + 8 cluster + 2 logical base classes
+- **20 Built-in Operators**: 10 pairwise + 8 cluster + 2 logical base classes
+- **7 Dimension Types**: string, integer, float, boolean, enum, list, part_layer_list
 - **REST API**: 42 endpoints with automatic OpenAPI documentation
 - **Web UI**: 19 pages with interactive visualization
 - **CLI**: Comprehensive command-line interface
@@ -535,7 +536,7 @@ class MatrixResult(BaseModel):
 
 ## Operators Reference
 
-### Pairwise Operators (9 total)
+### Pairwise Operators (10 total)
 
 Located in `rulate/engine/operators.py`
 
@@ -615,7 +616,55 @@ not:
     value: "summer"
 ```
 
-#### 9. Operator (Base Class)
+#### 9. PartLayerConflictOperator
+Detects coverage-layer conflicts with phasing validation. Returns true when items have conflicting coverage relationships.
+
+Two types of conflicts are detected:
+1. **Same-layer collision**: Both items cover the same body part at the same layer
+2. **Phasing violation**: Items have inconsistent layer relationships across different parts (e.g., A over B on chest but A under B on legs - physically impossible)
+
+```yaml
+part_layer_conflict:
+  field: "coverage_layers"
+```
+
+**Use Case**: Gender-agnostic wardrobe compatibility where items specify granular body part coverage with per-part layering (e.g., dress with tight bodice at layer 2.0, flowy skirt at layer 1.5).
+
+**Example**:
+```yaml
+# Item 1: Dress shirt
+coverage_layers:
+  - parts: [chest, upper_back, lower_back, upper_arm]
+    layer: 2.0
+
+# Item 2: Undershirt
+coverage_layers:
+  - parts: [chest, upper_back, lower_back]
+    layer: 1.0
+
+# Result: No conflict (consistent ordering: shirt over undershirt)
+```
+
+**Phasing Violation Example**:
+```yaml
+# Item A: Hybrid garment
+coverage_layers:
+  - parts: [chest]
+    layer: 2.0  # Tight top
+  - parts: [legs]
+    layer: 1.0  # Loose bottom
+
+# Item B: Hybrid garment
+coverage_layers:
+  - parts: [chest]
+    layer: 1.0  # Loose top
+  - parts: [legs]
+    layer: 2.0  # Tight bottom
+
+# Result: CONFLICT (phasing violation - A over B on chest but under on legs)
+```
+
+#### 10. Operator (Base Class)
 Abstract base for all pairwise operators.
 
 ```python
@@ -719,7 +768,7 @@ version: "1.0.0"                 # Required, semver format
 description: "Optional description"
 dimensions:
   - name: "dimension_name"       # Required, alphanumeric + underscores
-    type: "string"               # Required: string|integer|float|boolean|enum|list
+    type: "string"               # Required: string|integer|float|boolean|enum|list|part_layer_list
     required: true               # Optional, default: false
     description: "Optional"
 
@@ -728,6 +777,7 @@ dimensions:
     min: 1                       # Optional for integer/float
     max: 10                      # Optional for integer/float
     item_type: "string"          # Required for list (string|integer|float|boolean)
+    part_vocabulary: ["part1"]   # Optional for part_layer_list (body parts/zones)
 ```
 
 ### Pairwise RuleSet Format
