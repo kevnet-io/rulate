@@ -188,6 +188,76 @@ def item_with_nulls():
     )
 
 
+@pytest.fixture
+def item_dress_shirt():
+    """Dress shirt covering chest, waist, upper back, lower back at layer 2.0."""
+    return Item(
+        id="dress_shirt",
+        name="Dress Shirt",
+        attributes={
+            "coverage_layers": [
+                {"parts": ["chest", "waist", "upper_back", "lower_back"], "layer": 2.0}
+            ]
+        },
+    )
+
+
+@pytest.fixture
+def item_undershirt():
+    """Undershirt covering chest, waist, upper back, lower back at layer 1.0."""
+    return Item(
+        id="undershirt",
+        name="Undershirt",
+        attributes={
+            "coverage_layers": [
+                {"parts": ["chest", "waist", "upper_back", "lower_back"], "layer": 1.0}
+            ]
+        },
+    )
+
+
+@pytest.fixture
+def item_jeans():
+    """Jeans covering hips, upper_leg, lower_leg at layer 1.5."""
+    return Item(
+        id="jeans",
+        name="Jeans",
+        attributes={
+            "coverage_layers": [{"parts": ["hips", "upper_leg", "lower_leg"], "layer": 1.5}]
+        },
+    )
+
+
+@pytest.fixture
+def item_phasing_hybrid_a():
+    """Problematic hybrid: chest at 2.0, legs at 1.0."""
+    return Item(
+        id="hybrid_a",
+        name="Hybrid A",
+        attributes={
+            "coverage_layers": [
+                {"parts": ["chest", "waist"], "layer": 2.0},
+                {"parts": ["hips", "legs"], "layer": 1.0},
+            ]
+        },
+    )
+
+
+@pytest.fixture
+def item_phasing_hybrid_b():
+    """Problematic hybrid: chest at 1.0, legs at 2.0."""
+    return Item(
+        id="hybrid_b",
+        name="Hybrid B",
+        attributes={
+            "coverage_layers": [
+                {"parts": ["chest", "waist"], "layer": 1.0},
+                {"parts": ["hips", "legs"], "layer": 2.0},
+            ]
+        },
+    )
+
+
 # ============================================================================
 # Catalog Fixtures
 # ============================================================================
