@@ -37,7 +37,7 @@
     "@sveltejs/kit": "^2.49.2",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/svelte": "^5.2.9",
+    "@testing-library/svelte": "^5.2.10",
     "@types/eslint": "^9.6.0",
     "@vitest/coverage-v8": "^4.0.13",
     "@vitest/ui": "^4.0.13",
