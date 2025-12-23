@@ -24,6 +24,7 @@ from rulate.engine.operators import (
     MaxClusterSizeOperator,
     MinClusterSizeOperator,
     NotOperator,
+    PartLayerConflictOperator,
     UniqueValuesOperator,
 )
 from rulate.models.catalog import Item
@@ -261,6 +262,166 @@ class TestAnyMissingOperator:
         result, explanation = op.evaluate(item_blue_shirt, item_red_shirt)
         assert result is False
         assert "no field specified" in explanation.lower()
+
+
+class TestPartLayerConflictOperator:
+    """Tests for PartLayerConflictOperator."""
+
+    def test_no_overlap_returns_true(self, item_dress_shirt, item_jeans):
+        """Test that items with no overlapping parts have no conflict."""
+        # Shirt covers chest/waist/back, jeans cover hips/legs → no overlap
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item_dress_shirt, item_jeans)
+        assert result is True
+        assert "no overlapping" in explanation.lower()
+
+    def test_different_layers_same_parts_no_conflict(self, item_dress_shirt, item_undershirt):
+        """Test that items at different layers on same parts have no conflict."""
+        # Shirt at layer 2.0, undershirt at layer 1.0 → consistent layering
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item_dress_shirt, item_undershirt)
+        assert result is True
+        assert "no conflicts" in explanation.lower()
+        assert "chest" in explanation
+
+    def test_same_layer_same_part_is_conflict(self):
+        """Test that same layer on same part creates conflict."""
+        item1 = Item(
+            id="i1",
+            name="I1",
+            attributes={"coverage_layers": [{"parts": ["chest"], "layer": 2.0}]},
+        )
+        item2 = Item(
+            id="i2",
+            name="I2",
+            attributes={"coverage_layers": [{"parts": ["chest"], "layer": 2.0}]},
+        )
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item1, item2)
+        assert result is False
+        assert "conflict" in explanation.lower()
+        assert "chest" in explanation
+        assert "2.0" in explanation
+
+    def test_phasing_violation_is_conflict(self, item_phasing_hybrid_a, item_phasing_hybrid_b):
+        """Test that inconsistent layer relationships create conflict."""
+        # hybrid_a: chest(2.0), legs(1.0)
+        # hybrid_b: chest(1.0), legs(2.0)
+        # → A over B on chest, but under on legs → PHASING VIOLATION
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item_phasing_hybrid_a, item_phasing_hybrid_b)
+        assert result is False
+        assert "conflict" in explanation.lower()
+
+    def test_consistent_layering_multiple_overlaps(self):
+        """Test that consistent layering across multiple parts is OK."""
+        item1 = Item(
+            id="i1",
+            name="I1",
+            attributes={"coverage_layers": [{"parts": ["chest", "waist", "back"], "layer": 2.0}]},
+        )
+        item2 = Item(
+            id="i2",
+            name="I2",
+            attributes={"coverage_layers": [{"parts": ["chest", "waist", "back"], "layer": 1.0}]},
+        )
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item1, item2)
+        assert result is True
+        assert "no conflicts" in explanation.lower()
+
+    def test_missing_field_returns_true(self, item_dress_shirt, item_minimal):
+        """Test that missing field is treated as no conflict."""
+        # item_minimal doesn't have coverage_layers
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item_dress_shirt, item_minimal)
+        assert result is True
+        assert "missing" in explanation.lower()
+
+    def test_both_missing_field_returns_true(self, item_minimal):
+        """Test that both items missing field returns no conflict."""
+        item2 = Item(id="i2", name="I2", attributes={"category": "pants"})
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item_minimal, item2)
+        assert result is True
+        assert "missing" in explanation.lower()
+
+    def test_no_field_specified_returns_false(self, item_dress_shirt, item_jeans):
+        """Test that missing field config returns False."""
+        op = PartLayerConflictOperator({})
+        result, explanation = op.evaluate(item_dress_shirt, item_jeans)
+        assert result is False
+        assert "no field specified" in explanation.lower()
+
+    def test_partial_overlap_consistent_layers(self):
+        """Test partial overlap with consistent layering."""
+        item1 = Item(
+            id="i1",
+            name="I1",
+            attributes={"coverage_layers": [{"parts": ["chest", "waist"], "layer": 2.0}]},
+        )
+        item2 = Item(
+            id="i2",
+            name="I2",
+            attributes={"coverage_layers": [{"parts": ["waist", "hips"], "layer": 1.0}]},
+        )
+        # Only 'waist' overlaps, item1 (2.0) > item2 (1.0) → OK
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item1, item2)
+        assert result is True
+        assert "waist" in explanation
+
+    def test_partial_overlap_with_conflict(self):
+        """Test partial overlap with one conflicting part."""
+        item1 = Item(
+            id="i1",
+            name="I1",
+            attributes={"coverage_layers": [{"parts": ["chest", "waist"], "layer": 2.0}]},
+        )
+        item2 = Item(
+            id="i2",
+            name="I2",
+            attributes={"coverage_layers": [{"parts": ["waist"], "layer": 2.0}]},  # Same layer!
+        )
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item1, item2)
+        assert result is False
+        assert "waist" in explanation
+
+    def test_multiple_tuples_per_item(self):
+        """Test items with multiple coverage tuples."""
+        item1 = Item(
+            id="i1",
+            name="I1",
+            attributes={
+                "coverage_layers": [
+                    {"parts": ["chest"], "layer": 2.0},
+                    {"parts": ["waist"], "layer": 1.5},
+                ]
+            },
+        )
+        item2 = Item(
+            id="i2",
+            name="I2",
+            attributes={
+                "coverage_layers": [
+                    {"parts": ["chest"], "layer": 1.0},
+                    {"parts": ["waist"], "layer": 1.0},
+                ]
+            },
+        )
+        # chest: item1(2.0) > item2(1.0) ✓
+        # waist: item1(1.5) > item2(1.0) ✓ → consistent
+        op = PartLayerConflictOperator({"field": "coverage_layers"})
+        result, explanation = op.evaluate(item1, item2)
+        assert result is True
+
+    def test_operator_in_registry(self):
+        """Test that operator is registered."""
+        from rulate.engine.operators import OPERATOR_REGISTRY
+
+        assert "part_layer_conflict" in OPERATOR_REGISTRY
+        assert OPERATOR_REGISTRY["part_layer_conflict"] == PartLayerConflictOperator
 
 
 class TestAllOperator:

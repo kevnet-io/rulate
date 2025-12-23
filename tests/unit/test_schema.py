@@ -336,3 +336,154 @@ class TestSchemaValidateAttributes:
         attributes = {"formality": "high"}
         with pytest.raises(ValueError, match="Expected integer"):
             schema.validate_attributes(attributes)
+
+
+class TestPartLayerListDimension:
+    """Tests for PART_LAYER_LIST dimension type."""
+
+    def test_create_part_layer_list_dimension(self):
+        """Test creating a part_layer_list dimension without vocabulary."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST, required=False)
+        assert dim.type == DimensionType.PART_LAYER_LIST
+        assert dim.part_vocabulary is None
+
+    def test_create_part_layer_list_with_vocabulary(self):
+        """Test creating a part_layer_list dimension with body part vocabulary."""
+        dim = Dimension(
+            name="coverage_layers",
+            type=DimensionType.PART_LAYER_LIST,
+            part_vocabulary=["chest", "waist", "hips", "legs"],
+            required=False,
+        )
+        assert dim.part_vocabulary == ["chest", "waist", "hips", "legs"]
+
+    def test_part_layer_list_empty_vocabulary_rejected(self):
+        """Test that empty vocabulary is rejected."""
+        with pytest.raises(ValueError, match="part_vocabulary cannot be empty"):
+            Dimension(
+                name="coverage_layers",
+                type=DimensionType.PART_LAYER_LIST,
+                part_vocabulary=[],
+            )
+
+    def test_validate_valid_part_layer_list(self):
+        """Test validating a valid part-layer list."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        value = [
+            {"parts": ["chest", "waist"], "layer": 2.0},
+            {"parts": ["legs"], "layer": 1.0},
+        ]
+        assert dim.validate_value(value) is True
+
+    def test_validate_part_layer_list_empty_list(self):
+        """Test validating an empty part-layer list."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        assert dim.validate_value([]) is True
+
+    def test_validate_part_layer_list_not_list(self):
+        """Test validating non-list value."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="Expected list"):
+            dim.validate_value("not a list")
+
+    def test_validate_part_layer_list_item_not_dict(self):
+        """Test validating list with non-dict items."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="must be a dict"):
+            dim.validate_value([["chest", "waist"]])
+
+    def test_validate_part_layer_list_missing_parts(self):
+        """Test validating dict missing 'parts' field."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="missing required field 'parts'"):
+            dim.validate_value([{"layer": 2.0}])
+
+    def test_validate_part_layer_list_missing_layer(self):
+        """Test validating dict missing 'layer' field."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="missing required field 'layer'"):
+            dim.validate_value([{"parts": ["chest"]}])
+
+    def test_validate_part_layer_list_parts_not_list(self):
+        """Test validating 'parts' that is not a list."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="'parts' must be a list"):
+            dim.validate_value([{"parts": "chest", "layer": 2.0}])
+
+    def test_validate_part_layer_list_part_not_string(self):
+        """Test validating 'parts' with non-string elements."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="part .* must be string"):
+            dim.validate_value([{"parts": ["chest", 123], "layer": 2.0}])
+
+    def test_validate_part_layer_list_layer_not_numeric(self):
+        """Test validating 'layer' that is not numeric."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="'layer' must be numeric"):
+            dim.validate_value([{"parts": ["chest"], "layer": "high"}])
+
+    def test_validate_part_layer_list_layer_negative(self):
+        """Test validating 'layer' that is negative."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="'layer' must be >= 0"):
+            dim.validate_value([{"parts": ["chest"], "layer": -1.0}])
+
+    def test_validate_part_layer_list_layer_boolean_rejected(self):
+        """Test that boolean is not accepted as layer value."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        with pytest.raises(ValueError, match="'layer' must be numeric"):
+            dim.validate_value([{"parts": ["chest"], "layer": True}])
+
+    def test_validate_part_layer_list_with_vocabulary_valid(self):
+        """Test validating parts against vocabulary (valid)."""
+        dim = Dimension(
+            name="coverage_layers",
+            type=DimensionType.PART_LAYER_LIST,
+            part_vocabulary=["chest", "waist", "legs"],
+        )
+        value = [{"parts": ["chest", "waist"], "layer": 2.0}]
+        assert dim.validate_value(value) is True
+
+    def test_validate_part_layer_list_with_vocabulary_invalid(self):
+        """Test validating parts against vocabulary (invalid part)."""
+        dim = Dimension(
+            name="coverage_layers",
+            type=DimensionType.PART_LAYER_LIST,
+            part_vocabulary=["chest", "waist", "legs"],
+        )
+        value = [{"parts": ["chest", "arms"], "layer": 2.0}]
+        with pytest.raises(ValueError, match="not in allowed vocabulary"):
+            dim.validate_value(value)
+
+    def test_validate_part_layer_list_accepts_integer_layer(self):
+        """Test that integer layer values are accepted."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        value = [{"parts": ["chest"], "layer": 2}]  # Integer, not float
+        assert dim.validate_value(value) is True
+
+    def test_validate_part_layer_list_multiple_tuples(self):
+        """Test validating multiple tuples."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        value = [
+            {"parts": ["chest", "back"], "layer": 2.0},
+            {"parts": ["waist"], "layer": 1.5},
+            {"parts": ["legs", "hips"], "layer": 1.0},
+        ]
+        assert dim.validate_value(value) is True
+
+    def test_validate_part_layer_list_none_when_optional(self):
+        """Test that None is allowed for optional part_layer_list."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST, required=False)
+        assert dim.validate_value(None) is True
+
+    def test_validate_part_layer_list_none_when_required(self):
+        """Test that None is rejected for required part_layer_list."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST, required=True)
+        with pytest.raises(ValueError, match="is required but got None"):
+            dim.validate_value(None)
+
+    def test_validate_part_layer_list_layer_zero_allowed(self):
+        """Test that layer value of 0 is allowed."""
+        dim = Dimension(name="coverage_layers", type=DimensionType.PART_LAYER_LIST)
+        value = [{"parts": ["chest"], "layer": 0}]
+        assert dim.validate_value(value) is True

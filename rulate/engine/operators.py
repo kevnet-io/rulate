@@ -209,6 +209,92 @@ class AnyMissingOperator(Operator):
             return False, f"Both items have '{field}' attribute"
 
 
+class PartLayerConflictOperator(Operator):
+    """
+    Detect coverage-layer conflicts between items with phasing validation.
+
+    This operator checks if two items have conflicting coverage on the same body
+    parts. A conflict occurs when:
+    1. Both items cover the same part at the same layer (collision)
+    2. Items have inconsistent layer relationships across different parts
+       (phasing violation - e.g., A over B on chest but A under B on legs)
+
+    Config:
+        field: The field name containing part-layer tuples
+
+    Example:
+        {"part_layer_conflict": {"field": "coverage_layers"}}
+        Returns False (conflict) if items have conflicting coverage
+        Returns True (no conflict) if items can be worn together
+
+    Usage in rules:
+        # Exclusion rule: Exclude items with coverage conflicts
+        type: exclusion
+        condition:
+          part_layer_conflict:
+            field: "coverage_layers"
+    """
+
+    def evaluate(self, item1: Item, item2: Item) -> tuple[bool, str]:
+        field = self.config.get("field")
+        if not field:
+            return False, "No field specified for part_layer_conflict operator"
+
+        tuples1 = item1.get_attribute(field)
+        tuples2 = item2.get_attribute(field)
+
+        if tuples1 is None or tuples2 is None:
+            return True, f"One or both items missing '{field}' attribute (no conflict)"
+
+        # Build part → layer mappings
+        part_to_layer1 = {}
+        for tuple_item in tuples1:
+            for part in tuple_item["parts"]:
+                part_to_layer1[part] = tuple_item["layer"]
+
+        part_to_layer2 = {}
+        for tuple_item in tuples2:
+            for part in tuple_item["parts"]:
+                part_to_layer2[part] = tuple_item["layer"]
+
+        # Find overlapping parts
+        overlapping_parts = set(part_to_layer1.keys()) & set(part_to_layer2.keys())
+
+        if not overlapping_parts:
+            return True, "No overlapping body parts (no conflict)"
+
+        # Check for consistent layer relationships
+        item1_over_item2 = None  # Track relationship consistency
+        conflicts = []
+
+        for part in sorted(overlapping_parts):
+            layer1 = part_to_layer1[part]
+            layer2 = part_to_layer2[part]
+
+            # Same layer = collision
+            if layer1 == layer2:
+                conflicts.append(f"{part}: both at layer {layer1}")
+                continue
+
+            # Track whether item1 is over or under item2
+            current_relationship = "over" if layer1 > layer2 else "under"
+
+            if item1_over_item2 is None:
+                item1_over_item2 = current_relationship
+            elif item1_over_item2 != current_relationship:
+                # Inconsistent = phasing violation
+                conflicts.append(
+                    f"{part}: inconsistent phasing "
+                    f"(item1 {current_relationship} item2, expected {item1_over_item2})"
+                )
+
+        if conflicts:
+            return False, f"Layer conflict detected: {'; '.join(conflicts)}"
+        else:
+            parts_str = ", ".join(sorted(overlapping_parts))
+            return True, f"No conflicts on overlapping parts [{parts_str}]"
+
+
 # Logical Operators
 
 
@@ -648,6 +734,7 @@ OPERATOR_REGISTRY = {
     "abs_diff": AbsDiffOperator,
     "any_equals": AnyEqualsOperator,
     "any_missing": AnyMissingOperator,
+    "part_layer_conflict": PartLayerConflictOperator,
     "all": AllOperator,
     "any": AnyOperator,
     "or": AnyOperator,  # Alias for 'any'

@@ -20,6 +20,7 @@ class DimensionType(str, Enum):
     BOOLEAN = "boolean"
     ENUM = "enum"
     LIST = "list"
+    PART_LAYER_LIST = "part_layer_list"
 
 
 class Dimension(BaseModel):
@@ -46,6 +47,11 @@ class Dimension(BaseModel):
 
     # For LIST type
     item_type: str | None = Field(None, description="Type of items in the list (for LIST type)")
+
+    # For PART_LAYER_LIST type
+    part_vocabulary: list[str] | None = Field(
+        None, description="Allowed body part names (optional for PART_LAYER_LIST type)"
+    )
 
     @field_validator("name")
     @classmethod
@@ -77,6 +83,11 @@ class Dimension(BaseModel):
             valid_item_types = ["string", "integer", "float", "boolean"]
             if self.item_type not in valid_item_types:
                 raise ValueError(f"item_type must be one of {valid_item_types}")
+
+        if self.type == DimensionType.PART_LAYER_LIST:
+            if self.part_vocabulary is not None:
+                if len(self.part_vocabulary) == 0:
+                    raise ValueError("part_vocabulary cannot be empty if specified")
 
         return self
 
@@ -157,6 +168,57 @@ class Dimension(BaseModel):
                 elif self.item_type == "boolean" and not isinstance(item, bool):
                     raise ValueError(
                         f"Item {i} in '{self.name}' should be boolean, got {type(item).__name__}"
+                    )
+
+        elif self.type == DimensionType.PART_LAYER_LIST:
+            if not isinstance(value, list):
+                raise ValueError(f"Expected list for '{self.name}', got {type(value).__name__}")
+
+            for i, tuple_item in enumerate(value):
+                # Must be dict with 'parts' and 'layer'
+                if not isinstance(tuple_item, dict):
+                    raise ValueError(
+                        f"Item {i} in '{self.name}' must be a dict with 'parts' and 'layer', "
+                        f"got {type(tuple_item).__name__}"
+                    )
+
+                if "parts" not in tuple_item:
+                    raise ValueError(f"Item {i} in '{self.name}' missing required field 'parts'")
+                if "layer" not in tuple_item:
+                    raise ValueError(f"Item {i} in '{self.name}' missing required field 'layer'")
+
+                # Validate 'parts' is list of strings
+                parts = tuple_item["parts"]
+                if not isinstance(parts, list):
+                    raise ValueError(
+                        f"Item {i} in '{self.name}': 'parts' must be a list, "
+                        f"got {type(parts).__name__}"
+                    )
+
+                for j, part in enumerate(parts):
+                    if not isinstance(part, str):
+                        raise ValueError(
+                            f"Item {i} in '{self.name}': part {j} must be string, "
+                            f"got {type(part).__name__}"
+                        )
+
+                    # Validate against vocabulary if defined
+                    if self.part_vocabulary is not None and part not in self.part_vocabulary:
+                        raise ValueError(
+                            f"Item {i} in '{self.name}': part '{part}' not in allowed vocabulary "
+                            f"{self.part_vocabulary}"
+                        )
+
+                # Validate 'layer' is numeric >= 0
+                layer = tuple_item["layer"]
+                if not isinstance(layer, int | float) or isinstance(layer, bool):
+                    raise ValueError(
+                        f"Item {i} in '{self.name}': 'layer' must be numeric, "
+                        f"got {type(layer).__name__}"
+                    )
+                if layer < 0:
+                    raise ValueError(
+                        f"Item {i} in '{self.name}': 'layer' must be >= 0, got {layer}"
                     )
 
         return True
