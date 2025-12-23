@@ -168,21 +168,30 @@ make install-hooks     # Pre-commit hooks
 
 This command:
 - Creates a virtual environment in `.venv/`
-- Installs all project dependencies
+- Installs Python 3.14 if not already present (all environments)
+- Installs all Python project dependencies
 - Installs all dev dependencies (pytest, black, ruff, mypy, pre-commit, etc.)
-- Sets up pre-commit hooks to automatically run code quality checks before each commit
+- Pins npm to version 11 globally for consistency
 - Installs frontend dependencies for ESLint and testing
+- Sets up pre-commit hooks to automatically run code quality checks before each commit
 
 **IMPORTANT:** Pre-commit hooks are REQUIRED before committing. They run automatically on `git commit`.
 
-#### Claude Code Remote Environment
+#### Environment Setup Details
 
-When running in a Claude Code remote environment, `make install` automatically:
-- Updates `uv` to the latest version
-- Installs Python 3.14 (upgraded to latest patch version)
-- Sets Python 3.14 as the default Python version
+**Python 3.14:**
+- Automatically installed if not present via `uv python install --upgrade --default 3.14`
+- Applies to all environments (local, CI, Claude Code remote)
+- Only installs if `uv python find 3.14` fails
 
-This happens via the `setup-claude-code-env` target, which detects the `CLAUDE_CODE_ENTRYPOINT=remote` environment variable. In other environments, this step is skipped silently.
+**npm Version 11:**
+- Globally pinned to ensure consistent package manager behavior
+- Matches CI configuration for reproducible builds
+- Installed via `npm install -g npm@11` (may require elevated permissions)
+
+**Claude Code Remote Environment:**
+- In Claude Code remote environments (`CLAUDE_CODE_ENTRYPOINT=remote`), `uv` is updated to the latest version before installation
+- This ensures the latest `uv` features and bug fixes are available
 
 ### Code Quality Workflow
 

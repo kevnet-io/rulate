@@ -47,27 +47,26 @@ git clone https://github.com/YOUR_USERNAME/rulate.git
 cd rulate
 ```
 
-2. **Install Python dependencies:**
+2. **Install all dependencies (recommended):**
 
 ```bash
-uv sync --dev
+make install
 ```
 
-This creates a virtual environment in `.venv/` and installs all dependencies.
+This single command:
+- Installs Python 3.14 if not already present
+- Creates a virtual environment in `.venv/`
+- Installs all Python dependencies (including dev tools)
+- Pins npm to version 11 globally
+- Installs frontend dependencies
+- Sets up pre-commit hooks
 
-3. **Install pre-commit hooks (recommended):**
-
-```bash
-uv run pre-commit install
-```
-
-This automatically runs code quality checks before each commit. (pre-commit is already installed as a dev dependency via `uv sync --dev`)
-
-4. **Set up the web UI (if contributing to frontend):**
+Alternatively, install components separately:
 
 ```bash
-cd web
-npm install
+make install-backend   # Python dependencies with uv
+make install-frontend  # Node.js dependencies
+make install-hooks     # Pre-commit hooks
 ```
 
 ### Verify Installation

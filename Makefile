@@ -74,7 +74,7 @@ help:
 setup-claude-code-env:
 	@if [ "$$CLAUDE_CODE_ENTRYPOINT" = "remote" ]; then \
 		echo "Detected Claude Code remote environment - setting up Python 3.14..."; \
-		uv self update && (uv python find --show-version 3.14 2>&1 || uv python install --upgrade --default 3.14); \
+		uv self update; \
 	fi
 
 .PHONY: install
@@ -84,11 +84,13 @@ install: install-backend install-frontend install-hooks
 .PHONY: install-backend
 install-backend: setup-claude-code-env
 	@echo "Installing Python dependencies..."
+	@uv python find --show-version 3.14 >/dev/null || uv python install --upgrade --default 3.14
 	uv sync --dev
 
 .PHONY: install-frontend
 install-frontend:
 	@echo "Installing frontend dependencies..."
+	npm install -g npm@11
 	cd web && npm install
 
 .PHONY: install-hooks
