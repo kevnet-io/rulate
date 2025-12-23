@@ -37,7 +37,7 @@ Rulate has a three-layer architecture:
 The domain-agnostic evaluation engine that processes schemas, rules, and catalogs.
 
 **Key concepts:**
-- **Schema**: Defines the dimension space (what attributes objects can have). Supports 6 types: string, integer, float, boolean, enum, list.
+- **Schema**: Defines the dimension space (what attributes objects can have). Supports 7 types: string, integer, float, boolean, enum, list, part_layer_list.
 - **RuleSet**: Contains compatibility rules. Two rule types:
   - **Exclusion rules**: Items are incompatible if condition is TRUE
   - **Requirement rules**: Items are compatible only if condition is TRUE
@@ -533,12 +533,20 @@ The `RuleEvaluation.passed` field indicates whether a rule allowed compatibility
 This ensures that compatible items always show all rules as passed (4/4), and incompatible items show at least one failed rule.
 
 ### Example Configuration Structure
-The `examples/wardrobe/` directory contains a complete working example:
-- `schema.yaml` - 7 dimensions defining clothing attributes
+The `examples/wardrobe/` directory contains complete working examples:
+
+**Version 2 (Canonical - Gender-Agnostic)**:
+- `schema_v2.yaml` - 7 dimensions with coverage-layer system (45+ categories, 22 body parts)
+- `rules_v2.yaml` - 2 physical compatibility rules (coverage conflicts, same category)
+- `cluster_rules_v2.yaml` - 3 aesthetic outfit rules (formality, season consistency)
+- `catalog_v2.yaml` - 52 diverse gender-agnostic items
+
+**Version 1 (Legacy - Backward Compatibility)**:
+- `schema.yaml` - 7 dimensions (gender-specific body_zone)
 - `rules.yaml` - 4 rules (2 exclusions, 2 requirements)
 - `catalog.yaml` - 19 clothing items
 
-This is the canonical reference for testing and demonstrating the system.
+**V2 is the recommended reference** for new implementations. It demonstrates the `part_layer_list` dimension type and `PartLayerConflictOperator` for granular compatibility modeling. V1 is maintained for backward compatibility and simpler use cases.
 
 ## Design Principles
 
