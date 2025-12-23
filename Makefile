@@ -234,12 +234,24 @@ dev-frontend:
 dev:
 	@if command -v tmux >/dev/null 2>&1; then \
 		echo "Starting servers in tmux split panes..."; \
-		echo "Press Ctrl+B then D to detach, or Ctrl+C to stop all servers"; \
-		echo ""; \
 		tmux kill-session -t rulate 2>/dev/null || true; \
-		tmux new-session -d -s rulate 'make dev-backend'; \
-		tmux split-window -h -t rulate 'make dev-frontend'; \
-		tmux select-layout -t rulate even-horizontal; \
+		tmux new-session -d -s rulate \
+			'echo "╔═══════════════════════════════════════════════════════════════════════════╗"; \
+			 echo "║                    RULATE DEV - TMUX QUICK REFERENCE                      ║"; \
+			 echo "╠═══════════════════════════════════════════════════════════════════════════╣"; \
+			 echo "║  Ctrl+C          Stop all servers and exit tmux                           ║"; \
+			 echo "║  Ctrl+B then D   Detach (servers keep running in background)              ║"; \
+			 echo "║  Ctrl+B then ↓   Switch to backend/frontend panes                         ║"; \
+			 echo "║  Ctrl+B then [   Scroll mode (press q to exit)                            ║"; \
+			 echo "║  Ctrl+B then Z   Zoom current pane (toggle fullscreen)                    ║"; \
+			 echo "║                                                                           ║"; \
+			 echo "║  Backend: http://localhost:8000/docs  │  Frontend: http://localhost:5173  ║"; \
+			 echo "║  Reconnect: tmux attach -t rulate     │  Kill: tmux kill-session -t rulate║"; \
+			 echo "╚═══════════════════════════════════════════════════════════════════════════╝"; \
+			 cat'; \
+		tmux split-window -v -t rulate -l 75% 'make dev-backend'; \
+		tmux split-window -h -t rulate:0.1 'make dev-frontend'; \
+		tmux select-pane -t rulate:0.1; \
 		tmux attach-session -t rulate; \
 	else \
 		echo "Error: tmux is required for 'make dev'"; \
