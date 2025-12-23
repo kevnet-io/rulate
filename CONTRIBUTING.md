@@ -88,8 +88,16 @@ make test-frontend
 
 ## Development Setup
 
-### Option 1: Development Mode (Recommended)
-Separate servers with hot module reloading:
+### Option 1: Unified Development Mode (Recommended)
+Start both servers in tmux split panes:
+```bash
+make dev
+```
+
+This requires tmux to be installed. Press Ctrl+C to stop both servers.
+
+### Option 2: Separate Terminals
+Run servers separately with hot module reloading:
 ```bash
 # Terminal 1
 make dev-backend  # API on port 8000
@@ -98,7 +106,7 @@ make dev-backend  # API on port 8000
 make dev-frontend  # Vite HMR on port 5173
 ```
 
-### Option 2: Production Mode
+### Option 3: Production Mode
 Test the production build locally:
 ```bash
 make serve-production  # Unified server on port 8000

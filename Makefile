@@ -47,9 +47,9 @@ help:
 	@echo "  make pre-commit        Run pre-commit hooks on all files"
 	@echo ""
 	@echo "Development Servers:"
+	@echo "  make dev               Start both servers in tmux split panes (recommended)"
 	@echo "  make dev-backend       Start FastAPI server (port 8000)"
 	@echo "  make dev-frontend      Start SvelteKit dev server (port 5173)"
-	@echo "  make dev               Start both servers (requires terminal multiplexer)"
 	@echo ""
 	@echo "Production Build & Serve:"
 	@echo "  make build-frontend    Build frontend for production"
@@ -232,13 +232,28 @@ dev-frontend:
 
 .PHONY: dev
 dev:
-	@echo "Starting both backend and frontend servers..."
-	@echo "This requires running in separate terminals or a terminal multiplexer"
-	@echo ""
-	@echo "Terminal 1: make dev-backend"
-	@echo "Terminal 2: make dev-frontend"
-	@echo ""
-	@echo "Alternatively, use a tool like 'make -j2' with background processes"
+	@if command -v tmux >/dev/null 2>&1; then \
+		echo "Starting servers in tmux split panes..."; \
+		echo "Press Ctrl+B then D to detach, or Ctrl+C to stop all servers"; \
+		echo ""; \
+		tmux kill-session -t rulate 2>/dev/null || true; \
+		tmux new-session -d -s rulate 'make dev-backend'; \
+		tmux split-window -h -t rulate 'make dev-frontend'; \
+		tmux select-layout -t rulate even-horizontal; \
+		tmux attach-session -t rulate; \
+	else \
+		echo "Error: tmux is required for 'make dev'"; \
+		echo ""; \
+		echo "Install tmux:"; \
+		echo "  macOS:   brew install tmux"; \
+		echo "  Ubuntu:  sudo apt-get install tmux"; \
+		echo "  Arch:    sudo pacman -S tmux"; \
+		echo ""; \
+		echo "Or run servers manually in separate terminals:"; \
+		echo "  Terminal 1: make dev-backend"; \
+		echo "  Terminal 2: make dev-frontend"; \
+		exit 1; \
+	fi
 
 #
 # Production build and serve targets

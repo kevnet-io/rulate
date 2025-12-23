@@ -149,7 +149,10 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 # First time setup - install everything
 make install
 
-# Start development servers
+# Start both development servers (requires tmux)
+make dev
+
+# Or start servers separately:
 make dev-backend  # Terminal 1: API server on http://localhost:8000
 make dev-frontend # Terminal 2: Web UI on http://localhost:5173
 ```
