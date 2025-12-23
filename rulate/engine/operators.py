@@ -224,8 +224,8 @@ class PartLayerConflictOperator(Operator):
 
     Example:
         {"part_layer_conflict": {"field": "coverage_layers"}}
-        Returns False (conflict) if items have conflicting coverage
-        Returns True (no conflict) if items can be worn together
+        Returns True (condition met) if items have conflicting coverage
+        Returns False (condition not met) if items can be worn together
 
     Usage in rules:
         # Exclusion rule: Exclude items with coverage conflicts
