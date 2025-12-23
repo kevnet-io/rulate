@@ -167,7 +167,7 @@ Playwright automatically starts the frontend dev server (`npm run dev`) on port 
    ```
 3. Check that the example files are valid YAML:
    ```bash
-   uv run python3 -c "import yaml; yaml.safe_load(open('examples/wardrobe/schema.yaml'))"
+   uv run python3 -c "import yaml; yaml.safe_load(open('examples/wardrobe/schema_v2.yaml'))"
    ```
 
 ### Stale frontend server causing test failures

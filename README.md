@@ -60,10 +60,10 @@ Rulate allows you to define schemas, rules, and catalogs to determine compatibil
 
 **Phases 4-7: Testing & Data Management** ✅ COMPLETE
 
-- [x] Comprehensive test suite with 1,386 total tests:
-  - [x] Core engine: 480 unit tests (94% coverage)
-  - [x] API layer: 235 integration tests (90% coverage)
-  - [x] Frontend: 671 tests (100% production code coverage)
+- [x] Comprehensive test suite with 1,728 total tests:
+  - [x] Core engine: 513 unit tests (95% coverage)
+  - [x] API layer: 267 integration tests (95% coverage)
+  - [x] Frontend: 876 tests (94% production code coverage)
   - [x] E2E testing: 72 tests across 3 browsers
 - [x] Import/export functionality for data backup and migration
 - [x] Bulk operations via API and Web UI
@@ -195,7 +195,7 @@ Access at: http://localhost:8000 (single server serves both API and UI)
 
 The Web UI provides:
 - **Dashboard**: Overview of schemas, rulesets, and catalogs with statistics
-- **Schema Management**: Create schemas with dynamic dimension builder supporting all 6 types (string, integer, float, boolean, enum, list)
+- **Schema Management**: Create schemas with dynamic dimension builder supporting all 7 types (string, integer, float, boolean, enum, list, part_layer_list)
 - **RuleSet Management**: Create rulesets with enhanced rule editor featuring operator documentation, search, and 18 templates
 - **Catalog Management**: Create catalogs and manage items with schema-driven forms
 - **Item Editor**: Create and edit items with dynamic forms based on schema definitions
@@ -299,6 +299,8 @@ Run `make help` to see all available commands.
 
 - **[CLAUDE.md](CLAUDE.md)** - Development guide for contributors and Claude Code AI assistant
 - **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** - Complete technical specification of the current implementation
+- **[docs/patterns/](docs/patterns/)** - Reusable design patterns for domain modeling
+  - **[coverage-layer-conflicts.md](docs/patterns/coverage-layer-conflicts.md)** - Pattern for spatial/logical conflict detection with phasing
 - **[docs/roadmap/](docs/roadmap/)** - Enhancement roadmap organized by epic
 - **[docs/UX_POLISH_SUMMARY.md](docs/UX_POLISH_SUMMARY.md)** - Comprehensive UX improvements and component documentation
 

@@ -103,7 +103,7 @@ Cluster mechanism (when working on cluster features):
 
 Examples (via `uv`):
 
-- Validate: `uv run rulate validate schema examples/wardrobe/schema.yaml`
+- Validate: `uv run rulate validate schema examples/wardrobe/schema_v2.yaml`
 - Evaluate pair: `uv run rulate evaluate pair <item1> <item2> --catalog ... --rules ... --schema ...`
 - Matrix: `uv run rulate evaluate matrix --catalog ... --rules ... --format summary`
 
