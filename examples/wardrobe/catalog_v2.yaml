@@ -1,0 +1,695 @@
+name: "gender_agnostic_wardrobe_v2"
+version: "2.0.0"
+description: "Gender-agnostic wardrobe catalog with diverse clothing items"
+schema_ref: "wardrobe_v2"
+
+items:
+  # ========================================
+  # UNDERGARMENTS (layer 0.0-0.9)
+  # ========================================
+
+  - id: "bra_001"
+    name: "Black Sports Bra"
+    attributes:
+      category: "bra"
+      coverage_layers:
+        - parts: [chest]
+          layer: 0.5
+      formality: 1
+      colors: [black]
+      season: "all_season"
+      style: "athletic"
+
+  - id: "bra_002"
+    name: "Nude T-Shirt Bra"
+    attributes:
+      category: "bra"
+      coverage_layers:
+        - parts: [chest]
+          layer: 0.5
+      formality: 3
+      colors: [beige]
+      season: "all_season"
+      style: "casual"
+
+  - id: "boxers_001"
+    name: "Cotton Boxer Briefs"
+    attributes:
+      category: "boxers"
+      coverage_layers:
+        - parts: [groin, hips, upper_leg]
+          layer: 0.5
+      formality: 1
+      colors: [blue, gray]
+      season: "all_season"
+      style: "casual"
+
+  - id: "briefs_001"
+    name: "Low-Rise Briefs"
+    attributes:
+      category: "briefs"
+      coverage_layers:
+        - parts: [groin, hips]
+          layer: 0.5
+      formality: 1
+      colors: [black]
+      season: "all_season"
+      style: "casual"
+
+  # ========================================
+  # LIGHT UNDERGARMENTS / BASE LAYERS (layer 1.0-1.9)
+  # ========================================
+
+  - id: "undershirt_001"
+    name: "White Tank Undershirt"
+    attributes:
+      category: "undershirt"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back]
+          layer: 1.0
+      formality: 2
+      colors: [white]
+      season: "all_season"
+      style: "casual"
+
+  - id: "slip_001"
+    name: "Silk Slip Dress"
+    attributes:
+      category: "slip"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, waist, hips, upper_leg]
+          layer: 1.0
+      formality: 3
+      colors: [black, nude]
+      season: "all_season"
+      style: "formal"
+
+  - id: "tights_001"
+    name: "Sheer Black Tights"
+    attributes:
+      category: "tights"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, feet, toes]
+          layer: 1.0
+      formality: 3
+      colors: [black]
+      season: "fall"
+      style: "business"
+
+  - id: "tights_002"
+    name: "Opaque Control Top Tights"
+    attributes:
+      category: "tights"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, feet, toes]
+          layer: 1.2
+      formality: 4
+      colors: [black, nude]
+      season: "winter"
+      style: "formal"
+
+  - id: "leggings_001"
+    name: "Athletic Leggings"
+    attributes:
+      category: "leggings"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, ankle]
+          layer: 1.5
+      formality: 1
+      colors: [black, gray]
+      season: "all_season"
+      style: "athletic"
+
+  # ========================================
+  # BASE GARMENTS - TOPS (layer 2.0-2.9)
+  # ========================================
+
+  - id: "shirt_001"
+    name: "White Oxford Shirt"
+    attributes:
+      category: "shirt"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm]
+          layer: 2.0
+      formality: 4
+      colors: [white]
+      season: "all_season"
+      style: "business"
+
+  - id: "shirt_002"
+    name: "Casual Denim Shirt"
+    attributes:
+      category: "shirt"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm]
+          layer: 2.0
+      formality: 2
+      colors: [blue]
+      season: "spring"
+      style: "casual"
+
+  - id: "blouse_001"
+    name: "Silk Blouse"
+    attributes:
+      category: "blouse"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 2.0
+      formality: 4
+      colors: [cream, white]
+      season: "spring"
+      style: "business"
+
+  - id: "top_001"
+    name: "Basic Cotton T-Shirt"
+    attributes:
+      category: "top"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm]
+          layer: 2.0
+      formality: 1
+      colors: [white, black, gray]
+      season: "all_season"
+      style: "casual"
+
+  - id: "top_002"
+    name: "Crop Top"
+    attributes:
+      category: "top"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back]
+          layer: 2.0
+      formality: 1
+      colors: [pink, white]
+      season: "summer"
+      style: "casual"
+
+  # ========================================
+  # BASE GARMENTS - BOTTOMS (layer 2.0-2.9)
+  # ========================================
+
+  - id: "pants_001"
+    name: "Black Dress Pants"
+    attributes:
+      category: "pants"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, ankle]
+          layer: 2.0
+      formality: 4
+      colors: [black]
+      season: "all_season"
+      style: "business"
+
+  - id: "pants_002"
+    name: "Dark Wash Jeans"
+    attributes:
+      category: "pants"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, ankle]
+          layer: 2.0
+      formality: 2
+      colors: [blue, black]
+      season: "all_season"
+      style: "casual"
+
+  - id: "skirt_001"
+    name: "Black Pencil Skirt"
+    attributes:
+      category: "skirt"
+      coverage_layers:
+        - parts: [waist, hips, upper_leg]
+          layer: 2.0
+      formality: 4
+      colors: [black]
+      season: "all_season"
+      style: "business"
+
+  - id: "skirt_002"
+    name: "Flowy Midi Skirt"
+    attributes:
+      category: "skirt"
+      coverage_layers:
+        - parts: [waist, hips, upper_leg, lower_leg]
+          layer: 2.0
+      formality: 3
+      colors: [floral, red]
+      season: "summer"
+      style: "bohemian"
+
+  - id: "shorts_001"
+    name: "Denim Shorts"
+    attributes:
+      category: "shorts"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg]
+          layer: 2.0
+      formality: 1
+      colors: [blue]
+      season: "summer"
+      style: "casual"
+
+  # ========================================
+  # BASE GARMENTS - DRESSES (layer 2.0-2.9)
+  # ========================================
+
+  - id: "dress_001"
+    name: "Red Bodycon Dress"
+    attributes:
+      category: "dress"
+      coverage_layers:
+        - parts: [shoulders, chest, waist, upper_back, lower_back]
+          layer: 2.0
+        - parts: [hips, upper_leg]
+          layer: 1.8  # Slightly looser fit on bottom
+      formality: 4
+      colors: [red]
+      season: "all_season"
+      style: "formal"
+
+  - id: "dress_002"
+    name: "Summer Sundress"
+    attributes:
+      category: "dress"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, waist, lower_back, hips, upper_leg]
+          layer: 2.0
+      formality: 2
+      colors: [yellow, floral]
+      season: "summer"
+      style: "casual"
+
+  - id: "dress_003"
+    name: "Little Black Dress"
+    attributes:
+      category: "dress"
+      coverage_layers:
+        - parts: [chest, upper_back, lower_back, waist, hips, upper_leg]
+          layer: 2.0
+      formality: 5
+      colors: [black]
+      season: "all_season"
+      style: "formal"
+
+  # ========================================
+  # MID LAYERS (layer 3.0-3.9)
+  # ========================================
+
+  - id: "sweater_001"
+    name: "Cashmere Crew Neck Sweater"
+    attributes:
+      category: "sweater"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 3.0
+      formality: 3
+      colors: [navy, gray]
+      season: "fall"
+      style: "business"
+
+  - id: "cardigan_001"
+    name: "Lightweight Cardigan"
+    attributes:
+      category: "cardigan"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 3.0
+      formality: 2
+      colors: [beige, cream]
+      season: "spring"
+      style: "casual"
+
+  - id: "hoodie_001"
+    name: "Pullover Hoodie"
+    attributes:
+      category: "hoodie"
+      coverage_layers:
+        - parts: [head, shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 3.0
+      formality: 1
+      colors: [gray, black]
+      season: "fall"
+      style: "streetwear"
+
+  # ========================================
+  # OUTER LAYERS (layer 4.0-4.9)
+  # ========================================
+
+  - id: "blazer_001"
+    name: "Navy Blazer"
+    attributes:
+      category: "blazer"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 4.0
+      formality: 5
+      colors: [navy]
+      season: "all_season"
+      style: "business"
+
+  - id: "jacket_001"
+    name: "Leather Jacket"
+    attributes:
+      category: "jacket"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm, lower_arm]
+          layer: 4.0
+      formality: 2
+      colors: [black]
+      season: "fall"
+      style: "streetwear"
+
+  # ========================================
+  # FOOTWEAR (minimal layering, specific parts)
+  # ========================================
+
+  - id: "heels_001"
+    name: "Black Stiletto Heels"
+    attributes:
+      category: "heels"
+      coverage_layers:
+        - parts: [feet, toes]
+          layer: 2.0
+      formality: 5
+      colors: [black]
+      season: "all_season"
+      style: "formal"
+
+  - id: "sneakers_001"
+    name: "White Canvas Sneakers"
+    attributes:
+      category: "sneakers"
+      coverage_layers:
+        - parts: [feet, toes, ankle]
+          layer: 2.5
+      formality: 1
+      colors: [white]
+      season: "all_season"
+      style: "casual"
+
+  - id: "boots_001"
+    name: "Leather Ankle Boots"
+    attributes:
+      category: "boots"
+      coverage_layers:
+        - parts: [feet, toes, ankle]
+          layer: 2.5
+      formality: 3
+      colors: [brown, black]
+      season: "fall"
+      style: "casual"
+
+  - id: "shoes_001"
+    name: "Brown Leather Dress Shoes"
+    attributes:
+      category: "shoes"
+      coverage_layers:
+        - parts: [feet, toes]
+          layer: 2.5
+      formality: 5
+      colors: [brown]
+      season: "all_season"
+      style: "business"
+
+  - id: "flats_001"
+    name: "Ballet Flats"
+    attributes:
+      category: "flats"
+      coverage_layers:
+        - parts: [feet, toes]
+          layer: 2.0
+      formality: 3
+      colors: [black, nude]
+      season: "all_season"
+      style: "casual"
+
+  - id: "sandals_001"
+    name: "Strappy Sandals"
+    attributes:
+      category: "sandals"
+      coverage_layers:
+        - parts: [feet, toes]
+          layer: 2.0
+      formality: 2
+      colors: [tan, brown]
+      season: "summer"
+      style: "casual"
+
+  - id: "socks_001"
+    name: "Ankle Socks"
+    attributes:
+      category: "socks"
+      coverage_layers:
+        - parts: [feet, toes, ankle]
+          layer: 1.0
+      formality: 1
+      colors: [white, black]
+      season: "all_season"
+      style: "casual"
+
+  # ========================================
+  # ADDITIONAL TOPS (layer 2.0-2.9)
+  # ========================================
+
+  - id: "top_003"
+    name: "Tank Top"
+    attributes:
+      category: "top"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back]
+          layer: 2.0
+      formality: 1
+      colors: [white, black]
+      season: "summer"
+      style: "athletic"
+
+  - id: "shirt_003"
+    name: "Polo Shirt"
+    attributes:
+      category: "shirt"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, upper_arm]
+          layer: 2.0
+      formality: 3
+      colors: [navy, white]
+      season: "summer"
+      style: "casual"
+
+  # ========================================
+  # ADDITIONAL BOTTOMS (layer 2.0-2.9)
+  # ========================================
+
+  - id: "shorts_002"
+    name: "Khaki Chino Shorts"
+    attributes:
+      category: "shorts"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg]
+          layer: 2.0
+      formality: 2
+      colors: [khaki, beige]
+      season: "summer"
+      style: "casual"
+
+  - id: "pants_003"
+    name: "Yoga Pants"
+    attributes:
+      category: "pants"
+      coverage_layers:
+        - parts: [waist, hips, groin, upper_leg, lower_leg, ankle]
+          layer: 2.0
+      formality: 1
+      colors: [black, gray]
+      season: "all_season"
+      style: "athletic"
+
+  # ========================================
+  # ADDITIONAL DRESSES (layer 2.0-2.9)
+  # ========================================
+
+  - id: "dress_004"
+    name: "Bohemian Maxi Dress"
+    attributes:
+      category: "dress"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, waist, hips, upper_leg, lower_leg, ankle]
+          layer: 2.0
+      formality: 2
+      colors: [floral, earth tones]
+      season: "summer"
+      style: "bohemian"
+
+  # ========================================
+  # ADDITIONAL OUTERWEAR (layer 3.0-4.5)
+  # ========================================
+
+  - id: "vest_001"
+    name: "Quilted Vest"
+    attributes:
+      category: "vest"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back]
+          layer: 3.5
+      formality: 2
+      colors: [navy, black]
+      season: "fall"
+      style: "casual"
+
+  - id: "coat_001"
+    name: "Wool Peacoat"
+    attributes:
+      category: "coat"
+      coverage_layers:
+        - parts: [shoulders, chest, upper_back, lower_back, waist, hips, upper_arm, lower_arm]
+          layer: 4.5
+      formality: 4
+      colors: [black, navy]
+      season: "winter"
+      style: "business"
+
+  # ========================================
+  # ACCESSORIES (minimal or specific coverage)
+  # ========================================
+
+  - id: "tie_001"
+    name: "Silk Neck Tie"
+    attributes:
+      category: "tie"
+      coverage_layers:
+        - parts: [neck, chest]
+          layer: 2.5
+      formality: 5
+      colors: [navy, burgundy]
+      season: "all_season"
+      style: "business"
+
+  - id: "bowtie_001"
+    name: "Black Bow Tie"
+    attributes:
+      category: "bowtie"
+      coverage_layers:
+        - parts: [neck]
+          layer: 2.5
+      formality: 5
+      colors: [black]
+      season: "all_season"
+      style: "formal"
+
+  - id: "belt_001"
+    name: "Leather Belt"
+    attributes:
+      category: "belt"
+      coverage_layers:
+        - parts: [waist]
+          layer: 2.5
+      formality: 3
+      colors: [black, brown]
+      season: "all_season"
+      style: "business"
+
+  - id: "scarf_001"
+    name: "Wool Scarf"
+    attributes:
+      category: "scarf"
+      coverage_layers:
+        - parts: [neck]
+          layer: 4.2
+      formality: 3
+      colors: [gray, plaid]
+      season: "winter"
+      style: "casual"
+
+  - id: "gloves_001"
+    name: "Leather Gloves"
+    attributes:
+      category: "gloves"
+      coverage_layers:
+        - parts: [hands, fingers]
+          layer: 3.5
+      formality: 4
+      colors: [black, brown]
+      season: "winter"
+      style: "business"
+
+  - id: "hat_001"
+    name: "Fedora Hat"
+    attributes:
+      category: "hat"
+      coverage_layers:
+        - parts: [head]
+          layer: 3.0
+      formality: 3
+      colors: [black, brown]
+      season: "all_season"
+      style: "formal"
+
+  - id: "cap_001"
+    name: "Baseball Cap"
+    attributes:
+      category: "cap"
+      coverage_layers:
+        - parts: [head, face]
+          layer: 3.0
+      formality: 1
+      colors: [black, navy, white]
+      season: "all_season"
+      style: "casual"
+
+  - id: "beanie_001"
+    name: "Knit Beanie"
+    attributes:
+      category: "beanie"
+      coverage_layers:
+        - parts: [head, ears]
+          layer: 3.0
+      formality: 1
+      colors: [gray, black]
+      season: "winter"
+      style: "streetwear"
+
+  - id: "necklace_001"
+    name: "Silver Chain Necklace"
+    attributes:
+      category: "necklace"
+      coverage_layers:
+        - parts: [neck]
+          layer: 2.2
+      formality: 3
+      colors: [silver]
+      season: "all_season"
+      style: "casual"
+
+  - id: "earrings_001"
+    name: "Diamond Stud Earrings"
+    attributes:
+      category: "earrings"
+      coverage_layers:
+        - parts: [ears]
+          layer: 2.0
+      formality: 5
+      colors: [silver]
+      season: "all_season"
+      style: "formal"
+
+  - id: "bracelet_001"
+    name: "Gold Bracelet"
+    attributes:
+      category: "bracelet"
+      coverage_layers:
+        - parts: [wrist]
+          layer: 2.2
+      formality: 4
+      colors: [gold]
+      season: "all_season"
+      style: "formal"
+
+  - id: "watch_001"
+    name: "Leather Strap Watch"
+    attributes:
+      category: "watch"
+      coverage_layers:
+        - parts: [wrist]
+          layer: 2.3
+      formality: 4
+      colors: [black, brown, silver]
+      season: "all_season"
+      style: "business"

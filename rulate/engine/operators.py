@@ -244,7 +244,7 @@ class PartLayerConflictOperator(Operator):
         tuples2 = item2.get_attribute(field)
 
         if tuples1 is None or tuples2 is None:
-            return True, f"One or both items missing '{field}' attribute (no conflict)"
+            return False, f"One or both items missing '{field}' attribute (no conflict)"
 
         # Build part → layer mappings
         part_to_layer1 = {}
@@ -261,7 +261,7 @@ class PartLayerConflictOperator(Operator):
         overlapping_parts = set(part_to_layer1.keys()) & set(part_to_layer2.keys())
 
         if not overlapping_parts:
-            return True, "No overlapping body parts (no conflict)"
+            return False, "No overlapping body parts (no conflict)"
 
         # Check for consistent layer relationships
         item1_over_item2 = None  # Track relationship consistency
@@ -289,10 +289,10 @@ class PartLayerConflictOperator(Operator):
                 )
 
         if conflicts:
-            return False, f"Layer conflict detected: {'; '.join(conflicts)}"
+            return True, f"Layer conflict detected: {'; '.join(conflicts)}"
         else:
             parts_str = ", ".join(sorted(overlapping_parts))
-            return True, f"No conflicts on overlapping parts [{parts_str}]"
+            return False, f"No conflicts on overlapping parts [{parts_str}]"
 
 
 # Logical Operators
