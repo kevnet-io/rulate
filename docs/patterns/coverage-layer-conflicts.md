@@ -542,6 +542,79 @@ schema_v2:
 - Cross-gender outfit compatibility (e.g., unisex jackets)
 - Complex garments (dresses, jumpsuits) properly modeled
 
+## Known Limitations
+
+### 1. Stackable Accessories
+
+The current `same_category_exclusion` rule prevents wearing any two items of the same category, which is overly restrictive for certain accessories:
+
+**Current behavior:**
+```yaml
+# Rule in rules_v2.yaml
+- name: "same_category_exclusion"
+  type: "exclusion"
+  condition:
+    equals:
+      field: "category"
+```
+
+**Limitations:**
+- ❌ Cannot wear two necklaces (layered necklaces are common)
+- ❌ Cannot wear multiple rings on different fingers
+- ❌ Cannot wear multiple bracelets
+- ❌ Cannot wear two earrings (only one pair allowed)
+
+**Workaround:**
+Currently, the catalog uses granular categories (`necklace`, `bracelet`, `ring`, `earrings`) which allows wearing different jewelry types together (necklace + bracelet + earrings). However, you cannot layer items within the same category.
+
+**Future enhancement:**
+Add a `stackable` boolean dimension to the schema:
+
+```yaml
+# Future schema enhancement
+dimensions:
+  - name: "stackable"
+    type: "boolean"
+    required: false
+    description: "Whether multiple items of this category can be worn together"
+
+# Catalog items
+- id: "ring_001"
+  attributes:
+    category: "ring"
+    stackable: true  # Can wear multiple rings
+
+- id: "shirt_001"
+  attributes:
+    category: "shirt"
+    stackable: false  # Cannot wear two shirts
+```
+
+Modify the `same_category_exclusion` rule to check `stackable`:
+
+```yaml
+# Enhanced rule (not yet implemented)
+- name: "same_category_exclusion"
+  type: "exclusion"
+  condition:
+    all:
+      - equals:
+          field: "category"
+      - not:
+          any_equals:
+            field: "stackable"
+            value: true
+```
+
+This enhancement is tracked for a future release. The current implementation prioritizes the core coverage-layer conflict pattern, which successfully achieves gender-agnostic wardrobe modeling.
+
+### 2. Coverage-Layer Limitations
+
+See **Limitations and Edge Cases** section above for:
+- Same part in multiple tuples (last occurrence wins)
+- Empty coverage lists (treated as "no coverage")
+- Non-overlapping items (never conflict - correct behavior)
+
 ## Conclusion
 
 The coverage-layer conflict pattern provides a robust, reusable solution for modeling spatial or logical conflicts across multiple zones with varying precedence. The phasing detection algorithm ensures physical consistency, while the granular per-part layer specification enables complex item modeling.
