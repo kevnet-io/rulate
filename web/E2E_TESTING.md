@@ -35,7 +35,7 @@ The global setup script:
 - ✓ Clears the e2e database (`e2e_test.db`) for a fresh state
 - ✓ Starts the unified production server (API + frontend) with the e2e database
 - ✓ Waits for the server to be ready
-- ✓ Seeds the database with test data (wardrobe schema, rules, catalog, items)
+- ✓ Seeds the database with test data (wardrobe v2 domain from v2.json: 53 items)
 
 **Manual server** (optional):
 
@@ -106,9 +106,8 @@ The `globalSetup` file runs before all tests and:
 
 1. **Waits for API** - Polls `http://localhost:8000/api/v1/schemas` until the API responds
 2. **Seeds Database** - Runs `scripts/seed_database.py` which:
-   - Creates the wardrobe schema with all clothing attributes
-   - Creates compatibility rules (pairwise and cluster rules)
-   - Creates a catalog with 19 sample clothing items
+   - Loads the v2 wardrobe domain from `examples/wardrobe/v2.json`
+   - Imports complete domain via `/api/v1/import/all` (53 items, gender-agnostic coverage-layer modeling)
 3. **Reports Status** - Shows setup progress in the console
 
 ### WebServer Configuration
@@ -165,9 +164,9 @@ Playwright automatically starts the frontend dev server (`npm run dev`) on port 
    ```bash
    ls examples/wardrobe/
    ```
-3. Check that the example files are valid YAML:
+3. Check that the example files are valid JSON:
    ```bash
-   uv run python3 -c "import yaml; yaml.safe_load(open('examples/wardrobe/schema_v2.yaml'))"
+   uv run python3 -c "import json; json.load(open('examples/wardrobe/v2.json'))"
    ```
 
 ### Stale frontend server causing test failures

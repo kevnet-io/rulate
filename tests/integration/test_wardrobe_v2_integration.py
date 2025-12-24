@@ -5,38 +5,49 @@ Tests the complete evaluation flow with the gender-agnostic wardrobe domain,
 including the new part_layer_list dimension and PartLayerConflictOperator.
 """
 
+import json
 from pathlib import Path
 
 import pytest
 
 from rulate.engine.cluster_evaluator import find_clusters
 from rulate.engine.evaluator import evaluate_matrix, evaluate_pair
-from rulate.utils.loaders import load_catalog, load_cluster_ruleset, load_ruleset, load_schema
+from rulate.models.catalog import Catalog
+from rulate.models.cluster import ClusterRuleSet
+from rulate.models.rule import RuleSet
+from rulate.models.schema import Schema
 
-# Path to the v2 wardrobe files
+# Path to the v2 wardrobe export file
 EXAMPLES_DIR = Path(__file__).parent.parent.parent / "examples" / "wardrobe"
-SCHEMA_V2_PATH = EXAMPLES_DIR / "schema_v2.yaml"
-RULES_V2_PATH = EXAMPLES_DIR / "rules_v2.yaml"
-CLUSTER_RULES_V2_PATH = EXAMPLES_DIR / "cluster_rules_v2.yaml"
-CATALOG_V2_PATH = EXAMPLES_DIR / "catalog_v2.yaml"
+V2_JSON_PATH = EXAMPLES_DIR / "v2.json"
 
 
 @pytest.fixture
-def schema_v2():
-    """Load the v2 wardrobe schema."""
-    return load_schema(str(SCHEMA_V2_PATH))
+def v2_data():
+    """Load the v2 export JSON file."""
+    with open(V2_JSON_PATH) as f:
+        return json.load(f)
 
 
 @pytest.fixture
-def rules_v2():
-    """Load the v2 wardrobe pairwise rules."""
-    return load_ruleset(str(RULES_V2_PATH))
+def schema_v2(v2_data):
+    """Load the v2 wardrobe schema from export JSON."""
+    schema_dict = v2_data["schemas"][0]
+    return Schema(**schema_dict)
 
 
 @pytest.fixture
-def cluster_rules_v2(schema_v2, rules_v2):
-    """Load the v2 wardrobe cluster rules."""
-    ruleset = load_cluster_ruleset(str(CLUSTER_RULES_V2_PATH))
+def rules_v2(v2_data):
+    """Load the v2 wardrobe pairwise rules from export JSON."""
+    ruleset_dict = v2_data["rulesets"][0]
+    return RuleSet(**ruleset_dict)
+
+
+@pytest.fixture
+def cluster_rules_v2(v2_data, schema_v2, rules_v2):
+    """Load the v2 wardrobe cluster rules from export JSON."""
+    cluster_ruleset_dict = v2_data["cluster_rulesets"][0]
+    ruleset = ClusterRuleSet(**cluster_ruleset_dict)
     # Set schema and pairwise ruleset references
     ruleset._schema = schema_v2
     ruleset._pairwise_ruleset = rules_v2
@@ -44,9 +55,10 @@ def cluster_rules_v2(schema_v2, rules_v2):
 
 
 @pytest.fixture
-def catalog_v2():
-    """Load the v2 wardrobe catalog."""
-    return load_catalog(str(CATALOG_V2_PATH))
+def catalog_v2(v2_data):
+    """Load the v2 wardrobe catalog from export JSON."""
+    catalog_dict = v2_data["catalogs"][0]
+    return Catalog(**catalog_dict)
 
 
 class TestSchemaV2Loading:

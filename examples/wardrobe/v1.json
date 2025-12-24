@@ -1,0 +1,540 @@
+{
+  "schemas": [
+    {
+      "name": "wardrobe_v1",
+      "version": "1.0.0",
+      "description": "Schema for categorizing clothing items and their attributes",
+      "dimensions": [
+        {
+          "name": "category",
+          "type": "enum",
+          "required": true,
+          "description": "Type of clothing item",
+          "values": [
+            "shirt",
+            "pants",
+            "jacket",
+            "shoes",
+            "accessory",
+            "hat",
+            "socks"
+          ]
+        },
+        {
+          "name": "body_zone",
+          "type": "enum",
+          "required": true,
+          "description": "Which part of the body this item covers",
+          "values": [
+            "head",
+            "torso",
+            "legs",
+            "feet",
+            "hands",
+            "neck",
+            "waist"
+          ]
+        },
+        {
+          "name": "layer",
+          "type": "enum",
+          "required": false,
+          "description": "Layering level for items on the same body zone",
+          "values": [
+            "base",
+            "mid",
+            "outer"
+          ]
+        },
+        {
+          "name": "formality",
+          "type": "integer",
+          "required": false,
+          "description": "Formality level (1=very casual, 5=very formal)",
+          "min": 1,
+          "max": 5
+        },
+        {
+          "name": "colors",
+          "type": "list",
+          "item_type": "string",
+          "required": false,
+          "description": "Primary colors in the item"
+        },
+        {
+          "name": "season",
+          "type": "enum",
+          "required": false,
+          "description": "Appropriate seasons for wearing",
+          "values": [
+            "spring",
+            "summer",
+            "fall",
+            "winter",
+            "all_season"
+          ]
+        },
+        {
+          "name": "style",
+          "type": "enum",
+          "required": false,
+          "description": "General style category",
+          "values": [
+            "casual",
+            "business",
+            "athletic",
+            "formal"
+          ]
+        }
+      ]
+    }
+  ],
+  "rulesets": [
+    {
+      "name": "wardrobe_rules_v1",
+      "version": "1.0.0",
+      "description": "Compatibility rules for wardrobe items",
+      "schema_ref": "wardrobe_v1",
+      "rules": [
+        {
+          "name": "same_body_zone_exclusion",
+          "type": "exclusion",
+          "description": "Cannot wear two items on same body zone unless they're different layers",
+          "enabled": true,
+          "condition": {
+            "all": [
+              {
+                "equals": {
+                  "field": "body_zone"
+                }
+              },
+              {
+                "not": {
+                  "has_different": {
+                    "field": "layer"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "same_category_exclusion",
+          "type": "exclusion",
+          "description": "Cannot wear two items of the exact same category",
+          "enabled": true,
+          "condition": {
+            "equals": {
+              "field": "category"
+            }
+          }
+        },
+        {
+          "name": "formality_matching",
+          "type": "requirement",
+          "description": "Formality levels must be within 2 points of each other",
+          "enabled": true,
+          "condition": {
+            "or": [
+              {
+                "any_missing": {
+                  "field": "formality"
+                }
+              },
+              {
+                "abs_diff": {
+                  "field": "formality",
+                  "max": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "season_compatibility",
+          "type": "requirement",
+          "description": "Items should be appropriate for the same season",
+          "enabled": true,
+          "condition": {
+            "or": [
+              {
+                "any_missing": {
+                  "field": "season"
+                }
+              },
+              {
+                "equals": {
+                  "field": "season"
+                }
+              },
+              {
+                "any_equals": {
+                  "field": "season",
+                  "value": "all_season"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "cluster_rulesets": [
+    {
+      "name": "wardrobe_cluster_rules_v1",
+      "version": "1.0.0",
+      "description": "Rules defining what makes a complete wardrobe outfit",
+      "schema_ref": "wardrobe_v1",
+      "pairwise_ruleset_ref": "wardrobe_rules_v1",
+      "rules": [
+        {
+          "name": "minimum_outfit_size",
+          "type": "requirement",
+          "enabled": true,
+          "description": "An outfit must have at least 2 items",
+          "condition": {
+            "min_cluster_size": 2
+          }
+        },
+        {
+          "name": "cover_multiple_zones",
+          "type": "requirement",
+          "enabled": true,
+          "description": "Must cover at least 2 different body zones",
+          "condition": {
+            "count_by_field": {
+              "field": "body_zone",
+              "min": 2
+            }
+          }
+        },
+        {
+          "name": "formality_consistency",
+          "type": "requirement",
+          "enabled": true,
+          "description": "All items must be within 1 formality level of each other",
+          "condition": {
+            "formality_range": {
+              "max_diff": 1
+            }
+          }
+        },
+        {
+          "name": "max_outfit_size",
+          "type": "exclusion",
+          "enabled": true,
+          "description": "An outfit can't have more than 10 items (too complex)",
+          "condition": {
+            "not": {
+              "max_cluster_size": 10
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "catalogs": [
+    {
+      "name": "my_wardrobe",
+      "description": "My personal wardrobe catalog",
+      "schema_ref": "wardrobe_v1",
+      "metadata": {},
+      "items": [
+        {
+          "id": "shirt_001",
+          "name": "Blue Oxford Shirt",
+          "attributes": {
+            "category": "shirt",
+            "body_zone": "torso",
+            "layer": "base",
+            "formality": 4,
+            "colors": [
+              "blue",
+              "white"
+            ],
+            "season": "all_season",
+            "style": "business"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "shirt_002",
+          "name": "White T-Shirt",
+          "attributes": {
+            "category": "shirt",
+            "body_zone": "torso",
+            "layer": "base",
+            "formality": 1,
+            "colors": [
+              "white"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "shirt_003",
+          "name": "Black Polo",
+          "attributes": {
+            "category": "shirt",
+            "body_zone": "torso",
+            "layer": "base",
+            "formality": 3,
+            "colors": [
+              "black"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "pants_001",
+          "name": "Dark Denim Jeans",
+          "attributes": {
+            "category": "pants",
+            "body_zone": "legs",
+            "formality": 2,
+            "colors": [
+              "blue",
+              "black"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "pants_002",
+          "name": "Gray Dress Slacks",
+          "attributes": {
+            "category": "pants",
+            "body_zone": "legs",
+            "formality": 4,
+            "colors": [
+              "gray"
+            ],
+            "season": "all_season",
+            "style": "business"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "pants_003",
+          "name": "Khaki Chinos",
+          "attributes": {
+            "category": "pants",
+            "body_zone": "legs",
+            "formality": 3,
+            "colors": [
+              "tan",
+              "brown"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "jacket_001",
+          "name": "Navy Blazer",
+          "attributes": {
+            "category": "jacket",
+            "body_zone": "torso",
+            "layer": "outer",
+            "formality": 5,
+            "colors": [
+              "navy"
+            ],
+            "season": "all_season",
+            "style": "formal"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "jacket_002",
+          "name": "Denim Jacket",
+          "attributes": {
+            "category": "jacket",
+            "body_zone": "torso",
+            "layer": "outer",
+            "formality": 2,
+            "colors": [
+              "blue"
+            ],
+            "season": "spring",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "jacket_003",
+          "name": "Black Leather Jacket",
+          "attributes": {
+            "category": "jacket",
+            "body_zone": "torso",
+            "layer": "mid",
+            "formality": 3,
+            "colors": [
+              "black"
+            ],
+            "season": "fall",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "shoes_001",
+          "name": "Black Oxford Shoes",
+          "attributes": {
+            "category": "shoes",
+            "body_zone": "feet",
+            "formality": 5,
+            "colors": [
+              "black"
+            ],
+            "season": "all_season",
+            "style": "formal"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "shoes_002",
+          "name": "White Sneakers",
+          "attributes": {
+            "category": "shoes",
+            "body_zone": "feet",
+            "formality": 1,
+            "colors": [
+              "white"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "shoes_003",
+          "name": "Brown Loafers",
+          "attributes": {
+            "category": "shoes",
+            "body_zone": "feet",
+            "formality": 3,
+            "colors": [
+              "brown"
+            ],
+            "season": "all_season",
+            "style": "business"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "accessory_001",
+          "name": "Red Tie",
+          "attributes": {
+            "category": "accessory",
+            "body_zone": "neck",
+            "formality": 5,
+            "colors": [
+              "red"
+            ],
+            "season": "all_season",
+            "style": "formal"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "accessory_002",
+          "name": "Brown Leather Belt",
+          "attributes": {
+            "category": "accessory",
+            "body_zone": "waist",
+            "formality": 3,
+            "colors": [
+              "brown"
+            ],
+            "season": "all_season",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "accessory_003",
+          "name": "Black Belt",
+          "attributes": {
+            "category": "accessory",
+            "body_zone": "waist",
+            "formality": 4,
+            "colors": [
+              "black"
+            ],
+            "season": "all_season",
+            "style": "business"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "hat_001",
+          "name": "Baseball Cap",
+          "attributes": {
+            "category": "hat",
+            "body_zone": "head",
+            "formality": 1,
+            "colors": [
+              "blue"
+            ],
+            "season": "summer",
+            "style": "casual"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "hat_002",
+          "name": "Fedora",
+          "attributes": {
+            "category": "hat",
+            "body_zone": "head",
+            "formality": 4,
+            "colors": [
+              "gray"
+            ],
+            "season": "all_season",
+            "style": "formal"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "socks_001",
+          "name": "Black Dress Socks",
+          "attributes": {
+            "category": "socks",
+            "body_zone": "feet",
+            "formality": 4,
+            "colors": [
+              "black"
+            ],
+            "season": "all_season",
+            "style": "business"
+          },
+          "metadata": {}
+        },
+        {
+          "id": "socks_002",
+          "name": "White Athletic Socks",
+          "attributes": {
+            "category": "socks",
+            "body_zone": "feet",
+            "formality": 1,
+            "colors": [
+              "white"
+            ],
+            "season": "all_season",
+            "style": "athletic"
+          },
+          "metadata": {}
+        }
+      ]
+    }
+  ]
+}

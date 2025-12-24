@@ -45,7 +45,7 @@ test.describe("Toast Notifications", () => {
     await page.waitForLoadState("networkidle");
 
     // Try to create with duplicate name (use the seeded wardrobe schema)
-    await page.fill('input[id="name"]', "wardrobe_v1"); // Existing schema
+    await page.fill('input[id="name"]', "wardrobe_v2"); // Existing v2 schema
     await page.fill('input[id="version"]', "1.0.0");
 
     // Add a dimension

@@ -533,20 +533,16 @@ The `RuleEvaluation.passed` field indicates whether a rule allowed compatibility
 This ensures that compatible items always show all rules as passed (4/4), and incompatible items show at least one failed rule.
 
 ### Example Configuration Structure
-The `examples/wardrobe/` directory contains complete working examples:
 
-**Version 2 (Canonical - Gender-Agnostic)**:
-- `schema_v2.yaml` - 7 dimensions with coverage-layer system (45+ categories, 22 body parts)
-- `rules_v2.yaml` - 2 physical compatibility rules (coverage conflicts, same category)
-- `cluster_rules_v2.yaml` - 3 aesthetic outfit rules (formality, season consistency)
-- `catalog_v2.yaml` - 52 diverse gender-agnostic items
+The `examples/wardrobe/` directory contains complete working examples in export-all JSON format:
 
-**Version 1 (Legacy - Backward Compatibility)**:
-- `schema.yaml` - 7 dimensions (gender-specific body_zone)
-- `rules.yaml` - 4 rules (2 exclusions, 2 requirements)
-- `catalog.yaml` - 19 clothing items
+**V2 (default - gender-agnostic, granular coverage)**:
+- `v2.json` - Complete domain with 53 items, `part_layer_list` dimensions
 
-**V2 is the recommended reference** for new implementations. It demonstrates the `part_layer_list` dimension type and `PartLayerConflictOperator` for granular compatibility modeling. V1 is maintained for backward compatibility and simpler use cases.
+**V1 (legacy - simple body_zone + layer)**:
+- `v1.json` - Complete domain with 19 items
+
+V2 is the canonical reference for testing and demonstrating the system. These JSON files can be directly imported via the Web UI's import feature or the CLI seed script.
 
 ## Design Principles
 
