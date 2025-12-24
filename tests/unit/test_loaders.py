@@ -181,6 +181,30 @@ class TestLoadYamlOrJson:
         with pytest.raises(ValueError, match="Invalid JSON"):
             load_yaml_or_json(json_file)
 
+    def test_raises_error_for_yaml_non_dict(self, temp_dir):
+        """Test that ValueError is raised when YAML contains non-dict content."""
+        yaml_file = temp_dir / "list.yaml"
+        yaml_file.write_text("- item1\n- item2\n- item3")
+
+        with pytest.raises(ValueError, match="Expected dictionary"):
+            load_yaml_or_json(yaml_file)
+
+    def test_raises_error_for_json_non_dict(self, temp_dir):
+        """Test that ValueError is raised when JSON contains non-dict content."""
+        json_file = temp_dir / "array.json"
+        json_file.write_text("[1, 2, 3]")
+
+        with pytest.raises(ValueError, match="Expected dictionary"):
+            load_yaml_or_json(json_file)
+
+    def test_raises_error_for_yaml_scalar(self, temp_dir):
+        """Test that ValueError is raised when YAML contains scalar content."""
+        yaml_file = temp_dir / "scalar.yaml"
+        yaml_file.write_text("just a string")
+
+        with pytest.raises(ValueError, match="Expected dictionary"):
+            load_yaml_or_json(yaml_file)
+
 
 # ============================================================================
 # load_schema() Tests

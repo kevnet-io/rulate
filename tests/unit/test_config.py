@@ -81,3 +81,31 @@ class TestSettings:
         assert settings.max_upload_size_mb == 50
         assert settings.yaml_max_depth == 10
         assert settings.yaml_max_aliases == 50
+
+    def test_cors_origins_passthrough_when_list(self):
+        """Test CORS origins passes through when already a list."""
+        settings = Settings(cors_origins=["http://a.com", "http://b.com"])
+        assert settings.cors_origins == ["http://a.com", "http://b.com"]
+
+    def test_cors_origins_comma_separated_string(self):
+        """Test CORS origins parses comma-separated string."""
+        settings = Settings(cors_origins="http://a.com,http://b.com")
+        assert "http://a.com" in settings.cors_origins
+        assert "http://b.com" in settings.cors_origins
+
+    def test_cors_origins_json_array_string(self):
+        """Test CORS origins parses JSON array string."""
+        settings = Settings(cors_origins='["http://a.com", "http://b.com"]')
+        assert "http://a.com" in settings.cors_origins
+        assert "http://b.com" in settings.cors_origins
+        # Verify it's properly parsed (no JSON artifacts)
+        for origin in settings.cors_origins:
+            assert not origin.startswith("[")
+            assert not origin.endswith("]")
+            assert '"' not in origin
+
+    def test_cors_origins_strips_whitespace(self):
+        """Test CORS origins strips whitespace from values."""
+        settings = Settings(cors_origins="  http://a.com  ,  http://b.com  ")
+        assert "http://a.com" in settings.cors_origins
+        assert "http://b.com" in settings.cors_origins

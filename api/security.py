@@ -109,7 +109,7 @@ async def validate_file_upload(file: UploadFile) -> bytes:
                 limit_mb=settings.max_upload_size_mb,
             )
             raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
                 detail=f"File size exceeds maximum of {settings.max_upload_size_mb}MB",
             )
 

@@ -4,6 +4,7 @@ Application configuration using pydantic-settings.
 Loads configuration from environment variables with validation and defaults.
 """
 
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -45,8 +46,16 @@ class Settings(BaseSettings):
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
-        """Parse CORS origins from comma-separated string or list."""
+        """Parse CORS origins from JSON array or comma-separated string."""
         if isinstance(v, str):
+            # Try JSON first (handles '["url1","url2"]' format)
+            try:
+                parsed = json.loads(v)
+                if isinstance(parsed, list):
+                    return [str(o).strip() for o in parsed if str(o).strip()]
+            except (json.JSONDecodeError, ValueError):
+                pass
+            # Fall back to comma-separated (handles 'url1,url2' format)
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 

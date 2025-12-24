@@ -1,5 +1,7 @@
 """Integration tests for health check endpoints."""
 
+from unittest.mock import patch
+
 
 class TestHealthEndpoint:
     """Tests for GET /health endpoint."""
@@ -40,6 +42,21 @@ class TestHealthEndpoint:
         # Test environment should be development by default
         assert data["environment"] in ["development", "staging", "production"]
 
+    def test_health_check_returns_503_when_db_unhealthy(self, client):
+        """Test health check returns 503 when database is down."""
+        with patch("api.routers.health.check_database") as mock_check:
+            mock_check.return_value = {
+                "status": "unhealthy",
+                "message": "Database connection failed: Connection refused",
+            }
+
+            response = client.get("/health")
+
+            assert response.status_code == 503
+            data = response.json()
+            assert data["status"] == "unhealthy"
+            assert data["dependencies"]["database"]["status"] == "unhealthy"
+
 
 class TestReadinessProbe:
     """Tests for GET /health/ready endpoint."""
@@ -57,6 +74,21 @@ class TestReadinessProbe:
 
         assert "status" in data
         assert data["status"] in ["ready", "not_ready"]
+
+    def test_readiness_returns_503_when_db_unhealthy(self, client):
+        """Test readiness returns 503 when database is down."""
+        with patch("api.routers.health.check_database") as mock_check:
+            mock_check.return_value = {
+                "status": "unhealthy",
+                "message": "Database connection failed: Connection refused",
+            }
+
+            response = client.get("/health/ready")
+
+            assert response.status_code == 503
+            data = response.json()
+            assert data["status"] == "not_ready"
+            assert data["reason"] == "database_unavailable"
 
 
 class TestLivenessProbe:

@@ -44,7 +44,7 @@ def check_database(db: Session) -> dict[str, Any]:
 
 
 @router.get("/health")
-async def health_check(db: Session = Depends(get_db)) -> dict[str, Any]:
+async def health_check(response: Response, db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     Comprehensive health check endpoint.
 
@@ -71,6 +71,9 @@ async def health_check(db: Session = Depends(get_db)) -> dict[str, Any]:
             "database": db_status,
         },
     }
+
+    if not is_healthy:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
     logger.info(
         "health_check",

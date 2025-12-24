@@ -1,10 +1,17 @@
 """Tests for security utilities."""
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 import yaml
 from fastapi import HTTPException
 
-from api.security import safe_yaml_load, sanitize_catalog_name
+from api.security import (
+    safe_json_load,
+    safe_yaml_load,
+    sanitize_catalog_name,
+    validate_file_upload,
+)
 
 
 class TestSafeYAMLLoader:
@@ -84,3 +91,84 @@ class TestCatalogNameSanitization:
 
         with pytest.raises(HTTPException):
             sanitize_catalog_name("path\\to\\catalog")
+
+
+class TestSafeJSONLoad:
+    """Tests for safe JSON loading."""
+
+    def test_valid_json_loads(self):
+        """Test simple JSON loads successfully."""
+        content = '{"key": "value", "list": [1, 2, 3]}'
+        data = safe_json_load(content)
+        assert data["key"] == "value"
+        assert len(data["list"]) == 3
+
+    def test_invalid_json_raises_http_exception(self):
+        """Test invalid JSON raises HTTPException with 400 status."""
+        with pytest.raises(HTTPException) as exc_info:
+            safe_json_load("not valid json")
+        assert exc_info.value.status_code == 400
+        assert "Invalid JSON" in exc_info.value.detail
+
+    def test_empty_json_object(self):
+        """Test empty JSON object loads."""
+        data = safe_json_load("{}")
+        assert data == {}
+
+    def test_json_array_loads(self):
+        """Test JSON array loads."""
+        data = safe_json_load("[1, 2, 3]")
+        assert data == [1, 2, 3]
+
+
+class TestValidateFileUpload:
+    """Tests for file upload validation."""
+
+    @pytest.mark.asyncio
+    async def test_file_under_limit_succeeds(self, monkeypatch):
+        """Test file under size limit uploads successfully."""
+        # Set small limit for testing
+        monkeypatch.setattr("api.security.settings.max_upload_size_mb", 1)
+
+        # Create mock file with small content
+        content = b"small file content"
+        mock_file = MagicMock()
+        mock_file.filename = "test.yaml"
+
+        # Mock async read to return content then empty bytes
+        mock_file.read = AsyncMock(side_effect=[content, b""])
+
+        result = await validate_file_upload(mock_file)
+        assert result == content
+
+    @pytest.mark.asyncio
+    async def test_file_over_limit_raises_413(self, monkeypatch):
+        """Test file exceeding size limit raises 413."""
+        # Set very small limit (1 byte) for testing
+        monkeypatch.setattr("api.security.settings.max_upload_size_mb", 0)
+
+        # Create mock file that returns content exceeding limit
+        content = b"this content exceeds the 0MB limit"
+        mock_file = MagicMock()
+        mock_file.filename = "large.yaml"
+        mock_file.read = AsyncMock(side_effect=[content, b""])
+
+        with pytest.raises(HTTPException) as exc_info:
+            await validate_file_upload(mock_file)
+        assert exc_info.value.status_code == 413
+        assert "exceeds maximum" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_chunked_reading(self, monkeypatch):
+        """Test file is read in chunks."""
+        monkeypatch.setattr("api.security.settings.max_upload_size_mb", 10)
+
+        # Create mock file that returns content in multiple chunks
+        chunk1 = b"first chunk of data "
+        chunk2 = b"second chunk of data"
+        mock_file = MagicMock()
+        mock_file.filename = "chunked.yaml"
+        mock_file.read = AsyncMock(side_effect=[chunk1, chunk2, b""])
+
+        result = await validate_file_upload(mock_file)
+        assert result == chunk1 + chunk2

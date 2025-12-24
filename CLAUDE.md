@@ -673,6 +673,10 @@ items:
 - **Test Infrastructure**: Cleaned up unused utilities, excluded test code from coverage metrics (standard practice)
 
 ### Recent Changes
+- **Production Ready Bug Fixes (December 2025)**: Critical fixes for production deployment
+  - Health check `/health` endpoint now correctly returns HTTP 503 when database is unhealthy
+  - CORS origins configuration now supports both JSON array and comma-separated formats
+  - Improved test coverage for security module, logging middleware, and config validation
 - **API Integration Tests (December 2025)**: Comprehensive test coverage for REST API layer
   - 217 integration tests across 7 test files (88.5% API coverage)
   - All CRUD endpoints for schemas, rulesets, catalogs, items tested
