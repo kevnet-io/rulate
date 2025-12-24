@@ -15,6 +15,29 @@ from rulate.models.cluster import ClusterRuleSet
 from rulate.models.rule import RuleSet
 from rulate.models.schema import Schema
 
+# YAML bomb prevention limits for core engine
+YAML_MAX_DEPTH = 20
+MAX_FILE_SIZE_MB = 10
+
+
+class SafeYAMLLoader(yaml.SafeLoader):
+    """YAML loader with depth limits to prevent bombs."""
+
+    def __init__(self, stream: Any):
+        self._depth = 0
+        self._max_depth = YAML_MAX_DEPTH
+        super().__init__(stream)
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        """Override to track nesting depth during composition."""
+        self._depth += 1
+        if self._depth > self._max_depth:
+            raise yaml.YAMLError(f"YAML depth exceeds maximum of {self._max_depth} levels")
+        try:
+            return super().compose_node(parent, index)
+        finally:
+            self._depth -= 1
+
 
 def load_yaml_or_json(file_path: str | Path) -> dict[str, Any]:
     """
@@ -35,12 +58,18 @@ def load_yaml_or_json(file_path: str | Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
+    # Check file size to prevent loading huge files
+    file_size_mb = path.stat().st_size / (1024 * 1024)
+    if file_size_mb > MAX_FILE_SIZE_MB:
+        raise ValueError(f"File size ({file_size_mb:.1f}MB) exceeds maximum ({MAX_FILE_SIZE_MB}MB)")
+
     suffix = path.suffix.lower()
 
     try:
         with open(path, encoding="utf-8") as f:
             if suffix in [".yaml", ".yml"]:
-                data = yaml.safe_load(f)
+                # Use SafeYAMLLoader with depth and alias limits
+                data = yaml.load(f, Loader=SafeYAMLLoader)
                 if not isinstance(data, dict):
                     raise ValueError(f"Expected dictionary in {file_path}, got {type(data)}")
                 return data

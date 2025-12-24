@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  rulate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rulate
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=sqlite:////app/data/rulate.db
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+    volumes:
+      # Persist database
+      - rulate-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  rulate-data:
+    driver: local

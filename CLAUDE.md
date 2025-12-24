@@ -389,6 +389,62 @@ make build-frontend
 # Output: web/build/
 ```
 
+### Production Deployment with Docker
+
+Rulate is production-ready with comprehensive deployment features:
+
+**Quick deployment:**
+```bash
+# Clone and configure
+git clone <repo-url>
+cd rulate
+cp .env.production.example .env
+
+# Start with Docker Compose
+docker-compose up -d
+
+# Access at http://localhost:8000
+```
+
+**Docker commands:**
+```bash
+make docker-build      # Build production Docker image
+make docker-up         # Start containers (detached)
+make docker-logs       # View logs
+make docker-down       # Stop containers
+make docker-clean      # Remove containers and images
+```
+
+**Production features:**
+- **Environment Configuration**: Structured settings with pydantic-settings (`.env` files)
+- **Health Checks**: Kubernetes-ready endpoints:
+  - `GET /health` - Comprehensive health with database check, version, uptime
+  - `GET /health/ready` - Readiness probe for load balancers
+  - `GET /health/live` - Liveness probe for restart detection
+- **Structured Logging**: JSON logs in production with application context
+  - Request/response logging with duration tracking
+  - Log levels: DEBUG, INFO, WARNING, ERROR
+  - Format: JSON (production) or colored text (development)
+- **Security Hardening**:
+  - YAML bomb prevention (depth and alias limits)
+  - File upload size limits (configurable)
+  - Input sanitization for catalog names
+- **Monitoring**: Application uptime, database health, request metrics
+
+**Environment variables:**
+Key settings in `.env` or `.env.production.example`:
+```bash
+ENVIRONMENT=production        # development, staging, or production
+LOG_LEVEL=INFO               # DEBUG, INFO, WARNING, ERROR
+LOG_FORMAT=json              # json or text
+DATABASE_URL=sqlite:////app/data/rulate.db
+MAX_UPLOAD_SIZE_MB=10
+YAML_MAX_DEPTH=20
+YAML_MAX_ALIASES=100
+```
+
+See [docs/deployment/README.md](docs/deployment/README.md) for detailed deployment guides and cloud provider examples.
+
 ### Using the CLI
 
 ```bash

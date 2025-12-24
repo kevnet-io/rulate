@@ -82,6 +82,45 @@ make install
 # uv sync --dev
 ```
 
+## Production Deployment
+
+Rulate is production-ready with comprehensive deployment support:
+
+### Quick Deploy with Docker
+
+```bash
+# Clone and configure
+git clone <repo-url>
+cd rulate
+cp .env.production.example .env
+
+# Start with Docker Compose
+docker-compose up -d
+
+# Access at http://localhost:8000
+```
+
+### Production Features
+
+- **Environment Configuration**: Structured settings with pydantic-settings
+- **Health Checks**: Kubernetes-ready endpoints (`/health`, `/health/ready`, `/health/live`)
+- **Structured Logging**: JSON logging for log aggregation (ELK, CloudWatch, etc.)
+- **Security Hardening**: YAML bomb prevention, file size limits, input sanitization
+- **Docker Support**: Single-command deployment with docker-compose
+- **Monitoring**: Application uptime, database health, request duration tracking
+
+### Docker Commands
+
+```bash
+make docker-build      # Build Docker image
+make docker-up         # Start production server (detached)
+make docker-logs       # View logs
+make docker-down       # Stop containers
+make docker-clean      # Remove containers and images
+```
+
+See [docs/deployment/README.md](docs/deployment/README.md) for detailed deployment guides.
+
 ## Quick Start
 
 ### Using the Python Library

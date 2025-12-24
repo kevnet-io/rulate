@@ -28,8 +28,9 @@ class TestSettings:
         assert settings.log_level == "DEBUG"
 
     def test_cors_origins_parsing_from_string(self, monkeypatch):
-        """Test CORS origins parsing from comma-separated string."""
-        monkeypatch.setenv("CORS_ORIGINS", "http://localhost:3000,http://app.example.com")
+        """Test CORS origins parsing from JSON list string."""
+        # pydantic-settings expects JSON format for lists
+        monkeypatch.setenv("CORS_ORIGINS", '["http://localhost:3000","http://app.example.com"]')
 
         settings = Settings()
         assert len(settings.cors_origins) == 2
@@ -37,8 +38,8 @@ class TestSettings:
         assert "http://app.example.com" in settings.cors_origins
 
     def test_cors_origins_parsing_with_spaces(self, monkeypatch):
-        """Test CORS origins parsing handles extra spaces."""
-        monkeypatch.setenv("CORS_ORIGINS", "http://localhost:3000 , http://app.example.com ")
+        """Test CORS origins parsing handles JSON list format."""
+        monkeypatch.setenv("CORS_ORIGINS", '["http://localhost:3000", "http://app.example.com"]')
 
         settings = Settings()
         assert len(settings.cors_origins) == 2

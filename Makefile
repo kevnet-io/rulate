@@ -55,6 +55,13 @@ help:
 	@echo "  make build-frontend    Build frontend for production"
 	@echo "  make serve-production  Build and serve unified production server (port 8000)"
 	@echo ""
+	@echo "Docker Commands:"
+	@echo "  make docker-build      Build Docker image"
+	@echo "  make docker-up         Start production server in Docker (detached)"
+	@echo "  make docker-down       Stop Docker containers"
+	@echo "  make docker-logs       View Docker container logs"
+	@echo "  make docker-clean      Remove Docker containers and images"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean             Remove build artifacts and caches"
 	@echo "  make clean-backend     Remove Python caches and build files"
@@ -326,3 +333,41 @@ clean-db:
 	rm -f rulate.db
 	rm -f e2e_test.db
 	@echo "✓ Database files removed"
+
+#
+# Docker targets
+#
+
+.PHONY: docker-build
+docker-build:
+	@echo "Building Docker image..."
+	docker build -t rulate:latest .
+	@echo "✓ Docker image built: rulate:latest"
+
+.PHONY: docker-up
+docker-up:
+	@echo "Starting Rulate in Docker..."
+	docker-compose up -d
+	@echo "✓ Rulate running at http://localhost:8000"
+	@echo "  Health: http://localhost:8000/health"
+	@echo "  API docs: http://localhost:8000/docs"
+	@echo "  View logs: make docker-logs"
+	@echo "  Stop: make docker-down"
+
+.PHONY: docker-down
+docker-down:
+	@echo "Stopping Rulate Docker containers..."
+	docker-compose down
+	@echo "✓ Containers stopped"
+
+.PHONY: docker-logs
+docker-logs:
+	@echo "Following Docker logs (Ctrl+C to stop)..."
+	docker-compose logs -f
+
+.PHONY: docker-clean
+docker-clean:
+	@echo "Cleaning Docker resources..."
+	docker-compose down -v
+	docker rmi rulate:latest 2>/dev/null || true
+	@echo "✓ Docker resources cleaned"
