@@ -262,7 +262,7 @@ The Production Ready epic (Epic 01) delivered excellent infrastructure foundatio
 
 ## Dependencies
 
-- **Requires**: Epic 01 (Production Ready) - Complete ✅
+- **Requires**: Production Ready epic (Complete ✅ - see CHANGELOG.md)
 - **Blocks**: None (enhances existing infrastructure)
 - **Related**: Epic 02 (Scale & Performance) - PostgreSQL enables scaling
 
@@ -294,7 +294,7 @@ The Production Ready epic (Epic 01) delivered excellent infrastructure foundatio
 
 ## References
 
-- Production Ready epic: `docs/roadmap/01-production-ready.md`
+- Production Ready epic (complete): See `docs/roadmap/CHANGELOG.md`
 - Code review findings: See conversation 2025-12-24
 - FastAPI best practices: https://fastapi.tiangolo.com/deployment/
 - Twelve-Factor App: https://12factor.net/

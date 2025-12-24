@@ -106,7 +106,7 @@ As catalogs grow beyond hundreds of items and concurrent users increase, the API
 
 ## Dependencies
 
-- [01-production-ready.md](./01-production-ready.md) - Environment configuration needed for database selection
+- Production Ready epic (complete) - Environment configuration available
 
 ## Open Questions
 

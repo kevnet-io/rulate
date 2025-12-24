@@ -62,7 +62,7 @@ While the Web UI is responsive and works on mobile browsers, some users may want
 
 ## Dependencies
 
-- [01-production-ready.md](./01-production-ready.md) - API stability needed before offline caching
+- Production Ready epic (complete) - API stability available
 
 ## Open Questions
 
@@ -73,7 +73,7 @@ While the Web UI is responsive and works on mobile browsers, some users may want
 ## Technical Notes
 
 **PWA checklist**:
-- HTTPS required (see [01-production-ready.md](./01-production-ready.md))
+- HTTPS required (production deployment with reverse proxy)
 - Valid manifest.json
 - Service worker registered
 - Lighthouse PWA audit passing

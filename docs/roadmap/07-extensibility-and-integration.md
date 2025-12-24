@@ -112,7 +112,7 @@ class SemanticSimilarityPlugin(OperatorPlugin):
 
 ## Dependencies
 
-- [01-production-ready.md](./01-production-ready.md) - Security for webhook authentication
+- Production Ready epic (complete) - Security infrastructure available
 - [06-team-collaboration.md](./06-team-collaboration.md) - Auth needed for connector OAuth
 
 ## Open Questions

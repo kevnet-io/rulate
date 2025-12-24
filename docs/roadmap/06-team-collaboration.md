@@ -109,7 +109,7 @@ Rulate currently operates as a single-user system. For organizations, multiple t
 
 ## Dependencies
 
-- [01-production-ready.md](./01-production-ready.md) - Security infrastructure needed for auth
+- Production Ready epic (complete) - Security infrastructure available
 
 ## Open Questions
 

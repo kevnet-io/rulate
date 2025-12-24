@@ -49,8 +49,6 @@ All notable completed work for Rulate.
 **Testing**: All 803 backend tests passing (513 unit + 290 integration)
 **New Tests**: 23 tests added (7 security + 9 config + 7 health)
 
-See Epic 01 in `docs/roadmap/01-production-ready.md` for full details.
-
 ### Gender-Agnostic Wardrobe v2 with Coverage-Layer Modeling
 
 **Impact**: Production-ready example domain with realistic complexity
