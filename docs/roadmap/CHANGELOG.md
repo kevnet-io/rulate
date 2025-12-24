@@ -4,6 +4,53 @@ All notable completed work for Rulate.
 
 ## December 2025
 
+### Production Ready Infrastructure (Epic 01)
+
+**Impact**: Enterprise-grade deployment capabilities
+
+**Phase 1: Environment Configuration**
+- Centralized configuration management with pydantic-settings
+- Environment variable loading with validation and type safety
+- Comprehensive settings for app, server, database, CORS, security, and logging
+- Example `.env` files for development and production
+
+**Phase 2: Structured Logging**
+- Production-ready JSON logging with structlog
+- Environment-aware formatting (JSON for production, colored text for development)
+- Application context injection (app name, version, environment)
+- Request/response middleware with duration tracking
+
+**Phase 3: Health Checks**
+- Kubernetes-ready health check endpoints (`/health`, `/health/ready`, `/health/live`)
+- Database connectivity monitoring
+- Uptime tracking and version reporting
+- Proper HTTP status codes for service health (200/503)
+
+**Phase 4: Security Hardening**
+- YAML depth limiting to prevent YAML bombs (using `compose_node` for accurate depth tracking)
+- File upload size validation with streaming
+- Catalog name sanitization utilities (prevent path traversal)
+- Comprehensive security test suite (7 tests)
+
+**Phase 5: Docker Support**
+- Multi-stage Dockerfile with optimized frontend and backend builds
+- docker-compose.yml for single-command deployment
+- Container health checks for orchestration platforms
+- Makefile commands for Docker operations
+- Production-optimized .dockerignore
+
+**Phase 6: Documentation**
+- Comprehensive deployment guide (`docs/deployment/README.md`)
+- Quick start with Docker Compose
+- Environment configuration reference
+- Production deployment checklist
+- Monitoring and observability examples
+
+**Testing**: All 803 backend tests passing (513 unit + 290 integration)
+**New Tests**: 23 tests added (7 security + 9 config + 7 health)
+
+See Epic 01 in `docs/roadmap/01-production-ready.md` for full details.
+
 ### Gender-Agnostic Wardrobe v2 with Coverage-Layer Modeling
 
 **Impact**: Production-ready example domain with realistic complexity

@@ -10,7 +10,8 @@ This roadmap organizes future work into outcome-focused epics. Each epic represe
 
 | Epic | Status | Outcome |
 |------|--------|---------|
-| [Production Ready](./01-production-ready.md) | Planning | Deploy with confidence |
+| [Production Ready](./01-production-ready.md) | Complete | Deploy with confidence |
+| [Production Hardening](./10-production-hardening.md) | Planning | Secure and scalable infrastructure |
 | [Scale & Performance](./02-scale-and-performance.md) | Planning | Handle growing catalogs |
 | [Smart Evaluation Engine](./03-smart-evaluation-engine.md) | Planning | Nuanced compatibility decisions |
 | [Intelligence & Insights](./04-intelligence-and-insights.md) | Planning | Data-driven optimization |
