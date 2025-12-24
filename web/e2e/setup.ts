@@ -123,10 +123,13 @@ export default async function globalSetup() {
     const scriptPath = resolve(projectRoot, "scripts", "seed_database.py");
 
     // Use uv to run the script with the proper Python environment
-    execSync(`uv run python3 "${scriptPath}" --api-url "${apiUrl}"`, {
-      stdio: "inherit",
-      cwd: projectRoot,
-    });
+    execSync(
+      `uv run python3 "${scriptPath}" --api-url "${apiUrl}" --version v2 --skip-existing`,
+      {
+        stdio: "inherit",
+        cwd: projectRoot,
+      },
+    );
     console.log("\n✓ Database seeded successfully\n");
   } catch {
     console.error("\n❌ Failed to seed database\n");

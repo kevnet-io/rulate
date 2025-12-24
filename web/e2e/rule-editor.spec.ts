@@ -134,7 +134,7 @@ test.describe("RuleEditor Integration", () => {
     const options = await schemaSelect.locator("option").allTextContents();
 
     const wardrobeOption = options.find((opt) =>
-      opt.toLowerCase().includes("wardrobe"),
+      opt.toLowerCase().includes("wardrobe_v2"),
     );
 
     if (wardrobeOption) {
@@ -181,7 +181,7 @@ test.describe("RuleEditor Integration", () => {
     // Try to find any visible text in the next section (should contain dimension names)
     const visibleText = await sectionParent.textContent();
     expect(visibleText).toBeTruthy();
-    expect(visibleText).toContain("body_zone"); // One of the wardrobe schema dimensions
+    expect(visibleText).toContain("coverage_layers"); // V2 wardrobe schema dimension
   });
 
   test("should format JSON when clicking Format button", async ({ page }) => {

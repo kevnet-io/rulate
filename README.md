@@ -141,6 +141,11 @@ rulate evaluate matrix \
   --catalog examples/wardrobe/catalog.yaml \
   --rules examples/wardrobe/rules.yaml \
   --format csv --output compatibility.csv
+
+# Seed database with example data (API must be running)
+uv run python3 scripts/seed_database.py  # Uses v2 by default (53 items)
+uv run python3 scripts/seed_database.py --version v1  # Use v1 (19 items)
+uv run python3 scripts/seed_database.py --skip-existing  # Idempotent import
 ```
 
 ### Using the REST API
