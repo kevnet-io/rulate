@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Tooltip text={getThemeLabel(themeStore.theme)}>
+<Tooltip text={getThemeLabel(themeStore.theme)} position="bottom">
 	<button
 		onclick={handleToggle}
 		class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-accent hover:text-accent-foreground h-9 w-9"
