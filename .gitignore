@@ -73,6 +73,7 @@ build/
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Claude local
 .claude/settings.local.json

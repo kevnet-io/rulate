@@ -2,15 +2,14 @@
 Database connection and session management.
 """
 
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from api.config import settings
 from api.database.models import Base
 
-# Database URL (SQLite for now, can be configured via DATABASE_URL environment variable)
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./rulate.db")
+# Database URL from settings
+DATABASE_URL = settings.database_url
 
 # Create engine
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

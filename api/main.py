@@ -5,17 +5,26 @@ This provides a REST API for managing schemas, rulesets, catalogs, and items,
 as well as evaluating compatibility between items.
 """
 
-import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from api.config import settings
 from api.database.connection import init_db
-from api.routers import catalogs, clusters, evaluation, import_export, rulesets, schemas
+from api.logging_config import configure_logging, get_logger
+from api.middleware.logging import LoggingMiddleware
+from api.routers import (
+    catalogs,
+    clusters,
+    evaluation,
+    health,
+    import_export,
+    rulesets,
+    schemas,
+)
 
 
 # Initialize database on startup
@@ -23,9 +32,17 @@ from api.routers import catalogs, clusters, evaluation, import_export, rulesets,
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
+    configure_logging()
+    logger = get_logger(__name__)
+    logger.info("application_startup", environment=settings.environment)
+
     init_db()
+    logger.info("database_initialized")
+
     yield
-    # Shutdown (if needed)
+
+    # Shutdown
+    logger.info("application_shutdown")
 
 
 # Create FastAPI app
@@ -37,20 +54,22 @@ app = FastAPI(
 )
 
 # Configure CORS - only in development mode
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-
-if ENVIRONMENT == "development":
+if settings.is_development and settings.cors_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_origins=settings.cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 # Production: no CORS needed (same-origin)
 
+# Add request/response logging middleware
+if not settings.is_development:  # Only in staging/production
+    app.add_middleware(LoggingMiddleware)
+
 # Mount static files for frontend (if built)
-FRONTEND_BUILD_DIR = Path(__file__).parent.parent / "web" / "build"
+FRONTEND_BUILD_DIR = settings.frontend_build_dir
 
 if FRONTEND_BUILD_DIR.exists():
     # Mount _app directory for SvelteKit assets (JS, CSS, etc.)
@@ -61,18 +80,16 @@ if FRONTEND_BUILD_DIR.exists():
     )
 
 # Include routers
+# Health check router (no prefix - top-level routes)
+app.include_router(health.router, tags=["health"])
+
+# API routers
 app.include_router(schemas.router, prefix="/api/v1", tags=["schemas"])
 app.include_router(rulesets.router, prefix="/api/v1", tags=["rulesets"])
 app.include_router(catalogs.router, prefix="/api/v1", tags=["catalogs"])
 app.include_router(evaluation.router, prefix="/api/v1", tags=["evaluation"])
 app.include_router(clusters.router, prefix="/api/v1", tags=["clusters"])
 app.include_router(import_export.router, prefix="/api/v1", tags=["import-export"])
-
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
 
 
 @app.get("/")
