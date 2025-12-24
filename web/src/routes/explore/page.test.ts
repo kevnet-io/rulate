@@ -8,6 +8,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as api from "$lib/api/client";
 import type { ComparisonResult } from "$lib/api/client";
 import {
+  compatibleItemButtonClass,
+  incompatibleItemButtonClass,
+} from "./styles";
+import {
   createMockCatalog,
   createMockRuleSet,
   createMockItem,
@@ -583,6 +587,30 @@ describe("Explore Page (+page)", () => {
       }
 
       expect(api.api.getItems).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Explore Hover Styles", () => {
+    it("uses theme-aware hover styles for compatible items", () => {
+      expect(compatibleItemButtonClass).toContain("hover:bg-emerald-50");
+      expect(compatibleItemButtonClass).toContain("hover:border-emerald-300");
+      expect(compatibleItemButtonClass).toContain(
+        "dark:hover:bg-emerald-950/30",
+      );
+      expect(compatibleItemButtonClass).toContain(
+        "dark:hover:border-emerald-800",
+      );
+    });
+
+    it("uses theme-aware hover styles for incompatible items", () => {
+      expect(incompatibleItemButtonClass).toContain("hover:bg-rose-50");
+      expect(incompatibleItemButtonClass).toContain("hover:border-rose-300");
+      expect(incompatibleItemButtonClass).toContain(
+        "dark:hover:bg-rose-950/30",
+      );
+      expect(incompatibleItemButtonClass).toContain(
+        "dark:hover:border-rose-800",
+      );
     });
   });
 });

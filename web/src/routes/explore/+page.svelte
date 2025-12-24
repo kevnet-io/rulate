@@ -7,12 +7,13 @@
 	import { api } from '$lib/api/client';
 	import type { Catalog, RuleSet, Item, ComparisonResult } from '$lib/api/client';
 	import Card from '$lib/components/ui/card/card.svelte';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
-	import CardTitle from '$lib/components/ui/card/card-title.svelte';
-	import CardDescription from '$lib/components/ui/card/card-description.svelte';
-	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
+		import CardHeader from '$lib/components/ui/card/card-header.svelte';
+		import CardTitle from '$lib/components/ui/card/card-title.svelte';
+		import CardDescription from '$lib/components/ui/card/card-description.svelte';
+		import CardContent from '$lib/components/ui/card/card-content.svelte';
+		import Button from '$lib/components/ui/button/button.svelte';
+		import Badge from '$lib/components/ui/badge/badge.svelte';
+		import { compatibleItemButtonClass, incompatibleItemButtonClass } from './styles';
 
 	let catalogs = $state<Catalog[]>([]);
 	let rulesets = $state<RuleSet[]>([]);
@@ -218,27 +219,27 @@
 						<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 							{#each compatibleResults as result}
 								{@const otherId = getOtherItemId(result)}
-								{@const otherItem = items.find((i) => i.item_id === otherId)}
-								{#if otherItem}
-									<button
-										onclick={() => selectItem(otherId)}
-										class="border rounded-lg p-4 text-left hover:bg-emerald-50 hover:border-emerald-300 transition-all cursor-pointer"
-									>
-										<div class="flex items-start justify-between mb-2">
-											<div>
-												<h4 class="font-semibold text-sm">{otherItem.name}</h4>
-												<p class="text-xs text-muted-foreground">{otherId}</p>
+									{@const otherItem = items.find((i) => i.item_id === otherId)}
+									{#if otherItem}
+										<button
+											onclick={() => selectItem(otherId)}
+											class={compatibleItemButtonClass}
+										>
+											<div class="flex items-start justify-between mb-2">
+												<div>
+													<h4 class="font-semibold text-sm">{otherItem.name}</h4>
+													<p class="text-xs text-muted-foreground">{otherId}</p>
+												</div>
+												<Badge variant="default" class="text-xs">✓</Badge>
 											</div>
-											<Badge variant="default" class="text-xs">✓</Badge>
-										</div>
-										<div class="text-xs text-muted-foreground">
-											{result.rules_evaluated.filter((r) => r.passed).length}/{result
-												.rules_evaluated.length} rules passed
-										</div>
-									</button>
-								{/if}
-							{/each}
-						</div>
+											<div class="text-xs text-muted-foreground">
+												{result.rules_evaluated.filter((r) => r.passed).length}/{result
+													.rules_evaluated.length} rules passed
+											</div>
+										</button>
+									{/if}
+								{/each}
+							</div>
 					</CardContent>
 				</Card>
 			{/if}
@@ -255,34 +256,34 @@
 						<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
 							{#each incompatibleResults as result}
 								{@const otherId = getOtherItemId(result)}
-								{@const otherItem = items.find((i) => i.item_id === otherId)}
-								{#if otherItem}
-									{@const failedRules = result.rules_evaluated.filter((r) => !r.passed)}
-									<button
-										onclick={() => selectItem(otherId)}
-										class="border rounded-lg p-3 text-left hover:bg-rose-50 hover:border-rose-300 transition-all cursor-pointer"
-									>
-										<div class="flex items-start justify-between mb-1">
-											<div class="flex-1 min-w-0">
-												<h4 class="font-medium text-xs truncate">{otherItem.name}</h4>
-												<p class="text-xs text-muted-foreground truncate">{otherId}</p>
-											</div>
-											<Badge variant="destructive" class="text-xs ml-2">✗</Badge>
-										</div>
-										<div class="mt-2 space-y-1">
-											<div class="text-xs text-muted-foreground">
-												{failedRules.length} failed {failedRules.length === 1 ? 'rule' : 'rules'}:
-											</div>
-											{#each failedRules as failedRule}
-												<div class="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">
-													{failedRule.rule_name}
+									{@const otherItem = items.find((i) => i.item_id === otherId)}
+									{#if otherItem}
+										{@const failedRules = result.rules_evaluated.filter((r) => !r.passed)}
+										<button
+											onclick={() => selectItem(otherId)}
+											class={incompatibleItemButtonClass}
+										>
+											<div class="flex items-start justify-between mb-1">
+												<div class="flex-1 min-w-0">
+													<h4 class="font-medium text-xs truncate">{otherItem.name}</h4>
+													<p class="text-xs text-muted-foreground truncate">{otherId}</p>
 												</div>
-											{/each}
-										</div>
-									</button>
-								{/if}
-							{/each}
-						</div>
+												<Badge variant="destructive" class="text-xs ml-2">✗</Badge>
+											</div>
+											<div class="mt-2 space-y-1">
+												<div class="text-xs text-muted-foreground">
+													{failedRules.length} failed {failedRules.length === 1 ? 'rule' : 'rules'}:
+												</div>
+												{#each failedRules as failedRule}
+													<div class="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">
+														{failedRule.rule_name}
+													</div>
+												{/each}
+											</div>
+										</button>
+									{/if}
+								{/each}
+							</div>
 					</CardContent>
 				</Card>
 			{/if}
