@@ -4,6 +4,24 @@ All notable completed work for Rulate.
 
 ## December 2025
 
+### Gender-Agnostic Wardrobe v2 with Coverage-Layer Modeling
+
+**Impact**: Production-ready example domain with realistic complexity
+
+- **New dimension type**: `part_layer_list` for granular coverage-layer modeling
+- **PartLayerConflictOperator**: Phasing detection prevents impossible layering configurations
+- **53 diverse items**: Gender-agnostic catalog (masculine, feminine, unisex clothing)
+- **22 body parts vocabulary**: Precise coverage modeling (upper_arm, lower_leg, chest, etc.)
+- **Clear separation**: Physical compatibility (pairwise) vs aesthetic compatibility (cluster)
+- **Modernized storage**: JSON export format replaces 8 YAML files
+- **Simplified seeding**: 124-line script with single API call (was 228 lines, 26+ calls)
+- **Comprehensive tests**: 312 new tests (161 operator, 151 dimension, 32 integration)
+- **Pattern documentation**: Reusable coverage-layer conflict pattern guide
+
+Total: 1,833 tests passing (780 backend + 876 frontend + 177 E2E)
+
+See [coverage-layer-conflicts.md](../patterns/coverage-layer-conflicts.md) for the reusable pattern.
+
 ### Comprehensive Test Suite
 
 **Impact**: High confidence in system reliability
