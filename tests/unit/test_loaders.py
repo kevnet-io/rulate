@@ -205,6 +205,28 @@ class TestLoadYamlOrJson:
         with pytest.raises(ValueError, match="Expected dictionary"):
             load_yaml_or_json(yaml_file)
 
+    def test_excessive_aliases_rejected(self, temp_dir):
+        """Test YAML with too many aliases is rejected."""
+        # Create YAML with 150 anchors (exceeds limit of 100)
+        yaml_file = temp_dir / "many_aliases.yaml"
+        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(150)]
+        yaml_file.write_text("\n".join(lines))
+
+        with pytest.raises((yaml.YAMLError, ValueError)):
+            load_yaml_or_json(yaml_file)
+
+    def test_aliases_within_limit_allowed(self, temp_dir):
+        """Test reasonable number of aliases works."""
+        # Create YAML with 50 anchors (within limit)
+        yaml_file = temp_dir / "some_aliases.yaml"
+        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(50)]
+        yaml_file.write_text("\n".join(lines))
+
+        data = load_yaml_or_json(yaml_file)
+        assert len(data) == 50
+        assert data["anchor_0"] == "value_0"
+        assert data["anchor_49"] == "value_49"
+
 
 # ============================================================================
 # load_schema() Tests

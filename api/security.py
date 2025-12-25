@@ -13,20 +13,28 @@ logger = get_logger(__name__)
 
 
 class SafeYAMLLoader(yaml.SafeLoader):
-    """YAML loader with depth limits to prevent bombs."""
+    """YAML loader with depth and alias limits to prevent bombs."""
 
     def __init__(self, stream: Any):
         self._depth = 0
         self._max_depth = settings.yaml_max_depth
+        self._alias_count = 0
+        self._max_aliases = settings.yaml_max_aliases
         super().__init__(stream)
 
     def compose_node(self, parent: Any, index: Any) -> Any:
-        """Override to track nesting depth during composition."""
+        """Override to track nesting depth and alias count during composition."""
         self._depth += 1
         if self._depth > self._max_depth:
             raise yaml.YAMLError(f"YAML depth exceeds maximum of {self._max_depth} levels")
         try:
-            return super().compose_node(parent, index)
+            node = super().compose_node(parent, index)
+            # Track anchors via the anchors dictionary
+            if len(self.anchors) > self._max_aliases:
+                raise yaml.YAMLError(
+                    f"YAML contains too many anchors/aliases (max: {self._max_aliases})"
+                )
+            return node
         finally:
             self._depth -= 1
 

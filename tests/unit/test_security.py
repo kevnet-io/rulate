@@ -51,6 +51,26 @@ item3: *base
         assert data["item1"]["key"] == "value"
         assert data["item2"]["key"] == "value"
 
+    def test_excessive_aliases_rejected(self):
+        """Test YAML with too many aliases is rejected."""
+        # Create YAML with 150 anchors (exceeds limit of 100)
+        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(150)]
+        content = "\n".join(lines)
+
+        with pytest.raises((yaml.YAMLError, HTTPException)):
+            safe_yaml_load(content)
+
+    def test_aliases_within_limit_allowed(self):
+        """Test reasonable number of aliases works."""
+        # Create YAML with 50 anchors (within limit)
+        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(50)]
+        content = "\n".join(lines)
+
+        data = safe_yaml_load(content)
+        assert len(data) == 50
+        assert data["anchor_0"] == "value_0"
+        assert data["anchor_49"] == "value_49"
+
 
 class TestCatalogNameSanitization:
     """Tests for catalog name sanitization."""
