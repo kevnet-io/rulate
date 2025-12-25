@@ -675,9 +675,10 @@ items:
 ### Recent Changes
 - **YAML Alias Bomb Protection (December 2025)**: Critical security fix for YAML parsing
   - Fixed ineffective alias/anchor limit enforcement in SafeYAMLLoader
-  - `settings.yaml_max_aliases` (default: 100) is now actively enforced in both API and core layers
-  - Prevents malicious YAML payloads from causing memory exhaustion via excessive aliases
-  - Added comprehensive tests for alias limiting in both security module and core loaders
+  - **CRITICAL FIX**: Now tracks alias USES (`*anchor`) instead of anchor definitions (`&anchor`)
+  - Prevents "billion laughs" YAML bomb attacks with few anchors but many references
+  - `settings.yaml_max_aliases` (default: 100) enforced in both API and core layers
+  - Added comprehensive tests for alias usage limiting
 - **Production Ready Bug Fixes (December 2025)**: Critical fixes for production deployment
   - Health check `/health` endpoint now correctly returns HTTP 503 when database is unhealthy
   - CORS origins configuration now supports both JSON array and comma-separated formats

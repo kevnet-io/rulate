@@ -24,17 +24,21 @@ class SafeYAMLLoader(yaml.SafeLoader):
 
     def compose_node(self, parent: Any, index: Any) -> Any:
         """Override to track nesting depth and alias count during composition."""
+        # Check for alias usage BEFORE calling super()
+        # This must be done before super() because compose_node() internally consumes the AliasEvent
+        if self.check_event(yaml.events.AliasEvent):
+            self._alias_count += 1
+            if self._alias_count > self._max_aliases:
+                raise yaml.YAMLError(
+                    f"YAML contains too many alias references (max: {self._max_aliases})"
+                )
+
+        # Track nesting depth
         self._depth += 1
         if self._depth > self._max_depth:
             raise yaml.YAMLError(f"YAML depth exceeds maximum of {self._max_depth} levels")
         try:
-            node = super().compose_node(parent, index)
-            # Track anchors via the anchors dictionary
-            if len(self.anchors) > self._max_aliases:
-                raise yaml.YAMLError(
-                    f"YAML contains too many anchors/aliases (max: {self._max_aliases})"
-                )
-            return node
+            return super().compose_node(parent, index)
         finally:
             self._depth -= 1
 

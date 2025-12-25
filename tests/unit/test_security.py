@@ -51,25 +51,28 @@ item3: *base
         assert data["item1"]["key"] == "value"
         assert data["item2"]["key"] == "value"
 
-    def test_excessive_aliases_rejected(self):
-        """Test YAML with too many aliases is rejected."""
-        # Create YAML with 150 anchors (exceeds limit of 100)
-        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(150)]
-        content = "\n".join(lines)
+    def test_excessive_alias_uses_rejected(self):
+        """Test YAML with too many alias USES is rejected."""
+        # Create YAML with 1 anchor but 150 uses (exceeds limit of 100)
+        content = "base: &base value\n"
+        for i in range(150):
+            content += f"item_{i}: *base\n"
 
         with pytest.raises((yaml.YAMLError, HTTPException)):
             safe_yaml_load(content)
 
-    def test_aliases_within_limit_allowed(self):
-        """Test reasonable number of aliases works."""
-        # Create YAML with 50 anchors (within limit)
-        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(50)]
-        content = "\n".join(lines)
+    def test_alias_uses_within_limit_allowed(self):
+        """Test reasonable number of alias uses works."""
+        # Create YAML with 1 anchor and 50 uses (within limit)
+        content = "base: &base value\n"
+        for i in range(50):
+            content += f"item_{i}: *base\n"
 
         data = safe_yaml_load(content)
-        assert len(data) == 50
-        assert data["anchor_0"] == "value_0"
-        assert data["anchor_49"] == "value_49"
+        assert len(data) == 51  # 1 base + 50 items
+        assert data["base"] == "value"
+        assert data["item_0"] == "value"
+        assert data["item_49"] == "value"
 
 
 class TestCatalogNameSanitization:

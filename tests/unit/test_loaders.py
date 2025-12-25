@@ -205,27 +205,32 @@ class TestLoadYamlOrJson:
         with pytest.raises(ValueError, match="Expected dictionary"):
             load_yaml_or_json(yaml_file)
 
-    def test_excessive_aliases_rejected(self, temp_dir):
-        """Test YAML with too many aliases is rejected."""
-        # Create YAML with 150 anchors (exceeds limit of 100)
-        yaml_file = temp_dir / "many_aliases.yaml"
-        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(150)]
-        yaml_file.write_text("\n".join(lines))
+    def test_excessive_alias_uses_rejected(self, temp_dir):
+        """Test YAML with too many alias USES is rejected."""
+        # Create YAML with 1 anchor but 150 uses (exceeds limit of 100)
+        yaml_file = temp_dir / "many_alias_uses.yaml"
+        content = "base: &base value\n"
+        for i in range(150):
+            content += f"item_{i}: *base\n"
+        yaml_file.write_text(content)
 
         with pytest.raises((yaml.YAMLError, ValueError)):
             load_yaml_or_json(yaml_file)
 
-    def test_aliases_within_limit_allowed(self, temp_dir):
-        """Test reasonable number of aliases works."""
-        # Create YAML with 50 anchors (within limit)
-        yaml_file = temp_dir / "some_aliases.yaml"
-        lines = [f"anchor_{i}: &a{i} value_{i}" for i in range(50)]
-        yaml_file.write_text("\n".join(lines))
+    def test_alias_uses_within_limit_allowed(self, temp_dir):
+        """Test reasonable number of alias uses works."""
+        # Create YAML with 1 anchor and 50 uses (within limit)
+        yaml_file = temp_dir / "some_alias_uses.yaml"
+        content = "base: &base value\n"
+        for i in range(50):
+            content += f"item_{i}: *base\n"
+        yaml_file.write_text(content)
 
         data = load_yaml_or_json(yaml_file)
-        assert len(data) == 50
-        assert data["anchor_0"] == "value_0"
-        assert data["anchor_49"] == "value_49"
+        assert len(data) == 51  # 1 base + 50 items
+        assert data["base"] == "value"
+        assert data["item_0"] == "value"
+        assert data["item_49"] == "value"
 
 
 # ============================================================================
