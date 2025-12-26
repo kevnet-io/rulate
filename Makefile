@@ -341,8 +341,8 @@ clean-db:
 .PHONY: docker-build
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t rulate:latest .
-	@echo "✓ Docker image built: rulate:latest"
+	docker compose build
+	@echo "✓ Docker image built"
 
 .PHONY: docker-up
 docker-up:

@@ -43,8 +43,8 @@ Thumbs.db
 *.log
 
 # Node.js
-node_modules/
-.svelte-kit/
+**/node_modules/
+**/.svelte-kit/
 web/build/
 
 # Git
@@ -61,7 +61,8 @@ docker-compose*.yml
 
 # Documentation
 docs/
-README.md
+# README can't be ignored because `uv` requires it
+# README.md
 CLAUDE.md
 
 # Claude

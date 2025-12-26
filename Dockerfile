@@ -4,14 +4,11 @@ FROM node:22-slim AS frontend-builder
 
 WORKDIR /app/web
 
-# Install npm 11 globally
-RUN npm install -g npm@11
-
 # Copy frontend package files
 COPY web/package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN corepack install && corepack enable npm && npm ci
 
 # Copy frontend source
 COPY web/ ./
@@ -19,7 +16,10 @@ COPY web/ ./
 # Build frontend
 RUN npm run build
 
-# Stage 2: Python application
+# Stage 2: `uv` binary
+FROM ghcr.io/astral-sh/uv:0.9.18 AS uv
+
+# Stage 3: Python application
 FROM python:3.14-slim AS backend
 
 WORKDIR /app
@@ -30,15 +30,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
+# Install uv from its official container image to a location in the PATH
+COPY --from=uv /uv /usr/local/bin/
 
-# Copy Python dependencies
-COPY pyproject.toml uv.lock ./
+# Copy Python dependencies (+ README for `uv sync`)
+COPY pyproject.toml uv.lock README.md ./
 
 # Install Python dependencies
-RUN uv sync --no-dev
+RUN uv sync --frozen
 
 # Copy application code
 COPY rulate/ ./rulate/
