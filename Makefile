@@ -6,6 +6,28 @@
 #   make check-all     - Run all checks (backend + frontend) - matches CI
 #   make format        - Auto-fix all formatting issues
 #   make dev           - Start both backend and frontend dev servers
+#
+# Code Quality Workflow:
+#
+# This project uses a two-tier code quality workflow for optimal developer experience:
+#
+# 1. Pre-commit hooks (.pre-commit-config.yaml):
+#    - Fast file-aware checks on changed files only
+#    - Runs automatically on `git commit`
+#    - Completes in ~2.5-3 seconds
+#    - Purpose: Quick feedback during development
+#
+# 2. Make targets (this file) + CI:
+#    - Comprehensive full-codebase checks
+#    - Run via `make check` before pushing
+#    - Run automatically in CI on every push/PR
+#    - Purpose: Ensure nothing is broken anywhere
+#
+# Key workflow targets:
+#   make format        - Auto-fix all formatting issues (modifies files)
+#   make format-check  - Validate formatting without changes (read-only, CI-safe)
+#   make check         - Run all checks except e2e (~30-40s, matches CI)
+#   make check-all     - Run all checks including e2e (~90s)
 
 .PHONY: help
 help:
@@ -21,6 +43,11 @@ help:
 	@echo "  make format            Format all code (backend + frontend)"
 	@echo "  make format-backend    Format Python code with black + ruff --fix"
 	@echo "  make format-frontend   Format frontend code with prettier"
+	@echo ""
+	@echo "Format Checking (read-only validation):"
+	@echo "  make format-check      Check all formatting without changes"
+	@echo "  make format-check-backend  Check Python formatting (black --check)"
+	@echo "  make format-check-frontend Check frontend formatting (prettier --check)"
 	@echo ""
 	@echo "Linting & Type Checking (read-only):"
 	@echo "  make lint              Check all code (backend + frontend)"
@@ -126,6 +153,25 @@ format-frontend:
 	cd web && npm run format
 	@echo "Fixing frontend code with eslint..."
 	cd web && npm run lint:fix
+
+#
+# Format checking targets (read-only validation)
+#
+
+.PHONY: format-check
+format-check: format-check-backend format-check-frontend
+	@echo "✓ All formatting checks passed"
+
+.PHONY: format-check-backend
+format-check-backend:
+	@echo "Checking Python formatting with black..."
+	uv run black . --check --diff
+
+.PHONY: format-check-frontend
+format-check-frontend:
+	@echo "Checking frontend formatting with prettier..."
+	cd web && npm run format:check
+
 #
 # Linting & type checking targets (read-only)
 #
@@ -168,8 +214,8 @@ test: test-backend test-frontend
 
 .PHONY: test-backend
 test-backend:
-	@echo "Running backend tests..."
-	uv run pytest -qq
+	@echo "Running backend tests with coverage..."
+	uv run pytest --cov=rulate --cov=api --cov-report=xml --cov-report=term
 
 .PHONY: test-frontend
 test-frontend:
@@ -202,16 +248,16 @@ test-e2e:
 #
 
 .PHONY: check
-check: install lint typecheck test
+check: install format-check lint typecheck test
 	@echo "✓ All checks passed (excluding e2e)"
 
 .PHONY: check-backend
-check-backend: install-backend lint-backend typecheck-backend test-backend
+check-backend: install-backend format-check-backend lint-backend typecheck-backend test-backend
 	@echo "✓ All backend checks passed"
 
 .PHONY: check-frontend
-check-frontend: install-frontend lint-frontend typecheck-frontend test-frontend
-	@echo "✓ All frontend checks passed"
+check-frontend: install-frontend format-check-frontend lint-frontend typecheck-frontend test-frontend
+	@echo "✓ All frontend checks passed (excluding e2e)"
 
 .PHONY: check-all
 check-all: check test-e2e
