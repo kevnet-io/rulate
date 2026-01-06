@@ -62,7 +62,7 @@
   "type": "module",
   "dependencies": {
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.0",
+    "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^0.2.0"
   },
   "overrides": {
