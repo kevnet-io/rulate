@@ -124,7 +124,7 @@ install-backend: setup-claude-code-env
 .PHONY: install-frontend
 install-frontend:
 	@echo "Installing frontend dependencies..."
-	npm install -g npm@11
+	cd web && corepack install && corepack enable npm
 	cd web && npm install
 
 .PHONY: install-hooks

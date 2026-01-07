@@ -49,8 +49,8 @@ jobs:
         cache: 'npm'
         cache-dependency-path: web/package-lock.json
 
-    - name: Install npm 11
-      run: npm install -g npm@11
+    - name: Corepack Setup
+      run: cd web && corepack install && corepack enable npm
 
     - name: Run all frontend checks (except e2e)
       run: make check-frontend
@@ -90,8 +90,8 @@ jobs:
         cache: 'npm'
         cache-dependency-path: web/package-lock.json
 
-    - name: Install npm 11
-      run: npm install -g npm@11
+    - name: Corepack Setup
+      run: cd web && corepack install && corepack enable npm
 
     - name: Install frontend dependencies
       run: cd web && npm ci
@@ -121,8 +121,8 @@ jobs:
         cache: 'npm'
         cache-dependency-path: web/package-lock.json
 
-    - name: Install npm 11
-      run: npm install -g npm@11
+    - name: Corepack Setup
+      run: cd web && corepack install && corepack enable npm
 
     - name: Install frontend dependencies
       run: cd web && npm ci
