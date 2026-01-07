@@ -2,6 +2,7 @@ import { execSync, spawn } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import getPort, { portNumbers } from "get-port";
 
 let apiProcess: ReturnType<typeof spawn> | null = null;
 
@@ -46,12 +47,27 @@ export default async function globalSetup() {
     }
   }
 
+  // Find an available ephemeral port in high range to avoid conflicts
+  const port = await getPort({ port: portNumbers(48000, 48100) });
+  console.log(`🔍 Using ephemeral port: ${port}`);
+
+  // Store port in environment for Playwright config
+  process.env.E2E_PORT = String(port);
+
   // Start unified production server (serves API + built frontend)
   console.log("🚀 Starting unified production server with e2e database...");
   try {
     apiProcess = spawn(
       "uv",
-      ["run", "python3", "-m", "uvicorn", "api.main:app", "--port", "8000"],
+      [
+        "run",
+        "python3",
+        "-m",
+        "uvicorn",
+        "api.main:app",
+        "--port",
+        String(port),
+      ],
       {
         cwd: projectRoot,
         env: {
@@ -87,7 +103,7 @@ export default async function globalSetup() {
   }
 
   // Wait for API server to be ready
-  const apiUrl = "http://localhost:8000/api/v1";
+  const apiUrl = `http://localhost:${port}/api/v1`;
   let isApiReady = false;
   const maxAttempts = 30;
   let attempt = 0;
