@@ -209,8 +209,13 @@ class EvaluateClustersRequest(BaseModel):
     catalog_name: str
     ruleset_name: str
     cluster_ruleset_name: str
-    min_cluster_size: int = Field(default=2, ge=2)
-    max_clusters: int | None = Field(default=None, ge=1)
+    min_cluster_size: int = Field(default=2, ge=2, description="Minimum items per cluster")
+    max_cluster_size: int | None = Field(
+        default=None, ge=2, description="Maximum items per cluster (None = unlimited)"
+    )
+    max_clusters: int | None = Field(
+        default=None, ge=1, description="Maximum number of clusters to return"
+    )
 
 
 # Cluster Builder models

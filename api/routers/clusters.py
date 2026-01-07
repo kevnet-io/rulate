@@ -143,6 +143,7 @@ def evaluate_clusters_endpoint(
         cluster_ruleset,
         schema,
         min_cluster_size=request.min_cluster_size,
+        max_cluster_size=request.max_cluster_size,
         max_clusters=request.max_clusters,
     )
 

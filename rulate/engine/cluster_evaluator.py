@@ -29,6 +29,7 @@ def find_clusters(
     cluster_ruleset: ClusterRuleSet,
     schema: Schema | None = None,
     min_cluster_size: int = 2,
+    max_cluster_size: int | None = None,
     max_clusters: int | None = None,
 ) -> ClusterAnalysis:
     """
@@ -45,6 +46,7 @@ def find_clusters(
         cluster_ruleset: Rules for valid clusters
         schema: Schema for validation
         min_cluster_size: Minimum items per cluster (default 2)
+        max_cluster_size: Maximum items per cluster (None = unlimited)
         max_clusters: Limit number of results (None = all)
 
     Returns:
@@ -70,6 +72,7 @@ def find_clusters(
         X=set(),
         adjacency=adjacency,
         cliques=candidate_cliques,
+        max_size=max_cluster_size,
     )
 
     # PHASE 3: Validate each clique against cluster rules
@@ -245,6 +248,7 @@ def _bron_kerbosch(
     X: set[str],
     adjacency: dict[str, set[str]],
     cliques: list[set[str]],
+    max_size: int | None = None,
 ) -> None:
     """
     Bron-Kerbosch algorithm with pivoting for finding all maximal cliques.
@@ -253,18 +257,29 @@ def _bron_kerbosch(
     in an undirected graph. A clique is a set of vertices where every two
     distinct vertices are adjacent (fully connected subgraph).
 
+    Modified to support max_size constraint: when max_size is set, the algorithm
+    will find all cliques up to that size (not just maximal cliques).
+
     Args:
         R: Current clique being built
         P: Candidate vertices that could extend R
         X: Vertices already processed (to avoid duplicates)
         adjacency: Adjacency list representation of graph
         cliques: List to accumulate found cliques (modified in place)
+        max_size: Maximum clique size (None = unlimited, finds only maximal cliques)
 
     Reference:
         Bron, C.; Kerbosch, J. (1973). "Algorithm 457: finding all cliques of an undirected graph"
     """
+    # Base case: R is maximal when no more vertices can be added
     if len(P) == 0 and len(X) == 0:
-        # R is a maximal clique
+        if len(R) > 0:
+            cliques.append(R.copy())
+        return
+
+    # If max_size is set and we've reached it, record this as maximal
+    # (can't expand further without exceeding limit)
+    if max_size is not None and len(R) == max_size:
         if len(R) > 0:
             cliques.append(R.copy())
         return
@@ -287,6 +302,7 @@ def _bron_kerbosch(
             X=X & neighbors,
             adjacency=adjacency,
             cliques=cliques,
+            max_size=max_size,
         )
         P = P - {v}
         X = X | {v}

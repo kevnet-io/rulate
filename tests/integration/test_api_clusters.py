@@ -578,6 +578,24 @@ class TestEvaluateClusters:
         # Should limit number of clusters
         assert len(data["clusters"]) <= 5
 
+    def test_evaluate_clusters_with_max_cluster_size(self, client, cluster_setup):
+        """Test cluster evaluation with max_cluster_size constraint."""
+        request = {
+            "catalog_name": cluster_setup["catalog_name"],
+            "ruleset_name": cluster_setup["ruleset_name"],
+            "cluster_ruleset_name": cluster_setup["cluster_ruleset_name"],
+            "min_cluster_size": 2,
+            "max_cluster_size": 5,
+        }
+
+        response = client.post("/api/v1/evaluate/clusters", json=request)
+
+        assert response.status_code == 200
+        data = response.json()
+        # All clusters should have size <= max_cluster_size
+        for cluster in data["clusters"]:
+            assert cluster["size"] <= 5
+
     def test_evaluate_clusters_missing_fields(self, client):
         """Test cluster evaluation with missing required fields."""
         # Missing catalog_name
