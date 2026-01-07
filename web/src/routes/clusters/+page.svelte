@@ -23,6 +23,7 @@
   let selectedRuleset = $state("");
   let selectedClusterRuleset = $state("");
   let minClusterSize = $state(2);
+  let maxClusterSize = $state<number | undefined>(undefined);
   let maxClusters = $state<number | undefined>(undefined);
   let analysis = $state<ClusterAnalysis | null>(null);
   let catalogItems = $state<Item[]>([]);
@@ -72,6 +73,7 @@
         selectedRuleset,
         selectedClusterRuleset,
         minClusterSize,
+        maxClusterSize,
         maxClusters,
       );
     } catch (err) {
@@ -180,6 +182,20 @@
               type="number"
               bind:value={minClusterSize}
               min="2"
+              class="w-full px-3 py-2 border rounded-md bg-background"
+            />
+          </div>
+
+          <div>
+            <label for="max-size" class="block text-sm font-medium mb-2"
+              >Max Cluster Size</label
+            >
+            <input
+              id="max-size"
+              type="number"
+              bind:value={maxClusterSize}
+              min={minClusterSize}
+              placeholder="Unlimited"
               class="w-full px-3 py-2 border rounded-md bg-background"
             />
           </div>

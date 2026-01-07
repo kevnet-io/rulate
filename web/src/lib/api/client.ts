@@ -428,6 +428,7 @@ class ApiClient {
     rulesetName: string,
     clusterRulesetName: string,
     minClusterSize: number = 2,
+    maxClusterSize?: number,
     maxClusters?: number,
   ): Promise<ClusterAnalysis> {
     return this.request<ClusterAnalysis>("/evaluate/clusters", {
@@ -437,6 +438,7 @@ class ApiClient {
         ruleset_name: rulesetName,
         cluster_ruleset_name: clusterRulesetName,
         min_cluster_size: minClusterSize,
+        max_cluster_size: maxClusterSize,
         max_clusters: maxClusters,
       }),
     });
