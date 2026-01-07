@@ -11,6 +11,7 @@
     { href: "/explore", label: "Explorer" },
     { href: "/matrix", label: "Matrix" },
     { href: "/clusters", label: "Clusters" },
+    { href: "/cluster-builder", label: "Builder" },
     { href: "/import-export", label: "Import/Export" },
   ];
 

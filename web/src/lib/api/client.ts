@@ -139,6 +139,38 @@ export interface ClusterAnalysis {
   total_items_covered: number;
 }
 
+// Cluster Builder types
+export interface ValidateClusterRequest {
+  catalog_name: string;
+  cluster_ruleset_name: string;
+  item_ids: string[];
+}
+
+export interface ValidateClusterResponse {
+  item_ids: string[];
+  is_valid: boolean;
+  rule_evaluations: RuleEvaluation[];
+}
+
+export interface CandidateResult {
+  item_id: string;
+  is_pairwise_compatible: boolean;
+  cluster_if_added: ValidateClusterResponse;
+}
+
+export interface EvaluateCandidatesRequest {
+  catalog_name: string;
+  pairwise_ruleset_name: string;
+  cluster_ruleset_name: string;
+  base_item_ids: string[];
+  candidate_item_ids?: string[];
+}
+
+export interface EvaluateCandidatesResponse {
+  base_validation: ValidateClusterResponse;
+  candidates: CandidateResult[];
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -408,6 +440,44 @@ class ApiClient {
         max_clusters: maxClusters,
       }),
     });
+  }
+
+  // Cluster Builder endpoints
+  async validateCluster(
+    catalogName: string,
+    clusterRulesetName: string,
+    itemIds: string[],
+  ): Promise<ValidateClusterResponse> {
+    return this.request<ValidateClusterResponse>("/evaluate/cluster/validate", {
+      method: "POST",
+      body: JSON.stringify({
+        catalog_name: catalogName,
+        cluster_ruleset_name: clusterRulesetName,
+        item_ids: itemIds,
+      }),
+    });
+  }
+
+  async evaluateCandidates(
+    catalogName: string,
+    pairwiseRulesetName: string,
+    clusterRulesetName: string,
+    baseItemIds: string[],
+    candidateItemIds?: string[],
+  ): Promise<EvaluateCandidatesResponse> {
+    return this.request<EvaluateCandidatesResponse>(
+      "/evaluate/cluster/candidates",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          catalog_name: catalogName,
+          pairwise_ruleset_name: pairwiseRulesetName,
+          cluster_ruleset_name: clusterRulesetName,
+          base_item_ids: baseItemIds,
+          candidate_item_ids: candidateItemIds,
+        }),
+      },
+    );
   }
 
   // Export endpoints

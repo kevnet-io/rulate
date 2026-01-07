@@ -213,6 +213,56 @@ class EvaluateClustersRequest(BaseModel):
     max_clusters: int | None = Field(default=None, ge=1)
 
 
+# Cluster Builder models
+class RuleEvaluationResponse(BaseModel):
+    """Response schema for a single rule evaluation."""
+
+    rule_name: str
+    passed: bool
+    reason: str
+
+
+class ValidateClusterRequest(BaseModel):
+    """Request schema for validating a specific cluster."""
+
+    catalog_name: str
+    cluster_ruleset_name: str
+    item_ids: list[str]
+
+
+class ValidateClusterResponse(BaseModel):
+    """Response schema for cluster validation."""
+
+    item_ids: list[str]
+    is_valid: bool
+    rule_evaluations: list[RuleEvaluationResponse]
+
+
+class CandidateResult(BaseModel):
+    """Result for a single candidate item evaluation."""
+
+    item_id: str
+    is_pairwise_compatible: bool
+    cluster_if_added: ValidateClusterResponse
+
+
+class EvaluateCandidatesRequest(BaseModel):
+    """Request schema for evaluating candidate items for a cluster."""
+
+    catalog_name: str
+    pairwise_ruleset_name: str
+    cluster_ruleset_name: str
+    base_item_ids: list[str] = Field(default_factory=list)
+    candidate_item_ids: list[str] | None = None  # None = all other items in catalog
+
+
+class EvaluateCandidatesResponse(BaseModel):
+    """Response schema for candidate evaluation."""
+
+    base_validation: ValidateClusterResponse
+    candidates: list[CandidateResult]
+
+
 # Import/Export models
 class ImportRequest(BaseModel):
     """Request schema for importing data."""

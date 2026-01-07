@@ -10,13 +10,20 @@ from sqlalchemy.orm import Session
 from api.database.connection import get_db
 from api.database.models import CatalogDB, ClusterRuleSetDB, RuleSetDB, SchemaDB
 from api.models.schemas import (
+    CandidateResult,
     ClusterRuleSetCreate,
     ClusterRuleSetResponse,
     ClusterRuleSetUpdate,
+    EvaluateCandidatesRequest,
+    EvaluateCandidatesResponse,
     EvaluateClustersRequest,
     MessageResponse,
+    RuleEvaluationResponse,
+    ValidateClusterRequest,
+    ValidateClusterResponse,
 )
-from rulate.engine.cluster_evaluator import find_clusters
+from rulate.engine.cluster_evaluator import find_clusters, validate_cluster
+from rulate.engine.evaluator import evaluate_pair
 from rulate.models.catalog import Catalog, Item
 from rulate.models.cluster import ClusterRuleSet
 from rulate.models.rule import RuleSet
@@ -142,6 +149,217 @@ def evaluate_clusters_endpoint(
     # Return as dict with additional metadata
     result = analysis.model_dump(mode="python")
     return result
+
+
+@router.post("/evaluate/cluster/validate", response_model=ValidateClusterResponse)
+def validate_cluster_endpoint(
+    request: ValidateClusterRequest, db: Session = Depends(get_db)
+) -> ValidateClusterResponse:
+    """
+    Validate a specific set of items against cluster rules.
+
+    Args:
+        request: Validation request with catalog, cluster ruleset, and item IDs
+        db: Database session
+
+    Returns:
+        ValidateClusterResponse with validation result and rule evaluations
+    """
+    # Find catalog
+    db_catalog = db.query(CatalogDB).filter(CatalogDB.name == request.catalog_name).first()
+    if not db_catalog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Catalog '{request.catalog_name}' not found",
+        )
+
+    # Find cluster ruleset
+    db_cluster_ruleset = (
+        db.query(ClusterRuleSetDB)
+        .filter(ClusterRuleSetDB.name == request.cluster_ruleset_name)
+        .first()
+    )
+    if not db_cluster_ruleset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ClusterRuleSet '{request.cluster_ruleset_name}' not found",
+        )
+
+    # Convert to Rulate models
+    cluster_ruleset = db_to_rulate_cluster_ruleset(db_cluster_ruleset)
+    catalog = db_to_rulate_catalog(db_catalog)
+
+    # Get items from catalog
+    items: list[Item] = []
+    missing_ids: list[str] = []
+    for item_id in request.item_ids:
+        item = catalog.get_item(item_id)
+        if item:
+            items.append(item)
+        else:
+            missing_ids.append(item_id)
+
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Items not found in catalog: {missing_ids}",
+        )
+
+    # Validate cluster
+    is_valid, rule_evals = validate_cluster(items, cluster_ruleset)
+
+    return ValidateClusterResponse(
+        item_ids=request.item_ids,
+        is_valid=is_valid,
+        rule_evaluations=[
+            RuleEvaluationResponse(
+                rule_name=r.rule_name,
+                passed=r.passed,
+                reason=r.reason,
+            )
+            for r in rule_evals
+        ],
+    )
+
+
+@router.post("/evaluate/cluster/candidates", response_model=EvaluateCandidatesResponse)
+def evaluate_candidates_endpoint(
+    request: EvaluateCandidatesRequest, db: Session = Depends(get_db)
+) -> EvaluateCandidatesResponse:
+    """
+    Evaluate candidate items for adding to a cluster.
+
+    For each candidate, determines:
+    1. Whether it's pairwise compatible with all items in the base cluster
+    2. Whether the cluster would be valid if this candidate is added
+
+    Args:
+        request: Request with catalog, rulesets, base items, and optional candidates
+        db: Database session
+
+    Returns:
+        EvaluateCandidatesResponse with base validation and candidate results
+    """
+    # Find catalog
+    db_catalog = db.query(CatalogDB).filter(CatalogDB.name == request.catalog_name).first()
+    if not db_catalog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Catalog '{request.catalog_name}' not found",
+        )
+
+    # Find pairwise ruleset
+    db_pairwise_ruleset = (
+        db.query(RuleSetDB).filter(RuleSetDB.name == request.pairwise_ruleset_name).first()
+    )
+    if not db_pairwise_ruleset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"RuleSet '{request.pairwise_ruleset_name}' not found",
+        )
+
+    # Find cluster ruleset
+    db_cluster_ruleset = (
+        db.query(ClusterRuleSetDB)
+        .filter(ClusterRuleSetDB.name == request.cluster_ruleset_name)
+        .first()
+    )
+    if not db_cluster_ruleset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ClusterRuleSet '{request.cluster_ruleset_name}' not found",
+        )
+
+    # Convert to Rulate models
+    schema = db_to_rulate_schema(db_catalog.schema)
+    pairwise_ruleset = db_to_rulate_ruleset(db_pairwise_ruleset)
+    cluster_ruleset = db_to_rulate_cluster_ruleset(db_cluster_ruleset)
+    catalog = db_to_rulate_catalog(db_catalog)
+
+    # Get base items
+    base_items: list[Item] = []
+    for item_id in request.base_item_ids:
+        item = catalog.get_item(item_id)
+        if item:
+            base_items.append(item)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Base item '{item_id}' not found in catalog",
+            )
+
+    # Validate base cluster
+    if base_items:
+        base_is_valid, base_rule_evals = validate_cluster(base_items, cluster_ruleset)
+    else:
+        # Empty cluster - technically invalid for most rulesets
+        base_is_valid = False
+        base_rule_evals = []
+
+    base_validation = ValidateClusterResponse(
+        item_ids=request.base_item_ids,
+        is_valid=base_is_valid,
+        rule_evaluations=[
+            RuleEvaluationResponse(
+                rule_name=r.rule_name,
+                passed=r.passed,
+                reason=r.reason,
+            )
+            for r in base_rule_evals
+        ],
+    )
+
+    # Determine candidates
+    if request.candidate_item_ids is not None:
+        candidate_ids = request.candidate_item_ids
+    else:
+        # All items not in base cluster
+        base_id_set = set(request.base_item_ids)
+        candidate_ids = [item.id for item in catalog.items if item.id not in base_id_set]
+
+    # Evaluate each candidate
+    candidates: list[CandidateResult] = []
+    for candidate_id in candidate_ids:
+        candidate_item = catalog.get_item(candidate_id)
+        if not candidate_item:
+            # Skip missing candidates (could also raise error)
+            continue
+
+        # Check pairwise compatibility with all base items
+        is_pairwise_compatible = True
+        for base_item in base_items:
+            result = evaluate_pair(base_item, candidate_item, pairwise_ruleset, schema)
+            if not result.compatible:
+                is_pairwise_compatible = False
+                break
+
+        # Validate cluster with candidate added
+        cluster_items = base_items + [candidate_item]
+        cluster_is_valid, cluster_rule_evals = validate_cluster(cluster_items, cluster_ruleset)
+
+        candidates.append(
+            CandidateResult(
+                item_id=candidate_id,
+                is_pairwise_compatible=is_pairwise_compatible,
+                cluster_if_added=ValidateClusterResponse(
+                    item_ids=request.base_item_ids + [candidate_id],
+                    is_valid=cluster_is_valid,
+                    rule_evaluations=[
+                        RuleEvaluationResponse(
+                            rule_name=r.rule_name,
+                            passed=r.passed,
+                            reason=r.reason,
+                        )
+                        for r in cluster_rule_evals
+                    ],
+                ),
+            )
+        )
+
+    return EvaluateCandidatesResponse(
+        base_validation=base_validation,
+        candidates=candidates,
+    )
 
 
 # ClusterRuleSet CRUD endpoints
