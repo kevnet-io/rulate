@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: rulate
     ports:
-      - "8000:8000"
+      - "${RULATE_EXPOSE_PORT:-8000}:8000"
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=sqlite:////app/data/rulate.db
