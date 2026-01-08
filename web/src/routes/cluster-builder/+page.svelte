@@ -26,6 +26,7 @@
   import CompatibilityGraph from "$lib/components/graph/CompatibilityGraph.svelte";
   import GraphControls from "$lib/components/graph/GraphControls.svelte";
   import GraphLegend from "$lib/components/graph/GraphLegend.svelte";
+  import GraphSkeleton from "$lib/components/graph/GraphSkeleton.svelte";
   import { transformToGraphData } from "$lib/components/graph/graph-utils";
   import type { LayoutType } from "$lib/components/graph/graph-config";
 
@@ -431,9 +432,7 @@
         <CardContent>
           <!-- Loading State -->
           {#if loadingGraph}
-            <div class="py-8 text-center text-muted-foreground">
-              <div class="animate-pulse">Loading graph data...</div>
-            </div>
+            <GraphSkeleton />
 
             <!-- Graph Controls and Visualization -->
           {:else if matrixData}

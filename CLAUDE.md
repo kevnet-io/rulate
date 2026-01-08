@@ -127,12 +127,21 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 - `web/src/routes/catalogs/[name]/items/[itemId]/edit/` - Item edit form
 - `web/src/routes/explore/+page.svelte` - Interactive compatibility explorer
 - `web/src/routes/matrix/+page.svelte` - Compatibility matrix visualization
+- `web/src/routes/cluster-builder/+page.svelte` - Interactive cluster builder with real-time validation and graph visualization
+- `web/src/routes/clusters/+page.svelte` - Cluster analysis and discovery
 - `web/src/routes/import-export/+page.svelte` - Bulk import/export page for data backup and migration
 
 **Important components:**
 - `web/src/lib/api/client.ts` - TypeScript API client with type definitions
 - `web/src/lib/components/Navigation.svelte` - Main navigation bar
 - `web/src/lib/components/ui/` - Reusable UI components (Button, Card, Badge, etc.)
+- `web/src/lib/components/graph/` - Graph visualization components (Cytoscape.js integration)
+  - `CompatibilityGraph.svelte` - Main graph component with tooltips, edge highlighting, and performance optimizations
+  - `GraphControls.svelte` - Interactive controls (layout, zoom, incompatible toggle)
+  - `GraphLegend.svelte` - Color-coded legend for nodes and edges
+  - `GraphSkeleton.svelte` - Loading skeleton with animated placeholder
+  - `graph-config.ts` - Cytoscape styles and layout configurations
+  - `graph-utils.ts` - Data transformation utilities with 27 unit tests
 
 **Svelte 5 syntax notes:**
 - Event handlers use `onclick` prop instead of `on:click` directive
@@ -665,14 +674,24 @@ items:
 - **Test Infrastructure**: Function-scoped fixtures, in-memory SQLite, proper cleanup with engine.dispose()
 
 ### Frontend Testing & Quality
-- **Test Suite**: 671 tests across 22 files with 100% pass rate
-- **Coverage**: 100% on production code (API client, form utilities, core utilities)
+- **Test Suite**: 905 tests across 30 files with 100% pass rate
+- **Coverage**: 100% on production code (API client, form utilities, core utilities, graph utilities)
 - **API Client**: All 39 endpoints tested with 100% coverage
 - **Form Utilities**: Pure TypeScript attribute handling with 37 tests for all dimension types
-- **E2E Testing**: 72 tests across 3 browsers (Chromium, Firefox, WebKit) covering critical workflows
+- **Graph Utilities**: Comprehensive testing with 27 tests for data transformation and filtering
+- **E2E Testing**: 86 tests across 3 browsers (Chromium, Firefox, WebKit) covering critical workflows including graph visualization
 - **Test Infrastructure**: Cleaned up unused utilities, excluded test code from coverage metrics (standard practice)
 
 ### Recent Changes
+- **Compatibility Graph Visualization (January 2026)**: Interactive graph visualization for Cluster Builder
+  - Cytoscape.js integration with 4 layout options (force-directed, circular, grid, hierarchical)
+  - Real-time visual feedback showing pairwise compatibility network between items
+  - Color-coded nodes: blue (cluster items), green (valid candidates), amber (invalid), rose (incompatible)
+  - Interactive features: click nodes to add/remove, hover for tooltips, edge highlighting on hover
+  - Performance optimizations: lazy loading (fetches matrix on expansion), debounced updates, cleanup on unmount
+  - Loading skeleton with animated placeholder
+  - Comprehensive testing: 27 utility tests + 14 E2E tests covering all graph interactions
+  - New components: CompatibilityGraph, GraphControls, GraphLegend, GraphSkeleton, graph-config, graph-utils
 - **YAML Alias Bomb Protection (December 2025)**: Critical security fix for YAML parsing
   - Fixed ineffective alias/anchor limit enforcement in SafeYAMLLoader
   - **CRITICAL FIX**: Now tracks alias USES (`*anchor`) instead of anchor definitions (`&anchor`)

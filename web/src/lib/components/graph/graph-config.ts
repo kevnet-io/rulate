@@ -151,6 +151,16 @@ export const graphStylesheet = [
       opacity: 1,
     },
   },
+
+  // Highlighted edges (when hovering connected node)
+  {
+    selector: "edge.highlighted",
+    style: {
+      width: 4,
+      opacity: 1,
+      "z-index": 999,
+    },
+  },
 ];
 
 /**

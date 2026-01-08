@@ -30,6 +30,16 @@
   let cy: Core | null = null;
   let containerElement: HTMLDivElement;
 
+  // Tooltip state
+  let tooltipVisible = $state(false);
+  let tooltipX = $state(0);
+  let tooltipY = $state(0);
+  let tooltipContent = $state("");
+  let tooltipCategory = $state("");
+
+  // Performance: debounce timer
+  let updateTimer: ReturnType<typeof setTimeout> | null = null;
+
   /**
    * Initialize Cytoscape graph
    */
@@ -66,22 +76,31 @@
   }
 
   /**
-   * Update graph elements
+   * Update graph elements (debounced for performance)
    */
   function updateElements() {
     if (!cy) return;
 
-    // Clear existing elements
-    cy.elements().remove();
+    // Debounce updates to avoid excessive re-renders
+    if (updateTimer) {
+      clearTimeout(updateTimer);
+    }
 
-    // Add new elements
-    cy.add([
-      ...nodes.map((n) => ({ data: n.data, classes: n.classes })),
-      ...edges.map((e) => ({ data: e.data, classes: e.classes })),
-    ]);
+    updateTimer = setTimeout(() => {
+      if (!cy) return;
 
-    // Reapply layout
-    applyLayout(layout);
+      // Clear existing elements
+      cy.elements().remove();
+
+      // Add new elements
+      cy.add([
+        ...nodes.map((n) => ({ data: n.data, classes: n.classes })),
+        ...edges.map((e) => ({ data: e.data, classes: e.classes })),
+      ]);
+
+      // Reapply layout
+      applyLayout(layout);
+    }, 100); // 100ms debounce
   }
 
   /**
@@ -98,16 +117,43 @@
       }
     });
 
-    // Node hover (mouseover)
+    // Node hover (mouseover) - show tooltip and highlight edges
     cy.on("mouseover", "node", (event) => {
       const node = event.target as NodeSingular;
+
+      // Show tooltip
+      const nodeData = node.data();
+      tooltipContent = nodeData.label || nodeData.id;
+      tooltipCategory = nodeData.category || "";
+
+      // Position tooltip near the cursor
+      const renderedPosition = node.renderedPosition();
+      tooltipX = renderedPosition.x;
+      tooltipY = renderedPosition.y - 40; // Above the node
+      tooltipVisible = true;
+
+      // Highlight connected edges
+      const connectedEdges = node.connectedEdges();
+      connectedEdges.addClass("highlighted");
+
+      // Callback
       if (onNodeHover) {
         onNodeHover(node.id());
       }
     });
 
-    // Node hover out (mouseout)
-    cy.on("mouseout", "node", () => {
+    // Node hover out (mouseout) - hide tooltip and remove highlight
+    cy.on("mouseout", "node", (event) => {
+      const node = event.target as NodeSingular;
+
+      // Hide tooltip
+      tooltipVisible = false;
+
+      // Remove edge highlighting
+      const connectedEdges = node.connectedEdges();
+      connectedEdges.removeClass("highlighted");
+
+      // Callback
       if (onNodeHover) {
         onNodeHover(null);
       }
@@ -196,6 +242,12 @@
    * Lifecycle: Cleanup on unmount
    */
   onDestroy(() => {
+    // Clear any pending updates
+    if (updateTimer) {
+      clearTimeout(updateTimer);
+    }
+
+    // Destroy Cytoscape instance
     if (cy) {
       cy.destroy();
       cy = null;
@@ -203,12 +255,37 @@
   });
 </script>
 
-<div
-  bind:this={containerElement}
-  class="graph-container w-full h-full min-h-[400px] bg-background border border-border rounded-md"
-  role="img"
-  aria-label="Compatibility graph visualization"
-></div>
+<div class="relative">
+  <div
+    bind:this={containerElement}
+    class="graph-container w-full h-full min-h-[400px] bg-background border border-border rounded-md"
+    role="img"
+    aria-label="Compatibility graph visualization"
+  ></div>
+
+  <!-- Tooltip -->
+  {#if tooltipVisible}
+    <div
+      class="absolute z-10 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg pointer-events-none whitespace-nowrap"
+      style="left: {tooltipX}px; top: {tooltipY}px; transform: translate(-50%, -100%);"
+    >
+      <div class="flex items-center gap-2">
+        <div
+          class="w-2 h-2 rounded-full"
+          class:bg-blue-500={tooltipCategory === "cluster"}
+          class:bg-emerald-500={tooltipCategory === "valid"}
+          class:bg-amber-500={tooltipCategory === "invalid"}
+          class:bg-rose-500={tooltipCategory === "incompatible"}
+        ></div>
+        <span>{tooltipContent}</span>
+      </div>
+      <div
+        class="absolute w-2 h-2 bg-gray-900 transform rotate-45"
+        style="left: 50%; bottom: -4px; transform: translateX(-50%) rotate(45deg);"
+      ></div>
+    </div>
+  {/if}
+</div>
 
 <style>
   .graph-container {
