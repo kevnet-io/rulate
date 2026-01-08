@@ -7,6 +7,7 @@
     ClusterRuleSet,
     Item,
     EvaluateCandidatesResponse,
+    EvaluationMatrix,
   } from "$lib/api/client";
   import Card from "$lib/components/ui/card/card.svelte";
   import CardHeader from "$lib/components/ui/card/card-header.svelte";
@@ -22,6 +23,11 @@
     invalidCandidateClass,
     incompatibleItemClass,
   } from "./styles";
+  import CompatibilityGraph from "$lib/components/graph/CompatibilityGraph.svelte";
+  import GraphControls from "$lib/components/graph/GraphControls.svelte";
+  import GraphLegend from "$lib/components/graph/GraphLegend.svelte";
+  import { transformToGraphData } from "$lib/components/graph/graph-utils";
+  import type { LayoutType } from "$lib/components/graph/graph-config";
 
   // Configuration state
   let catalogs = $state<Catalog[]>([]);
@@ -42,6 +48,14 @@
   let error = $state<string | null>(null);
   let showIncompatible = $state(false);
 
+  // Graph state
+  let graphExpanded = $state(false);
+  let graphLayout = $state<LayoutType>("force");
+  let showIncompatibleEdges = $state(false);
+  let matrixData = $state<EvaluationMatrix | null>(null);
+  let loadingGraph = $state(false);
+  let graphComponentRef = $state<CompatibilityGraph | null>(null);
+
   // Computed values
   let clusterItems = $derived(
     clusterItemIds
@@ -57,6 +71,16 @@
   let incompatibleCandidates = $derived(
     candidatesResponse?.candidates.filter((c) => !c.is_pairwise_compatible) ??
       [],
+  );
+
+  let graphData = $derived(
+    transformToGraphData(
+      items,
+      matrixData,
+      clusterItemIds,
+      candidatesResponse?.candidates ?? null,
+      showIncompatibleEdges,
+    ),
   );
 
   async function loadOptions() {
@@ -134,6 +158,59 @@
     clusterItemIds = [];
   }
 
+  // Graph functions
+  async function fetchGraphData() {
+    if (!selectedCatalog || !selectedRuleset) {
+      return;
+    }
+
+    try {
+      loadingGraph = true;
+      matrixData = await api.evaluateMatrix(selectedCatalog, selectedRuleset);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load graph data";
+      toastStore.error(message);
+    } finally {
+      loadingGraph = false;
+    }
+  }
+
+  function handleNodeClick(nodeId: string) {
+    if (clusterItemIds.includes(nodeId)) {
+      removeItem(nodeId);
+    } else {
+      addItem(nodeId);
+    }
+  }
+
+  function handleLayoutChange(newLayout: LayoutType) {
+    graphLayout = newLayout;
+  }
+
+  function toggleIncompatibleEdges() {
+    showIncompatibleEdges = !showIncompatibleEdges;
+  }
+
+  function handleZoomIn() {
+    graphComponentRef?.zoomIn();
+  }
+
+  function handleZoomOut() {
+    graphComponentRef?.zoomOut();
+  }
+
+  function handleFit() {
+    graphComponentRef?.fit();
+  }
+
+  function toggleGraphExpanded() {
+    graphExpanded = !graphExpanded;
+    if (graphExpanded && !matrixData) {
+      fetchGraphData();
+    }
+  }
+
   // Re-evaluate when cluster changes
   $effect(() => {
     if (selectedCatalog && selectedRuleset && selectedClusterRuleset) {
@@ -147,6 +224,14 @@
       loadItems();
       clusterItemIds = [];
       candidatesResponse = null;
+    }
+  });
+
+  // Clear graph data when catalog or ruleset changes
+  $effect(() => {
+    if (selectedCatalog || selectedRuleset) {
+      matrixData = null;
+      graphExpanded = false;
     }
   });
 
@@ -321,6 +406,84 @@
           {/if}
         {/if}
       </CardContent>
+    </Card>
+
+    <!-- Compatibility Graph -->
+    <Card>
+      <CardHeader>
+        <button
+          type="button"
+          onclick={toggleGraphExpanded}
+          class="w-full flex items-center justify-between text-left"
+        >
+          <div>
+            <CardTitle>
+              {graphExpanded ? "▼" : "▸"} Compatibility Graph
+            </CardTitle>
+            <CardDescription>
+              Visual network showing pairwise compatibility between items
+            </CardDescription>
+          </div>
+        </button>
+      </CardHeader>
+
+      {#if graphExpanded}
+        <CardContent>
+          <!-- Loading State -->
+          {#if loadingGraph}
+            <div class="py-8 text-center text-muted-foreground">
+              <div class="animate-pulse">Loading graph data...</div>
+            </div>
+
+            <!-- Graph Controls and Visualization -->
+          {:else if matrixData}
+            <div class="space-y-4">
+              <!-- Controls -->
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <GraphControls
+                  layout={graphLayout}
+                  showIncompatible={showIncompatibleEdges}
+                  onLayoutChange={handleLayoutChange}
+                  onZoomIn={handleZoomIn}
+                  onZoomOut={handleZoomOut}
+                  onFit={handleFit}
+                  onToggleIncompatible={toggleIncompatibleEdges}
+                />
+              </div>
+
+              <!-- Graph Container -->
+              <div class="border rounded-md" style="height: 500px;">
+                <CompatibilityGraph
+                  bind:this={graphComponentRef}
+                  nodes={graphData.nodes}
+                  edges={graphData.edges}
+                  layout={graphLayout}
+                  onNodeClick={handleNodeClick}
+                />
+              </div>
+
+              <!-- Legend -->
+              <GraphLegend showIncompatible={showIncompatibleEdges} />
+
+              <!-- Help Text -->
+              <div class="text-sm text-muted-foreground italic">
+                Click nodes to add/remove items from cluster. Compatible pairs
+                are connected with solid green lines.
+                {#if showIncompatibleEdges}
+                  Incompatible pairs shown with dashed red lines.
+                {/if}
+              </div>
+            </div>
+
+            <!-- Error or Empty State -->
+          {:else}
+            <div class="py-8 text-center text-muted-foreground">
+              No graph data available. Select a catalog and ruleset to view
+              compatibility graph.
+            </div>
+          {/if}
+        </CardContent>
+      {/if}
     </Card>
 
     <!-- Compatible Items -->
