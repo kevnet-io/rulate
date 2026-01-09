@@ -29,7 +29,7 @@ class TestExportClusterRuleSets:
                 {
                     "name": "min_size",
                     "enabled": True,
-                    "condition": {"min_cluster_size": 2},
+                    "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
                 }
             ],
         }
@@ -96,7 +96,7 @@ class TestImportClusterRuleSets:
                     {
                         "name": "min_size_rule",
                         "enabled": True,
-                        "condition": {"min_cluster_size": 3},
+                        "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
                     }
                 ],
             }
@@ -254,7 +254,13 @@ class TestImportExportRoundtrip:
             "description": "Roundtrip test",
             "schema_name": setup_schema["name"],
             "pairwise_ruleset_name": setup_ruleset["name"],
-            "rules": [{"name": "size_rule", "enabled": True, "condition": {"min_cluster_size": 2}}],
+            "rules": [
+                {
+                    "name": "requires_shirt",
+                    "enabled": True,
+                    "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
+                }
+            ],
         }
         create_response = client.post("/api/v1/cluster-rulesets", json=cluster_ruleset)
         assert create_response.status_code == 201

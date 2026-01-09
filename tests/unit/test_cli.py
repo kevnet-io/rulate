@@ -106,7 +106,7 @@ def sample_cluster_ruleset_file(tmp_path, sample_ruleset_file):
             {
                 "name": "min_size",
                 "type": "requirement",
-                "condition": {"min_cluster_size": 2},
+                "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
                 "enabled": True,
             },
         ],

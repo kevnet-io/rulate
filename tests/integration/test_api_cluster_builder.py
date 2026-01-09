@@ -36,7 +36,7 @@ class TestValidateCluster:
         )
         assert ruleset_response.status_code == 201
 
-        # Create cluster ruleset with min_cluster_size rule
+        # Create cluster ruleset with basic domain rules (size constraints are API params)
         cluster_ruleset_response = client.post(
             "/api/v1/cluster-rulesets",
             json={
@@ -46,11 +46,17 @@ class TestValidateCluster:
                 "pairwise_ruleset_name": "builder_pairwise_rules",
                 "rules": [
                     {
-                        "name": "min_size_2",
+                        "name": "requires_shirt",
                         "type": "requirement",
                         "enabled": True,
-                        "condition": {"min_cluster_size": {"value": 2}},
-                    }
+                        "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
+                    },
+                    {
+                        "name": "requires_pants",
+                        "type": "requirement",
+                        "enabled": True,
+                        "condition": {"has_item_with": {"field": "category", "value": "pants"}},
+                    },
                 ],
             },
         )
@@ -119,11 +125,11 @@ class TestValidateCluster:
         assert all(r["passed"] for r in data["rule_evaluations"])
 
     def test_validate_cluster_invalid_too_small(self, client, builder_setup):
-        """Test validating a cluster that fails min_cluster_size rule."""
+        """Test validating a cluster that fails a cluster rule."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
-            "item_ids": ["shirt_1"],  # Only 1 item, min_size is 2
+            "item_ids": ["shirt_1"],  # Missing required pants
         }
 
         response = client.post("/api/v1/evaluate/cluster/validate", json=request)
@@ -147,7 +153,7 @@ class TestValidateCluster:
 
         assert response.status_code == 200
         data = response.json()
-        # Empty cluster should be invalid
+        # Empty cluster fails required rules
         assert data["is_valid"] is False
 
     def test_validate_cluster_three_items(self, client, builder_setup):
@@ -254,7 +260,7 @@ class TestEvaluateCandidates:
         )
         assert ruleset_response.status_code == 201
 
-        # Create cluster ruleset with min_cluster_size rule
+        # Create cluster ruleset with basic domain rules (size constraints are API params)
         cluster_ruleset_response = client.post(
             "/api/v1/cluster-rulesets",
             json={
@@ -264,11 +270,17 @@ class TestEvaluateCandidates:
                 "pairwise_ruleset_name": "candidates_pairwise_rules",
                 "rules": [
                     {
-                        "name": "min_size_2",
+                        "name": "requires_shirt",
                         "type": "requirement",
                         "enabled": True,
-                        "condition": {"min_cluster_size": {"value": 2}},
-                    }
+                        "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
+                    },
+                    {
+                        "name": "requires_pants",
+                        "type": "requirement",
+                        "enabled": True,
+                        "condition": {"has_item_with": {"field": "category", "value": "pants"}},
+                    },
                 ],
             },
         )
@@ -351,7 +363,7 @@ class TestEvaluateCandidates:
 
         assert response.status_code == 200
         data = response.json()
-        # Base cluster with 1 item should be invalid (min_size is 2)
+        # Base cluster with 1 item should be invalid (missing required pants)
         assert data["base_validation"]["is_valid"] is False
         # Should have 3 candidates (all items except shirt_1)
         assert len(data["candidates"]) == 3
@@ -398,12 +410,16 @@ class TestEvaluateCandidates:
         assert response.status_code == 200
         data = response.json()
 
-        # Adding any item to base would make cluster size = 2, which satisfies min_size rule
+        # Adding pants makes the cluster satisfy the rules (shirt + pants)
         pants_1_candidate = next(c for c in data["candidates"] if c["item_id"] == "pants_1")
         assert pants_1_candidate["cluster_if_added"]["is_valid"] is True
         # Item IDs should be base + candidate
         assert "shirt_1" in pants_1_candidate["cluster_if_added"]["item_ids"]
         assert "pants_1" in pants_1_candidate["cluster_if_added"]["item_ids"]
+
+        # Adding shoes still fails (missing pants)
+        shoes_1_candidate = next(c for c in data["candidates"] if c["item_id"] == "shoes_1")
+        assert shoes_1_candidate["cluster_if_added"]["is_valid"] is False
 
     def test_evaluate_candidates_specific_candidates(self, client, builder_setup):
         """Test evaluating specific candidate items only."""

@@ -222,16 +222,16 @@ class TestValidateCondition:
 class TestEvaluateClusterCondition:
     """Tests for evaluate_cluster_condition() function."""
 
-    def test_evaluates_min_cluster_size_condition(self, sample_items_list):
-        """Test evaluating a min_cluster_size condition."""
+    def test_evaluates_unique_values_condition_with_missing_field(self, sample_items_list):
+        """Test evaluating unique_values when the field is missing."""
         condition = {"unique_values": {"field": "test_field"}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
-        assert "4 items" in explanation
+        assert "no test_field values to check" in explanation.lower()
 
-    def test_evaluates_max_cluster_size_condition(self, sample_items_list):
-        """Test evaluating a max_cluster_size condition."""
-        condition = {"formality_range": {"field": "formality", "max_diff": 1}}
+    def test_evaluates_formality_range_condition_on_sample_items(self, sample_items_list):
+        """Test evaluating a formality_range condition."""
+        condition = {"formality_range": {"field": "formality", "max_diff": 2}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
 
@@ -273,8 +273,8 @@ class TestEvaluateClusterCondition:
         """Test evaluating a cluster all (AND) logical operator."""
         condition = {
             "all": [
-                {"unique_values": {"field": "test_field"}},
-                {"formality_range": {"field": "formality", "max_diff": 1}},
+                {"has_item_with": {"field": "category", "value": "shoes"}},
+                {"formality_range": {"field": "formality", "max_diff": 2}},
             ]
         }
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
@@ -284,16 +284,16 @@ class TestEvaluateClusterCondition:
         """Test evaluating a cluster any (OR) logical operator."""
         condition = {
             "any": [
-                {"unique_values": {"field": "test_field"}},
-                {"formality_range": {"field": "formality", "max_diff": 1}},
+                {"count_by_field": {"field": "category", "min": 4}},
+                {"formality_range": {"field": "formality", "max_diff": 2}},
             ]
         }
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
-        assert result is True  # Max size passes
+        assert result is True  # Second condition passes
 
     def test_evaluates_cluster_not_operator(self, sample_items_list):
         """Test evaluating a cluster not (NOT) logical operator."""
-        condition = {"not": {"unique_values": {"field": "test_field"}}}
+        condition = {"not": {"count_by_field": {"field": "category", "min": 4}}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
 
@@ -301,10 +301,10 @@ class TestEvaluateClusterCondition:
         """Test evaluating deeply nested cluster conditions."""
         condition = {
             "all": [
-                {"unique_values": {"field": "test_field"}},
+                {"has_item_with": {"field": "category", "value": "shoes"}},
                 {
                     "any": [
-                        {"formality_range": {"field": "formality", "max_diff": 1}},
+                        {"formality_range": {"field": "formality", "max_diff": 2}},
                         {"has_item_with": {"field": "category", "value": "shoes"}},
                     ]
                 },
@@ -327,7 +327,11 @@ class TestEvaluateClusterCondition:
         """Test that multiple operators in one condition raises ValueError."""
         with pytest.raises(ValueError, match="exactly one operator"):
             evaluate_cluster_condition(
-                {"min_cluster_size": 3, "max_cluster_size": 10}, sample_items_list
+                {
+                    "unique_values": {"field": "category"},
+                    "has_item_with": {"field": "category", "value": "shoes"},
+                },
+                sample_items_list,
             )
 
     def test_raises_error_for_unknown_operator(self, sample_items_list):
@@ -350,16 +354,6 @@ class TestEvaluateClusterCondition:
 
 class TestValidateClusterCondition:
     """Tests for validate_cluster_condition() function."""
-
-    def test_validates_min_cluster_size_condition(self):
-        """Test validating a min_cluster_size condition."""
-        condition = {"unique_values": {"field": "test_field"}}
-        assert validate_cluster_condition(condition) is True
-
-    def test_validates_max_cluster_size_condition(self):
-        """Test validating a max_cluster_size condition."""
-        condition = {"formality_range": {"field": "formality", "max_diff": 1}}
-        assert validate_cluster_condition(condition) is True
 
     def test_validates_unique_values_condition(self):
         """Test validating a unique_values condition."""
@@ -385,8 +379,8 @@ class TestValidateClusterCondition:
         """Test validating a cluster all operator with sub-conditions."""
         condition = {
             "all": [
-                {"unique_values": {"field": "test_field"}},
-                {"formality_range": {"field": "formality", "max_diff": 1}},
+                {"unique_values": {"field": "color"}},
+                {"formality_range": {"field": "formality", "max_diff": 2}},
             ]
         }
         assert validate_cluster_condition(condition) is True
@@ -410,7 +404,7 @@ class TestValidateClusterCondition:
         """Test validating deeply nested cluster conditions."""
         condition = {
             "all": [
-                {"unique_values": {"field": "test_field"}},
+                {"unique_values": {"field": "color"}},
                 {
                     "any": [
                         {"formality_range": {"field": "formality", "max_diff": 1}},
@@ -434,7 +428,12 @@ class TestValidateClusterCondition:
     def test_raises_error_for_multiple_operators(self):
         """Test that multiple operators raise ValueError."""
         with pytest.raises(ValueError, match="exactly one operator"):
-            validate_cluster_condition({"min_cluster_size": 3, "max_cluster_size": 10})
+            validate_cluster_condition(
+                {
+                    "unique_values": {"field": "category"},
+                    "has_item_with": {"field": "category", "value": "shoes"},
+                }
+            )
 
     def test_raises_error_for_unknown_operator(self):
         """Test that unknown cluster operator raises ValueError."""

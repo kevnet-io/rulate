@@ -55,7 +55,7 @@ def cluster_compatible_catalog():
 
 @pytest.fixture
 def simple_cluster_ruleset():
-    """Simple cluster ruleset with basic size constraints."""
+    """Simple cluster ruleset with basic cluster-level constraints."""
     return ClusterRuleSet(
         name="simple_cluster_rules",
         version="1.0.0",
@@ -63,16 +63,10 @@ def simple_cluster_ruleset():
         pairwise_ruleset_ref="test_rules",
         rules=[
             ClusterRule(
-                name="min_size",
+                name="formality_consistency",
                 type=RuleType.REQUIREMENT,
                 enabled=True,
-                condition={"unique_values": {"field": "category"}},
-            ),
-            ClusterRule(
-                name="max_size",
-                type=RuleType.REQUIREMENT,
-                enabled=True,
-                condition={"formality_range": {"field": "formality", "max_diff": 2}},
+                condition={"formality_range": {"field": "formality", "max_diff": 1}},
             ),
         ],
     )
@@ -360,7 +354,7 @@ class TestFindClusters:
             ],
         )
 
-        # Cluster ruleset requiring at least 5 items (impossible with 4-item catalog)
+        # Cluster ruleset requiring a category that doesn't exist in the catalog
         strict_cluster_ruleset = ClusterRuleSet(
             name="strict_cluster_rules",
             version="1.0.0",
@@ -368,10 +362,10 @@ class TestFindClusters:
             pairwise_ruleset_ref=pairwise_ruleset.name,
             rules=[
                 ClusterRule(
-                    name="min_size_5",
+                    name="requires_hat",
                     type=RuleType.REQUIREMENT,
                     enabled=True,
-                    condition={"unique_values": {"field": "category"}},
+                    condition={"has_item_with": {"field": "category", "value": "hat"}},
                 ),
             ],
         )

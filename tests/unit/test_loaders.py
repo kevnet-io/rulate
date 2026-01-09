@@ -100,7 +100,7 @@ def valid_cluster_ruleset_dict():
                 "name": "min_size",
                 "type": "requirement",
                 "enabled": True,
-                "condition": {"min_cluster_size": 2},
+                "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
             }
         ],
     }

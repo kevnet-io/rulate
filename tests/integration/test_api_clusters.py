@@ -26,7 +26,7 @@ class TestCreateClusterRuleSet:
                     "name": "min_size",
                     "type": "requirement",
                     "enabled": True,
-                    "condition": {"min_cluster_size": {"value": 2}},
+                    "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
                 }
             ],
         }
@@ -446,7 +446,7 @@ class TestEvaluateClusters:
                         "name": "min_size_2",
                         "type": "requirement",
                         "enabled": True,
-                        "condition": {"min_cluster_size": {"value": 2}},
+                        "condition": {"has_item_with": {"field": "category", "value": "shirt"}},
                     }
                 ],
             },

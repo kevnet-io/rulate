@@ -786,8 +786,8 @@ class TestClusterAllOperator:
         """Test cluster all returns True when all sub-conditions pass."""
         op = ClusterAllOperator(
             [
-                {"unique_values": {"field": "category"}},
-                {"formality_range": {"field": "formality", "max_diff": 1}},
+                {"has_item_with": {"field": "category", "value": "shoes"}},
+                {"formality_range": {"field": "formality", "max_diff": 2}},
             ]
         )
         result, explanation = op.evaluate(sample_items_list)
@@ -798,7 +798,7 @@ class TestClusterAllOperator:
         """Test cluster all returns False when one condition fails."""
         op = ClusterAllOperator(
             [
-                {"unique_values": {"field": "category"}},
+                {"has_item_with": {"field": "category", "value": "shoes"}},
                 {"formality_range": {"field": "formality", "max_diff": 1}},
             ]
         )
@@ -821,7 +821,7 @@ class TestClusterAnyOperator:
         """Test cluster any returns True when first condition passes."""
         op = ClusterAnyOperator(
             [
-                {"unique_values": {"field": "category"}},
+                {"has_item_with": {"field": "category", "value": "shoes"}},
                 {"formality_range": {"field": "formality", "max_diff": 1}},
             ]
         )
@@ -833,8 +833,8 @@ class TestClusterAnyOperator:
         """Test cluster any returns True when second condition passes."""
         op = ClusterAnyOperator(
             [
-                {"unique_values": {"field": "category"}},
-                {"formality_range": {"field": "formality", "max_diff": 1}},
+                {"count_by_field": {"field": "category", "min": 4}},
+                {"formality_range": {"field": "formality", "max_diff": 2}},
             ]
         )
         result, explanation = op.evaluate(sample_items_list)  # 4 items
@@ -844,7 +844,7 @@ class TestClusterAnyOperator:
         """Test cluster any returns False when all conditions fail."""
         op = ClusterAnyOperator(
             [
-                {"unique_values": {"field": "category"}},
+                {"count_by_field": {"field": "category", "min": 4}},
                 {"formality_range": {"field": "formality", "max_diff": 1}},
             ]
         )
@@ -865,14 +865,14 @@ class TestClusterNotOperator:
 
     def test_returns_true_when_condition_fails(self, sample_items_list):
         """Test cluster not returns True when sub-condition fails."""
-        op = ClusterNotOperator({"unique_values": {"field": "category"}})
+        op = ClusterNotOperator({"count_by_field": {"field": "category", "min": 4}})
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is True
         assert "not" in explanation.lower()
 
     def test_returns_false_when_condition_passes(self, sample_items_list):
         """Test cluster not returns False when sub-condition passes."""
-        op = ClusterNotOperator({"unique_values": {"field": "category"}})
+        op = ClusterNotOperator({"formality_range": {"field": "formality", "max_diff": 2}})
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is False
 
@@ -911,8 +911,6 @@ class TestOperatorRegistry:
     def test_all_cluster_operators_registered(self):
         """Test that all cluster operators are in the registry."""
         expected = [
-            "min_cluster_size",
-            "max_cluster_size",
             "unique_values",
             "has_item_with",
             "count_by_field",
