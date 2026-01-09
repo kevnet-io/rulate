@@ -217,41 +217,9 @@ export const PAIRWISE_OPERATORS: Record<string, OperatorMetadata> = {
 };
 
 // Cluster operators
+// NOTE: Size constraints (min/max cluster size) are search parameters,
+// not domain rules. They are configured in the UI filter controls.
 export const CLUSTER_OPERATORS: Record<string, OperatorMetadata> = {
-  min_cluster_size: {
-    name: "min_cluster_size",
-    displayName: "Min Cluster Size",
-    category: "cluster",
-    description: "Require a minimum number of items in the cluster",
-    parameters: [
-      {
-        name: "size",
-        type: "value",
-        required: true,
-        description: "Minimum number of items",
-      },
-    ],
-    examples: ["At least 3 items required", "Minimum outfit size of 4 pieces"],
-    icon: "#≥",
-  },
-
-  max_cluster_size: {
-    name: "max_cluster_size",
-    displayName: "Max Cluster Size",
-    category: "cluster",
-    description: "Limit the maximum number of items in the cluster",
-    parameters: [
-      {
-        name: "size",
-        type: "value",
-        required: true,
-        description: "Maximum number of items",
-      },
-    ],
-    examples: ["No more than 5 items", "Maximum outfit size of 6 pieces"],
-    icon: "#≤",
-  },
-
   unique_values: {
     name: "unique_values",
     displayName: "Unique Values",

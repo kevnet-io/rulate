@@ -218,11 +218,6 @@ export const WARDROBE_TEMPLATES: RuleTemplate[] = [
     condition: {
       all: [
         {
-          min_cluster_size: {
-            size: 3,
-          },
-        },
-        {
           unique_values: {
             field: "body_zone",
           },
@@ -249,46 +244,9 @@ export const WARDROBE_TEMPLATES: RuleTemplate[] = [
   },
 ];
 
+// NOTE: Size constraints (min/max cluster size) are no longer available as rules.
+// They are configured as search parameters in the UI filter controls.
 export const CLUSTER_TEMPLATES: RuleTemplate[] = [
-  {
-    name: "Minimum Cluster Size",
-    description: "Cluster must have at least N items",
-    category: "requirement",
-    condition: {
-      min_cluster_size: {
-        size: 3,
-      },
-    },
-  },
-  {
-    name: "Maximum Cluster Size",
-    description: "Cluster must have no more than N items",
-    category: "requirement",
-    condition: {
-      max_cluster_size: {
-        size: 5,
-      },
-    },
-  },
-  {
-    name: "Size Range",
-    description: "Cluster size must be within a range",
-    category: "requirement",
-    condition: {
-      all: [
-        {
-          min_cluster_size: {
-            size: 3,
-          },
-        },
-        {
-          max_cluster_size: {
-            size: 5,
-          },
-        },
-      ],
-    },
-  },
   {
     name: "Unique Field Values",
     description: "All items must have unique values for a field",
@@ -339,11 +297,6 @@ export const CLUSTER_TEMPLATES: RuleTemplate[] = [
     category: "requirement",
     condition: {
       all: [
-        {
-          min_cluster_size: {
-            size: 3,
-          },
-        },
         {
           unique_values: {
             field: "body_zone",

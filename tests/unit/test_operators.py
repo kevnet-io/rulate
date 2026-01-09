@@ -21,8 +21,6 @@ from rulate.engine.operators import (
     FormalityRangeOperator,
     HasDifferentOperator,
     HasItemWithOperator,
-    MaxClusterSizeOperator,
-    MinClusterSizeOperator,
     NotOperator,
     PartLayerConflictOperator,
     UniqueValuesOperator,
@@ -537,70 +535,8 @@ class TestNotOperator:
 # ============================================================================
 
 
-class TestMinClusterSizeOperator:
-    """Tests for MinClusterSizeOperator."""
-
-    def test_returns_true_when_size_meets_minimum(self, sample_items_list):
-        """Test min_cluster_size returns True when cluster meets minimum."""
-        op = MinClusterSizeOperator(3)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is True
-        assert "4 items" in explanation
-
-    def test_returns_true_when_size_equals_minimum(self, sample_items_list):
-        """Test min_cluster_size returns True when size equals minimum."""
-        op = MinClusterSizeOperator(4)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is True
-
-    def test_returns_false_when_size_below_minimum(self, sample_items_list):
-        """Test min_cluster_size returns False when size below minimum."""
-        op = MinClusterSizeOperator(5)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is False
-        assert "only 4" in explanation
-
-    def test_accepts_dict_config(self, sample_items_list):
-        """Test min_cluster_size accepts dict config."""
-        op = MinClusterSizeOperator({"value": 3})
-        result, _ = op.evaluate(sample_items_list)
-        assert result is True
-
-    def test_with_empty_cluster(self):
-        """Test min_cluster_size with empty cluster."""
-        op = MinClusterSizeOperator(1)
-        result, _ = op.evaluate([])
-        assert result is False
-
-
-class TestMaxClusterSizeOperator:
-    """Tests for MaxClusterSizeOperator."""
-
-    def test_returns_true_when_size_below_maximum(self, sample_items_list):
-        """Test max_cluster_size returns True when size below maximum."""
-        op = MaxClusterSizeOperator(5)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is True
-        assert "4 items" in explanation
-
-    def test_returns_true_when_size_equals_maximum(self, sample_items_list):
-        """Test max_cluster_size returns True when size equals maximum."""
-        op = MaxClusterSizeOperator(4)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is True
-
-    def test_returns_false_when_size_exceeds_maximum(self, sample_items_list):
-        """Test max_cluster_size returns False when size exceeds maximum."""
-        op = MaxClusterSizeOperator(3)
-        result, explanation = op.evaluate(sample_items_list)  # 4 items
-        assert result is False
-        assert "exceeds" in explanation.lower()
-
-    def test_accepts_dict_config(self, sample_items_list):
-        """Test max_cluster_size accepts dict config."""
-        op = MaxClusterSizeOperator({"value": 10})
-        result, _ = op.evaluate(sample_items_list)
-        assert result is True
+# NOTE: Size constraint operators (min/max_cluster_size) have been removed.
+# Size constraints are now search parameters passed to find_clusters(), not rules.
 
 
 class TestUniqueValuesOperator:
@@ -848,14 +784,24 @@ class TestClusterAllOperator:
 
     def test_returns_true_when_all_conditions_pass(self, sample_items_list):
         """Test cluster all returns True when all sub-conditions pass."""
-        op = ClusterAllOperator([{"min_cluster_size": 3}, {"max_cluster_size": 10}])
+        op = ClusterAllOperator(
+            [
+                {"unique_values": {"field": "category"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        )
         result, explanation = op.evaluate(sample_items_list)
         assert result is True
         assert "all conditions passed" in explanation.lower()
 
     def test_returns_false_when_one_condition_fails(self, sample_items_list):
         """Test cluster all returns False when one condition fails."""
-        op = ClusterAllOperator([{"min_cluster_size": 3}, {"max_cluster_size": 3}])
+        op = ClusterAllOperator(
+            [
+                {"unique_values": {"field": "category"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        )
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is False
         assert "and failed" in explanation.lower()
@@ -873,20 +819,35 @@ class TestClusterAnyOperator:
 
     def test_returns_true_when_first_condition_passes(self, sample_items_list):
         """Test cluster any returns True when first condition passes."""
-        op = ClusterAnyOperator([{"min_cluster_size": 3}, {"max_cluster_size": 2}])
+        op = ClusterAnyOperator(
+            [
+                {"unique_values": {"field": "category"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        )
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is True
         assert "or succeeded" in explanation.lower()
 
     def test_returns_true_when_second_condition_passes(self, sample_items_list):
         """Test cluster any returns True when second condition passes."""
-        op = ClusterAnyOperator([{"min_cluster_size": 10}, {"max_cluster_size": 5}])
+        op = ClusterAnyOperator(
+            [
+                {"unique_values": {"field": "category"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        )
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is True
 
     def test_returns_false_when_all_conditions_fail(self, sample_items_list):
         """Test cluster any returns False when all conditions fail."""
-        op = ClusterAnyOperator([{"min_cluster_size": 10}, {"max_cluster_size": 2}])
+        op = ClusterAnyOperator(
+            [
+                {"unique_values": {"field": "category"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        )
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is False
         assert "all or conditions failed" in explanation.lower()
@@ -904,14 +865,14 @@ class TestClusterNotOperator:
 
     def test_returns_true_when_condition_fails(self, sample_items_list):
         """Test cluster not returns True when sub-condition fails."""
-        op = ClusterNotOperator({"min_cluster_size": 10})
+        op = ClusterNotOperator({"unique_values": {"field": "category"}})
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is True
         assert "not" in explanation.lower()
 
     def test_returns_false_when_condition_passes(self, sample_items_list):
         """Test cluster not returns False when sub-condition passes."""
-        op = ClusterNotOperator({"min_cluster_size": 3})
+        op = ClusterNotOperator({"unique_values": {"field": "category"}})
         result, explanation = op.evaluate(sample_items_list)  # 4 items
         assert result is False
 

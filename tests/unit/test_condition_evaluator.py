@@ -224,14 +224,14 @@ class TestEvaluateClusterCondition:
 
     def test_evaluates_min_cluster_size_condition(self, sample_items_list):
         """Test evaluating a min_cluster_size condition."""
-        condition = {"min_cluster_size": 3}
+        condition = {"unique_values": {"field": "test_field"}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
         assert "4 items" in explanation
 
     def test_evaluates_max_cluster_size_condition(self, sample_items_list):
         """Test evaluating a max_cluster_size condition."""
-        condition = {"max_cluster_size": 10}
+        condition = {"formality_range": {"field": "formality", "max_diff": 1}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
 
@@ -271,19 +271,29 @@ class TestEvaluateClusterCondition:
 
     def test_evaluates_cluster_all_operator(self, sample_items_list):
         """Test evaluating a cluster all (AND) logical operator."""
-        condition = {"all": [{"min_cluster_size": 3}, {"max_cluster_size": 10}]}
+        condition = {
+            "all": [
+                {"unique_values": {"field": "test_field"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        }
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
 
     def test_evaluates_cluster_any_operator(self, sample_items_list):
         """Test evaluating a cluster any (OR) logical operator."""
-        condition = {"any": [{"min_cluster_size": 10}, {"max_cluster_size": 5}]}
+        condition = {
+            "any": [
+                {"unique_values": {"field": "test_field"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        }
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True  # Max size passes
 
     def test_evaluates_cluster_not_operator(self, sample_items_list):
         """Test evaluating a cluster not (NOT) logical operator."""
-        condition = {"not": {"min_cluster_size": 10}}
+        condition = {"not": {"unique_values": {"field": "test_field"}}}
         result, explanation = evaluate_cluster_condition(condition, sample_items_list)
         assert result is True
 
@@ -291,10 +301,10 @@ class TestEvaluateClusterCondition:
         """Test evaluating deeply nested cluster conditions."""
         condition = {
             "all": [
-                {"min_cluster_size": 3},
+                {"unique_values": {"field": "test_field"}},
                 {
                     "any": [
-                        {"max_cluster_size": 5},
+                        {"formality_range": {"field": "formality", "max_diff": 1}},
                         {"has_item_with": {"field": "category", "value": "shoes"}},
                     ]
                 },
@@ -343,12 +353,12 @@ class TestValidateClusterCondition:
 
     def test_validates_min_cluster_size_condition(self):
         """Test validating a min_cluster_size condition."""
-        condition = {"min_cluster_size": 3}
+        condition = {"unique_values": {"field": "test_field"}}
         assert validate_cluster_condition(condition) is True
 
     def test_validates_max_cluster_size_condition(self):
         """Test validating a max_cluster_size condition."""
-        condition = {"max_cluster_size": 10}
+        condition = {"formality_range": {"field": "formality", "max_diff": 1}}
         assert validate_cluster_condition(condition) is True
 
     def test_validates_unique_values_condition(self):
@@ -373,14 +383,19 @@ class TestValidateClusterCondition:
 
     def test_validates_cluster_all_operator_with_sub_conditions(self):
         """Test validating a cluster all operator with sub-conditions."""
-        condition = {"all": [{"min_cluster_size": 3}, {"max_cluster_size": 10}]}
+        condition = {
+            "all": [
+                {"unique_values": {"field": "test_field"}},
+                {"formality_range": {"field": "formality", "max_diff": 1}},
+            ]
+        }
         assert validate_cluster_condition(condition) is True
 
     def test_validates_cluster_any_operator_with_sub_conditions(self):
         """Test validating a cluster any operator with sub-conditions."""
         condition = {
             "any": [
-                {"min_cluster_size": 5},
+                {"unique_values": {"field": "test_field"}},
                 {"has_item_with": {"field": "category", "value": "top"}},
             ]
         }
@@ -388,17 +403,17 @@ class TestValidateClusterCondition:
 
     def test_validates_cluster_not_operator_with_sub_condition(self):
         """Test validating a cluster not operator with sub-condition."""
-        condition = {"not": {"max_cluster_size": 10}}
+        condition = {"not": {"formality_range": {"field": "formality", "max_diff": 1}}}
         assert validate_cluster_condition(condition) is True
 
     def test_validates_nested_cluster_conditions(self):
         """Test validating deeply nested cluster conditions."""
         condition = {
             "all": [
-                {"min_cluster_size": 3},
+                {"unique_values": {"field": "test_field"}},
                 {
                     "any": [
-                        {"max_cluster_size": 5},
+                        {"formality_range": {"field": "formality", "max_diff": 1}},
                         {"not": {"has_item_with": {"field": "category", "value": "accessory"}}},
                     ]
                 },
@@ -429,18 +444,20 @@ class TestValidateClusterCondition:
     def test_raises_error_for_all_operator_without_list(self):
         """Test that all operator without list raises ValueError."""
         with pytest.raises(ValueError, match="requires a list"):
-            validate_cluster_condition({"all": {"min_cluster_size": 3}})
+            validate_cluster_condition({"all": {"unique_values": {"field": "test_field"}}})
 
     def test_raises_error_for_any_operator_without_list(self):
         """Test that any operator without list raises ValueError."""
         with pytest.raises(ValueError, match="requires a list"):
-            validate_cluster_condition({"any": {"max_cluster_size": 10}})
+            validate_cluster_condition(
+                {"any": {"formality_range": {"field": "formality", "max_diff": 1}}}
+            )
 
     def test_raises_error_for_invalid_sub_condition_in_all(self):
         """Test that invalid sub-condition in all operator raises ValueError."""
         with pytest.raises(ValueError, match="Unknown cluster operator"):
             validate_cluster_condition(
-                {"all": [{"min_cluster_size": 3}, {"invalid_cluster_op": {}}]}
+                {"all": [{"unique_values": {"field": "test_field"}}, {"invalid_cluster_op": {}}]}
             )
 
     def test_raises_error_for_invalid_sub_condition_in_not(self):

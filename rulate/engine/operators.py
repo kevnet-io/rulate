@@ -429,65 +429,6 @@ class ClusterOperator(ABC):
         pass
 
 
-class MinClusterSizeOperator(ClusterOperator):
-    """
-    Require minimum cluster size.
-
-    Config:
-        value: Minimum number of items
-
-    Example:
-        {"min_cluster_size": 3}
-        Returns True if cluster has at least 3 items
-    """
-
-    def __init__(self, config: Any):
-        # For simple operators, config might just be the value
-        if isinstance(config, int):
-            self.value = config
-        elif isinstance(config, dict):
-            self.value = config.get("value", config)
-        else:
-            self.value = config
-
-    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
-        cluster_size = len(items)
-        result = cluster_size >= self.value
-        if result:
-            return True, f"Cluster has {cluster_size} items (min {self.value})"
-        else:
-            return False, f"Cluster has only {cluster_size} items (need {self.value})"
-
-
-class MaxClusterSizeOperator(ClusterOperator):
-    """
-    Enforce maximum cluster size.
-
-    Config:
-        value: Maximum number of items
-
-    Example:
-        {"max_cluster_size": 8}
-        Returns True if cluster has at most 8 items
-    """
-
-    def __init__(self, config: Any):
-        if isinstance(config, int):
-            self.value = config
-        elif isinstance(config, dict):
-            self.value = config.get("value", config)
-        else:
-            self.value = config
-
-    def evaluate(self, items: list[Item]) -> tuple[bool, str]:
-        cluster_size = len(items)
-        result = cluster_size <= self.value
-        if result:
-            return True, f"Cluster has {cluster_size} items (max {self.value})"
-        else:
-            return False, f"Cluster has {cluster_size} items (exceeds max {self.value})"
-
-
 class UniqueValuesOperator(ClusterOperator):
     """
     Ensure field values are unique across all items in cluster.
@@ -742,9 +683,9 @@ OPERATOR_REGISTRY = {
 }
 
 # Cluster operator registry
+# NOTE: Size constraints (min/max cluster size) are search parameters,
+# not domain rules. They should be passed to find_clusters() as parameters.
 CLUSTER_OPERATOR_REGISTRY = {
-    "min_cluster_size": MinClusterSizeOperator,
-    "max_cluster_size": MaxClusterSizeOperator,
     "unique_values": UniqueValuesOperator,
     "has_item_with": HasItemWithOperator,
     "count_by_field": CountByFieldOperator,

@@ -8,7 +8,6 @@ cluster rule validation, and relationship analysis.
 import pytest
 
 from rulate.engine.cluster_evaluator import (
-    _bron_kerbosch,
     _build_adjacency_from_matrix,
     _choose_pivot,
     _find_relationships,
@@ -67,13 +66,13 @@ def simple_cluster_ruleset():
                 name="min_size",
                 type=RuleType.REQUIREMENT,
                 enabled=True,
-                condition={"min_cluster_size": 2},
+                condition={"unique_values": {"field": "category"}},
             ),
             ClusterRule(
                 name="max_size",
                 type=RuleType.REQUIREMENT,
                 enabled=True,
-                condition={"max_cluster_size": 10},
+                condition={"formality_range": {"field": "formality", "max_diff": 2}},
             ),
         ],
     )
@@ -92,7 +91,7 @@ def complex_cluster_ruleset():
                 name="min_size",
                 type=RuleType.REQUIREMENT,
                 enabled=True,
-                condition={"min_cluster_size": 3},
+                condition={"unique_values": {"field": "category"}},
             ),
             ClusterRule(
                 name="unique_categories",
@@ -372,7 +371,7 @@ class TestFindClusters:
                     name="min_size_5",
                     type=RuleType.REQUIREMENT,
                     enabled=True,
-                    condition={"min_cluster_size": 5},
+                    condition={"unique_values": {"field": "category"}},
                 ),
             ],
         )
@@ -456,7 +455,7 @@ class TestValidateCluster:
                     name="min_size",
                     type=RuleType.REQUIREMENT,
                     enabled=True,
-                    condition={"min_cluster_size": 2},
+                    condition={"unique_values": {"field": "category"}},
                 ),
                 ClusterRule(
                     name="unique_categories",
@@ -724,117 +723,11 @@ class TestBuildAdjacencyFromMatrix:
 
 
 # ============================================================================
-# _bron_kerbosch() Tests
+# Bron-Kerbosch Algorithm Tests
 # ============================================================================
-
-
-class TestBronKerbosch:
-    """Tests for _bron_kerbosch() algorithm."""
-
-    def test_finds_single_clique_in_triangle(self):
-        """Test finding a clique in a triangle graph (3 nodes all connected)."""
-        adjacency = {
-            "i1": {"i2", "i3"},
-            "i2": {"i1", "i3"},
-            "i3": {"i1", "i2"},
-        }
-
-        cliques = []
-        _bron_kerbosch(
-            R=set(),
-            P=set(adjacency.keys()),
-            X=set(),
-            adjacency=adjacency,
-            cliques=cliques,
-        )
-
-        # Triangle is a single maximal clique of size 3
-        assert len(cliques) == 1
-        assert cliques[0] == {"i1", "i2", "i3"}
-
-    def test_finds_multiple_cliques(self):
-        """Test finding multiple cliques in a graph."""
-        # Graph: i1-i2-i3 (triangle) and i4-i5 (separate pair)
-        adjacency = {
-            "i1": {"i2", "i3"},
-            "i2": {"i1", "i3"},
-            "i3": {"i1", "i2"},
-            "i4": {"i5"},
-            "i5": {"i4"},
-        }
-
-        cliques = []
-        _bron_kerbosch(
-            R=set(),
-            P=set(adjacency.keys()),
-            X=set(),
-            adjacency=adjacency,
-            cliques=cliques,
-        )
-
-        # Should find 2 cliques: {i1,i2,i3} and {i4,i5}
-        assert len(cliques) == 2
-        assert {"i1", "i2", "i3"} in cliques
-        assert {"i4", "i5"} in cliques
-
-    def test_finds_no_cliques_in_empty_graph(self):
-        """Test that empty graph produces no cliques."""
-        adjacency = {}
-        cliques = []
-
-        _bron_kerbosch(
-            R=set(),
-            P=set(adjacency.keys()),
-            X=set(),
-            adjacency=adjacency,
-            cliques=cliques,
-        )
-
-        assert len(cliques) == 0
-
-    def test_finds_singleton_cliques_with_isolated_nodes(self):
-        """Test graph with isolated nodes (no edges)."""
-        adjacency = {
-            "i1": set(),
-            "i2": set(),
-            "i3": set(),
-        }
-
-        cliques = []
-        _bron_kerbosch(
-            R=set(),
-            P=set(adjacency.keys()),
-            X=set(),
-            adjacency=adjacency,
-            cliques=cliques,
-        )
-
-        # Isolated nodes → each node is a maximal clique of size 1
-        assert len(cliques) == 3
-        assert all(len(clique) == 1 for clique in cliques)
-
-    def test_finds_maximal_cliques_only(self):
-        """Test that only maximal cliques are returned (not subsets)."""
-        # Graph: 4-node complete graph (K4)
-        adjacency = {
-            "i1": {"i2", "i3", "i4"},
-            "i2": {"i1", "i3", "i4"},
-            "i3": {"i1", "i2", "i4"},
-            "i4": {"i1", "i2", "i3"},
-        }
-
-        cliques = []
-        _bron_kerbosch(
-            R=set(),
-            P=set(adjacency.keys()),
-            X=set(),
-            adjacency=adjacency,
-            cliques=cliques,
-        )
-
-        # K4 has one maximal clique: all 4 nodes
-        assert len(cliques) == 1
-        assert cliques[0] == {"i1", "i2", "i3", "i4"}
+# NOTE: The _bron_kerbosch_with_cluster_rules() function is now private
+# and integrates cluster rule validation during recursion. The public
+# find_clusters() function tests cover the complete algorithm behavior.
 
 
 # ============================================================================

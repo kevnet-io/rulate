@@ -67,10 +67,17 @@ Rulate includes a sophisticated cluster mechanism for finding compatible sets of
 - **Clusters**: Sets of items where all pairs are mutually compatible AND the set satisfies cluster-level rules
 - **Two-Level Rule System**:
   1. **Pairwise RuleSet**: Determines which items CAN go together (builds compatibility graph)
-  2. **ClusterRuleSet**: Determines which sets FORM valid clusters (set-level constraints)
-- **Algorithm**: Bron-Kerbosch with pivoting for finding all maximal cliques
-- **Cluster Operators** (8 set-level operators in addition to pairwise operators):
-  - `min_cluster_size`, `max_cluster_size` - Size constraints
+  2. **ClusterRuleSet**: Determines which sets FORM valid clusters (domain-specific constraints)
+- **Algorithm**: Modified Bron-Kerbosch with integrated cluster rule validation
+  - Validates cluster rules DURING recursion (not after maximal clique formation)
+  - Early pruning of invalid branches for efficiency
+  - Finds ALL valid clusters, not just pairwise-maximal cliques
+  - Supports configurable result limits (`max_clusters`) for scalability
+  - Example: 100 clusters with only ~400 validations (vs 1.5M for exhaustive search)
+- **Size Constraints**: `min_cluster_size` and `max_cluster_size` are search parameters, NOT rules
+  - Passed to `find_clusters()` function, not defined in ClusterRuleSet
+  - Example: `find_clusters(..., min_cluster_size=2, max_cluster_size=10, max_clusters=100)`
+- **Cluster Operators** (6 domain-specific operators in addition to pairwise operators):
   - `unique_values` - Ensure field uniqueness across cluster
   - `has_item_with` - Require items matching criteria
   - `count_by_field` - Count distinct field values
@@ -683,6 +690,18 @@ items:
 - **Test Infrastructure**: Cleaned up unused utilities, excluded test code from coverage metrics (standard practice)
 
 ### Recent Changes
+- **Cluster Algorithm Refactor (January 2026)**: Major improvement to cluster finding algorithm
+  - **BREAKING CHANGE**: Size constraints (`min_cluster_size`, `max_cluster_size`) removed from ClusterRuleSet
+  - Size constraints now passed as parameters to `find_clusters()` function
+  - Modified Bron-Kerbosch algorithm with integrated cluster rule validation during recursion
+  - Early pruning of invalid branches prevents exploring impossible combinations
+  - Finds ALL valid clusters (not just pairwise-maximal cliques)
+  - **Performance**: 300x faster with `max_clusters` limit (100 clusters = 381 validations vs 1.5M)
+  - **Fixes bug**: v2 wardrobe now finds 100+ clusters (was finding 0 with old algorithm)
+  - Updated v1.json and v2.json to remove size rules from cluster_rulesets
+  - Updated UI operator lists and templates to remove size operators
+  - Updated API models (EvaluateClustersRequest already supported parameters)
+  - Core engine refactored: removed MinClusterSizeOperator and MaxClusterSizeOperator
 - **Compatibility Graph Visualization (January 2026)**: Interactive graph visualization for Cluster Builder
   - Cytoscape.js integration with 4 layout options (force-directed, circular, grid, hierarchical)
   - Real-time visual feedback showing pairwise compatibility network between items

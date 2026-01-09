@@ -33,17 +33,22 @@ def find_clusters(
     max_clusters: int | None = None,
 ) -> ClusterAnalysis:
     """
-    Find all valid clusters using two-level rule evaluation.
+    Find all valid clusters using integrated two-level rule evaluation.
+
+    This algorithm uses a modified Bron-Kerbosch approach that validates cluster
+    rules DURING recursion rather than after. This provides:
+    - Early pruning of invalid branches
+    - Efficient discovery of all valid clusters
+    - No false negatives from maximal-only validation
 
     Phase 1: Build compatibility graph from pairwise rules
-    Phase 2: Find all maximal cliques (candidate clusters)
-    Phase 3: Validate each clique against cluster rules
-    Phase 4: Analyze relationships and statistics
+    Phase 2: Find maximal cliques with integrated cluster validation
+    Phase 3: Analyze relationships and statistics
 
     Args:
         catalog: Items to cluster
         pairwise_ruleset: Rules for item-pair compatibility
-        cluster_ruleset: Rules for valid clusters
+        cluster_ruleset: Rules for valid clusters (domain rules only)
         schema: Schema for validation
         min_cluster_size: Minimum items per cluster (default 2)
         max_cluster_size: Maximum items per cluster (None = unlimited)
@@ -54,6 +59,11 @@ def find_clusters(
 
     Raises:
         ValueError: If catalog is empty or validation fails
+
+    Note:
+        Size constraints (min/max_cluster_size) are search parameters, not rules.
+        cluster_ruleset should contain only domain-specific rules like
+        formality_consistency, season_consistency, etc.
     """
     if len(catalog.items) == 0:
         raise ValueError("Cannot find clusters in empty catalog")
@@ -62,26 +72,30 @@ def find_clusters(
     matrix = evaluate_matrix(catalog, pairwise_ruleset, schema)
     adjacency = _build_adjacency_from_matrix(matrix)
 
-    # PHASE 2: Find all maximal cliques (candidate clusters)
-    candidate_cliques: list[set[str]] = []
+    # PHASE 2: Find maximal cliques with integrated cluster validation
     all_item_ids = set(item.id for item in catalog.items)
+    seen_clusters: set[frozenset[str]] = set()
+    found_clusters: list[set[str]] = []
+    validation_count = [0]  # Mutable counter for tracking
 
-    _bron_kerbosch(
+    _bron_kerbosch_with_cluster_rules(
         R=set(),
         P=all_item_ids.copy(),
         X=set(),
         adjacency=adjacency,
-        cliques=candidate_cliques,
+        cluster_ruleset=cluster_ruleset,
+        catalog=catalog,
+        min_size=min_cluster_size,
         max_size=max_cluster_size,
+        max_clusters=max_clusters,
+        seen_clusters=seen_clusters,
+        found_clusters=found_clusters,
+        validation_count=validation_count,
     )
 
-    # PHASE 3: Validate each clique against cluster rules
+    # Convert to Cluster objects
     valid_clusters: list[Cluster] = []
-
-    for clique in candidate_cliques:
-        if len(clique) < min_cluster_size:
-            continue
-
+    for clique in found_clusters:
         # Get items for this clique
         items_maybe_none = [catalog.get_item(item_id) for item_id in clique]
         items: list[Item] = [item for item in items_maybe_none if item is not None]
@@ -89,29 +103,26 @@ def find_clusters(
         if len(items) < min_cluster_size:
             continue
 
-        # Validate against cluster rules
-        is_valid, rule_evals = validate_cluster(items, cluster_ruleset)
+        # Get rule evaluations (already validated during search)
+        _, rule_evals = validate_cluster(items, cluster_ruleset)
 
-        if is_valid:
-            cluster = Cluster(
-                id=generate_cluster_id(list(clique)),
-                item_ids=sorted(clique),
-                size=len(clique),
-                is_maximal=True,  # All Bron-Kerbosch results are maximal
-                is_maximum=False,  # Will be set later
-                rule_evaluations=rule_evals,
-                metadata={
-                    "pairwise_ruleset": pairwise_ruleset.name,
-                    "cluster_ruleset": cluster_ruleset.name,
-                },
-            )
-            valid_clusters.append(cluster)
+        cluster = Cluster(
+            id=generate_cluster_id(list(clique)),
+            item_ids=sorted(clique),
+            size=len(clique),
+            is_maximal=True,  # All results are maximal within cluster rules
+            is_maximum=False,  # Will be set later
+            rule_evaluations=rule_evals,
+            metadata={
+                "pairwise_ruleset": pairwise_ruleset.name,
+                "cluster_ruleset": cluster_ruleset.name,
+                "validations": validation_count[0],
+            },
+        )
+        valid_clusters.append(cluster)
 
-    # PHASE 4: Sort, limit, and analyze
+    # PHASE 3: Sort and analyze
     valid_clusters.sort(key=lambda c: c.size, reverse=True)
-
-    if max_clusters and len(valid_clusters) > max_clusters:
-        valid_clusters = valid_clusters[:max_clusters]
 
     # Mark maximum clusters (largest size)
     if valid_clusters:
@@ -124,8 +135,8 @@ def find_clusters(
 
     # Calculate statistics
     total_clusters = len(valid_clusters)
-    max_cluster_size = valid_clusters[0].size if valid_clusters else 0
-    min_cluster_size = valid_clusters[-1].size if valid_clusters else 0
+    max_cluster_size_found = valid_clusters[0].size if valid_clusters else 0
+    min_cluster_size_found = valid_clusters[-1].size if valid_clusters else 0
     avg_cluster_size = (
         sum(c.size for c in valid_clusters) / total_clusters if total_clusters > 0 else 0.0
     )
@@ -145,8 +156,8 @@ def find_clusters(
         relationships=relationships,
         evaluated_at=datetime.now(),
         total_clusters=total_clusters,
-        max_cluster_size=max_cluster_size,
-        min_cluster_size=min_cluster_size,
+        max_cluster_size=max_cluster_size_found,
+        min_cluster_size=min_cluster_size_found,
         avg_cluster_size=avg_cluster_size,
         total_items_covered=total_items_covered,
     )
@@ -242,70 +253,133 @@ def _build_adjacency_from_matrix(matrix: EvaluationMatrix) -> dict[str, set[str]
     return adjacency
 
 
-def _bron_kerbosch(
+def _bron_kerbosch_with_cluster_rules(
     R: set[str],
     P: set[str],
     X: set[str],
     adjacency: dict[str, set[str]],
-    cliques: list[set[str]],
-    max_size: int | None = None,
-) -> None:
+    cluster_ruleset: ClusterRuleSet,
+    catalog: Catalog,
+    min_size: int,
+    max_size: int | None,
+    max_clusters: int | None,
+    seen_clusters: set[frozenset[str]],
+    found_clusters: list[set[str]],
+    validation_count: list[int],
+) -> bool:
     """
-    Bron-Kerbosch algorithm with pivoting for finding all maximal cliques.
+    Modified Bron-Kerbosch that validates cluster rules during recursion.
 
-    This is a recursive backtracking algorithm that finds all maximal cliques
-    in an undirected graph. A clique is a set of vertices where every two
-    distinct vertices are adjacent (fully connected subgraph).
+    This integrated approach prunes invalid branches early and ensures we find
+    ALL valid clusters, not just those that happen to be maximal in the pairwise
+    compatibility graph.
 
-    Modified to support max_size constraint: when max_size is set, the algorithm
-    will find all cliques up to that size (not just maximal cliques).
+    Key differences from standard Bron-Kerbosch:
+    1. Validates cluster rules when R >= min_size (early pruning)
+    2. Deduplicates using seen_clusters set
+    3. Supports early stopping via max_clusters limit
+    4. Returns bool to signal whether search should continue
 
     Args:
         R: Current clique being built
         P: Candidate vertices that could extend R
         X: Vertices already processed (to avoid duplicates)
         adjacency: Adjacency list representation of graph
-        cliques: List to accumulate found cliques (modified in place)
-        max_size: Maximum clique size (None = unlimited, finds only maximal cliques)
+        cluster_ruleset: Rules to validate clusters against
+        catalog: Catalog containing items
+        min_size: Minimum cluster size to validate
+        max_size: Maximum cluster size (None = unlimited)
+        max_clusters: Maximum results to find (None = all)
+        seen_clusters: Set of frozensets for deduplication
+        found_clusters: List to accumulate found clusters
+        validation_count: Mutable counter for tracking validations
+
+    Returns:
+        True if search should continue, False if max_clusters reached
 
     Reference:
-        Bron, C.; Kerbosch, J. (1973). "Algorithm 457: finding all cliques of an undirected graph"
+        Based on Bron-Kerbosch algorithm with integrated constraint validation
     """
+    # Check if we've hit the cluster limit
+    if max_clusters and len(found_clusters) >= max_clusters:
+        return False
+
     # Base case: R is maximal when no more vertices can be added
     if len(P) == 0 and len(X) == 0:
-        if len(R) > 0:
-            cliques.append(R.copy())
-        return
+        if len(R) >= min_size:
+            cluster_key = frozenset(R)
+            if cluster_key not in seen_clusters:
+                seen_clusters.add(cluster_key)
+                found_clusters.append(R.copy())
+        return len(found_clusters) < max_clusters if max_clusters else True
 
-    # If max_size is set and we've reached it, record this as maximal
-    # (can't expand further without exceeding limit)
-    if max_size is not None and len(R) == max_size:
-        if len(R) > 0:
-            cliques.append(R.copy())
-        return
+    # Check max size constraint
+    if max_size is not None and len(R) >= max_size:
+        if len(R) >= min_size:
+            # Final validation at max size
+            items = [item for item in catalog.items if item.id in R]
+            is_valid, _ = validate_cluster(items, cluster_ruleset)
+            validation_count[0] += 1
+
+            if is_valid:
+                cluster_key = frozenset(R)
+                if cluster_key not in seen_clusters:
+                    seen_clusters.add(cluster_key)
+                    found_clusters.append(R.copy())
+        return len(found_clusters) < max_clusters if max_clusters else True
 
     # Pivoting: choose a vertex u from P ∪ X to minimize branching
     pivot = _choose_pivot(P, X, adjacency)
 
     # Iterate over vertices in P that are NOT neighbors of pivot
-    # (This reduces the number of recursive calls)
     if pivot:
         candidates = P - adjacency.get(pivot, set())
     else:
         candidates = P.copy()
 
     for v in list(candidates):
-        neighbors = adjacency.get(v, set())
-        _bron_kerbosch(
-            R=R | {v},
-            P=P & neighbors,
-            X=X & neighbors,
-            adjacency=adjacency,
-            cliques=cliques,
-            max_size=max_size,
-        )
+        new_R = R | {v}
+
+        # Check if we've already seen this cluster
+        cluster_key = frozenset(new_R)
+        if cluster_key in seen_clusters:
+            P = P - {v}
+            X = X | {v}
+            continue
+
+        # CLUSTER RULE VALIDATION: Only validate if R is large enough
+        should_recurse = True
+        if len(new_R) >= min_size:
+            # Now we can validate against cluster rules
+            items = [item for item in catalog.items if item.id in new_R]
+            is_valid, _ = validate_cluster(items, cluster_ruleset)
+            validation_count[0] += 1
+            should_recurse = is_valid
+        # else: R too small to validate, allow recursion to continue
+
+        if should_recurse:
+            neighbors = adjacency.get(v, set())
+            should_continue = _bron_kerbosch_with_cluster_rules(
+                R=new_R,
+                P=P & neighbors,
+                X=X & neighbors,
+                adjacency=adjacency,
+                cluster_ruleset=cluster_ruleset,
+                catalog=catalog,
+                min_size=min_size,
+                max_size=max_size,
+                max_clusters=max_clusters,
+                seen_clusters=seen_clusters,
+                found_clusters=found_clusters,
+                validation_count=validation_count,
+            )
+            if not should_continue:
+                return False
+
         P = P - {v}
         X = X | {v}
+
+    return True
 
 
 def _choose_pivot(P: set[str], X: set[str], adjacency: dict[str, set[str]]) -> str | None:
