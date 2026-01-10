@@ -3,7 +3,7 @@ Comprehensive tests for the CLI.
 
 Tests cover all CLI commands:
 - validate: schema, rules, catalog
-- evaluate: pair, matrix, item, clusters
+- evaluate: pair, matrix, item, cluster
 - show: schema, catalog
 """
 
@@ -599,6 +599,214 @@ class TestEvaluateItem:
         assert "✗ Item 'nonexistent' not found" in result.output
 
 
+class TestEvaluateCluster:
+    """Tests for 'evaluate cluster' command."""
+
+    def test_validates_valid_cluster_summary_format(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command validates a valid cluster."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "pants_001",
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+            ],
+        )
+        assert result.exit_code == 0
+        assert "✓ Valid cluster" in result.output
+        assert "Pairwise Compatibility" in result.output
+        assert "Cluster Rules" in result.output
+
+    def test_validates_invalid_cluster_pairwise_incompatible(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command detects pairwise incompatible items."""
+        # shirt_001 and shirt_002 have same category, should be incompatible
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "shirt_002",
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+            ],
+        )
+        assert result.exit_code == 1
+        assert "✗ Invalid cluster" in result.output
+        assert "incompatible pair" in result.output.lower()
+
+    def test_validates_cluster_json_format(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command outputs JSON format."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "pants_001",
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+                "--format",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert "item_ids" in data
+        assert "is_valid" in data
+        assert "pairwise_compatible" in data
+        assert "cluster_rules_valid" in data
+        assert data["item_ids"] == ["shirt_001", "pants_001"]
+        assert data["is_valid"] is True
+
+    def test_validates_cluster_yaml_format(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command outputs YAML format."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "pants_001",
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+                "--format",
+                "yaml",
+            ],
+        )
+        assert result.exit_code == 0
+        data = yaml.safe_load(result.output)
+        assert "item_ids" in data
+        assert "is_valid" in data
+        assert data["is_valid"] is True
+
+    def test_fails_with_nonexistent_item(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command fails when item doesn't exist."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "nonexistent",
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+            ],
+        )
+        assert result.exit_code == 1
+        assert "✗ Items not found in catalog" in result.output
+        assert "nonexistent" in result.output
+
+    def test_requires_at_least_one_item(self, cli_runner):
+        """evaluate cluster command requires at least one item ID."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "--catalog",
+                "fake.yaml",
+                "--rules",
+                "fake.yaml",
+                "--cluster-rules",
+                "fake.yaml",
+            ],
+        )
+        assert result.exit_code != 0  # Should fail with missing arguments
+
+    def test_validates_three_item_cluster(
+        self,
+        cli_runner,
+        sample_catalog_file,
+        sample_ruleset_file,
+        sample_cluster_ruleset_file,
+        sample_schema_file,
+    ):
+        """evaluate cluster command validates a 3-item cluster."""
+        result = cli_runner.invoke(
+            evaluate,
+            [
+                "cluster",
+                "shirt_001",
+                "pants_001",
+                "shirt_002",  # Added a third item
+                "--catalog",
+                sample_catalog_file,
+                "--rules",
+                sample_ruleset_file,
+                "--cluster-rules",
+                sample_cluster_ruleset_file,
+                "--schema",
+                sample_schema_file,
+            ],
+        )
+        # Should fail because shirt_001 and shirt_002 are incompatible
+        assert result.exit_code == 1
+        assert "✗ Invalid cluster" in result.output
+
+
 # ============================================================================
 # SHOW COMMANDS TESTS
 # ============================================================================
@@ -702,6 +910,7 @@ class TestMainCLI:
         assert "pair" in result.output
         assert "matrix" in result.output
         assert "item" in result.output
+        assert "cluster" in result.output
 
     def test_show_help(self, cli_runner):
         """show command group shows help."""
