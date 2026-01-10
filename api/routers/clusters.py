@@ -90,10 +90,16 @@ def validate_cluster_endpoint(
     request: ValidateClusterRequest, db: Session = Depends(get_db)
 ) -> ValidateClusterResponse:
     """
-    Validate a specific set of items against cluster rules.
+    Validate a specific set of items against pairwise and cluster rules.
+
+    This endpoint performs comprehensive cluster validation:
+    1. Checks that all pairs of items are pairwise compatible
+    2. Validates the cluster against cluster-level rules
+
+    A cluster is only valid if BOTH conditions are met.
 
     Args:
-        request: Validation request with catalog, cluster ruleset, and item IDs
+        request: Validation request with catalog, rulesets, and item IDs
         db: Database session
 
     Returns:
@@ -105,6 +111,16 @@ def validate_cluster_endpoint(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Catalog '{request.catalog_name}' not found",
+        )
+
+    # Find pairwise ruleset
+    db_pairwise_ruleset = (
+        db.query(RuleSetDB).filter(RuleSetDB.name == request.pairwise_ruleset_name).first()
+    )
+    if not db_pairwise_ruleset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"RuleSet '{request.pairwise_ruleset_name}' not found",
         )
 
     # Find cluster ruleset
@@ -120,6 +136,8 @@ def validate_cluster_endpoint(
         )
 
     # Convert to Rulate models
+    schema = db_to_rulate_schema(db_catalog.schema)
+    pairwise_ruleset = db_to_rulate_ruleset(db_pairwise_ruleset)
     cluster_ruleset = db_to_rulate_cluster_ruleset(db_cluster_ruleset)
     catalog = db_to_rulate_catalog(db_catalog)
 
@@ -139,20 +157,52 @@ def validate_cluster_endpoint(
             detail=f"Items not found in catalog: {missing_ids}",
         )
 
-    # Validate cluster
-    is_valid, rule_evals = validate_cluster(items, cluster_ruleset)
+    # Check pairwise compatibility for all pairs
+    pairwise_incompatible_pairs: list[tuple[str, str]] = []
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            result = evaluate_pair(items[i], items[j], pairwise_ruleset, schema)
+            if not result.compatible:
+                pairwise_incompatible_pairs.append((items[i].id, items[j].id))
+
+    # If any pairs are incompatible, cluster is invalid
+    if pairwise_incompatible_pairs:
+        pair_descriptions = [f"({p[0]}, {p[1]})" for p in pairwise_incompatible_pairs]
+        return ValidateClusterResponse(
+            item_ids=request.item_ids,
+            is_valid=False,
+            rule_evaluations=[
+                RuleEvaluationResponse(
+                    rule_name="pairwise_compatibility",
+                    passed=False,
+                    reason=f"Incompatible pairs found: {', '.join(pair_descriptions)}",
+                )
+            ],
+        )
+
+    # Validate cluster-level rules
+    cluster_is_valid, cluster_rule_evals = validate_cluster(items, cluster_ruleset)
+
+    # Add pairwise compatibility as a passing rule evaluation
+    all_rule_evals = [
+        RuleEvaluationResponse(
+            rule_name="pairwise_compatibility",
+            passed=True,
+            reason="All pairs are pairwise compatible",
+        )
+    ] + [
+        RuleEvaluationResponse(
+            rule_name=r.rule_name,
+            passed=r.passed,
+            reason=r.reason,
+        )
+        for r in cluster_rule_evals
+    ]
 
     return ValidateClusterResponse(
         item_ids=request.item_ids,
-        is_valid=is_valid,
-        rule_evaluations=[
-            RuleEvaluationResponse(
-                rule_name=r.rule_name,
-                passed=r.passed,
-                reason=r.reason,
-            )
-            for r in rule_evals
-        ],
+        is_valid=cluster_is_valid,
+        rule_evaluations=all_rule_evals,
     )
 
 

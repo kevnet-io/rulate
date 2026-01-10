@@ -231,6 +231,7 @@ class ValidateClusterRequest(BaseModel):
     """Request schema for validating a specific cluster."""
 
     catalog_name: str
+    pairwise_ruleset_name: str
     cluster_ruleset_name: str
     item_ids: list[str]
 

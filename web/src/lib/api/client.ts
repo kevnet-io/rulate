@@ -410,6 +410,7 @@ class ApiClient {
   // Cluster Builder endpoints
   async validateCluster(
     catalogName: string,
+    pairwiseRulesetName: string,
     clusterRulesetName: string,
     itemIds: string[],
   ): Promise<ValidateClusterResponse> {
@@ -417,6 +418,7 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({
         catalog_name: catalogName,
+        pairwise_ruleset_name: pairwiseRulesetName,
         cluster_ruleset_name: clusterRulesetName,
         item_ids: itemIds,
       }),

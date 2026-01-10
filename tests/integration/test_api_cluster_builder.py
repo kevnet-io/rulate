@@ -110,6 +110,7 @@ class TestValidateCluster:
         """Test validating a valid cluster."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": ["shirt_1", "pants_1"],
         }
@@ -123,11 +124,14 @@ class TestValidateCluster:
         assert "rule_evaluations" in data
         assert len(data["rule_evaluations"]) > 0
         assert all(r["passed"] for r in data["rule_evaluations"])
+        # Should have pairwise compatibility check + cluster rules
+        assert any(r["rule_name"] == "pairwise_compatibility" for r in data["rule_evaluations"])
 
     def test_validate_cluster_invalid_too_small(self, client, builder_setup):
         """Test validating a cluster that fails a cluster rule."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": ["shirt_1"],  # Missing required pants
         }
@@ -145,6 +149,7 @@ class TestValidateCluster:
         """Test validating an empty cluster."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": [],
         }
@@ -160,6 +165,7 @@ class TestValidateCluster:
         """Test validating a valid 3-item cluster."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": ["shirt_1", "pants_1", "shoes_1"],
         }
@@ -175,6 +181,7 @@ class TestValidateCluster:
         """Test validating cluster with nonexistent catalog."""
         request = {
             "catalog_name": "nonexistent",
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": ["shirt_1"],
         }
@@ -188,6 +195,7 @@ class TestValidateCluster:
         """Test validating cluster with nonexistent cluster ruleset."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": "nonexistent",
             "item_ids": ["shirt_1"],
         }
@@ -201,6 +209,7 @@ class TestValidateCluster:
         """Test validating cluster with nonexistent item."""
         request = {
             "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
             "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
             "item_ids": ["shirt_1", "nonexistent_item"],
         }
@@ -216,6 +225,18 @@ class TestValidateCluster:
         response = client.post(
             "/api/v1/evaluate/cluster/validate",
             json={
+                "pairwise_ruleset_name": "test",
+                "cluster_ruleset_name": "test",
+                "item_ids": ["item1"],
+            },
+        )
+        assert response.status_code == 422
+
+        # Missing pairwise_ruleset_name
+        response = client.post(
+            "/api/v1/evaluate/cluster/validate",
+            json={
+                "catalog_name": "test",
                 "cluster_ruleset_name": "test",
                 "item_ids": ["item1"],
             },
@@ -227,10 +248,36 @@ class TestValidateCluster:
             "/api/v1/evaluate/cluster/validate",
             json={
                 "catalog_name": "test",
+                "pairwise_ruleset_name": "test",
                 "item_ids": ["item1"],
             },
         )
         assert response.status_code == 422
+
+    def test_validate_cluster_pairwise_incompatible(self, client, builder_setup):
+        """Test validating a cluster with pairwise incompatible items."""
+        # shirt_1 and shirt_2 have same category, should be pairwise incompatible
+        request = {
+            "catalog_name": builder_setup["catalog_name"],
+            "pairwise_ruleset_name": builder_setup["pairwise_ruleset_name"],
+            "cluster_ruleset_name": builder_setup["cluster_ruleset_name"],
+            "item_ids": ["shirt_1", "shirt_2", "pants_1"],
+        }
+
+        response = client.post("/api/v1/evaluate/cluster/validate", json=request)
+
+        assert response.status_code == 200
+        data = response.json()
+        # Should be invalid due to pairwise incompatibility
+        assert data["is_valid"] is False
+        # Should have pairwise_compatibility rule that failed
+        pairwise_rule = next(
+            (r for r in data["rule_evaluations"] if r["rule_name"] == "pairwise_compatibility"),
+            None,
+        )
+        assert pairwise_rule is not None
+        assert pairwise_rule["passed"] is False
+        assert "shirt_1" in pairwise_rule["reason"] and "shirt_2" in pairwise_rule["reason"]
 
 
 class TestEvaluateCandidates:

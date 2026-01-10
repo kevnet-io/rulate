@@ -13,7 +13,8 @@ import click
 import yaml
 
 from rulate.engine import evaluate_item_against_catalog, evaluate_matrix, evaluate_pair
-from rulate.utils import load_catalog, load_ruleset, load_schema
+from rulate.engine.cluster_evaluator import validate_cluster
+from rulate.utils import load_catalog, load_cluster_ruleset, load_ruleset, load_schema
 
 
 @click.group()
@@ -352,6 +353,136 @@ def evaluate_item_cmd(
 
     except Exception as e:
         click.secho("✗ Evaluation failed:", fg="red", err=True)
+        click.echo(f"  {str(e)}", err=True)
+        sys.exit(1)
+
+
+@evaluate.command(name="cluster")
+@click.argument("item_ids", nargs=-1, required=True)
+@click.option("--catalog", "-c", required=True, type=click.Path(exists=True), help="Catalog file")
+@click.option(
+    "--rules", "-r", required=True, type=click.Path(exists=True), help="Pairwise rules file"
+)
+@click.option(
+    "--cluster-rules", "-cr", required=True, type=click.Path(exists=True), help="Cluster rules file"
+)
+@click.option("--schema", "-s", type=click.Path(exists=True), help="Schema file")
+@click.option("--format", type=click.Choice(["summary", "json", "yaml"]), default="summary")
+def evaluate_cluster_cmd(
+    item_ids: tuple[str, ...],
+    catalog: str,
+    rules: str,
+    cluster_rules: str,
+    schema: str | None,
+    format: str,
+) -> None:
+    """
+    Validate a specific cluster of items.
+
+    Checks both pairwise compatibility and cluster-level rules.
+    Provide item IDs as space-separated arguments.
+
+    Example:
+      rulate evaluate cluster shirt_001 pants_002 shoes_003 \\
+        --catalog catalog.yaml \\
+        --rules pairwise_rules.yaml \\
+        --cluster-rules cluster_rules.yaml
+    """
+    try:
+        # Load files
+        catalog_obj = load_catalog(catalog)
+        pairwise_ruleset = load_ruleset(rules)
+        cluster_ruleset = load_cluster_ruleset(cluster_rules)
+        schema_obj = load_schema(schema) if schema else None
+
+        # Get items from catalog
+        items = []
+        missing_ids = []
+        for item_id in item_ids:
+            item = catalog_obj.get_item(item_id)
+            if item:
+                items.append(item)
+            else:
+                missing_ids.append(item_id)
+
+        if missing_ids:
+            click.secho(
+                f"✗ Items not found in catalog: {', '.join(missing_ids)}", fg="red", err=True
+            )
+            sys.exit(1)
+
+        # Check pairwise compatibility for all pairs
+        pairwise_incompatible = []
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                result = evaluate_pair(items[i], items[j], pairwise_ruleset, schema_obj)
+                if not result.compatible:
+                    pairwise_incompatible.append((items[i].id, items[j].id))
+
+        # Validate cluster rules
+        cluster_is_valid, cluster_rule_evals = validate_cluster(items, cluster_ruleset)
+
+        # Determine overall validity
+        is_valid = len(pairwise_incompatible) == 0 and cluster_is_valid
+
+        # Output
+        if format == "json":
+            output = {
+                "item_ids": list(item_ids),
+                "is_valid": is_valid,
+                "pairwise_compatible": len(pairwise_incompatible) == 0,
+                "cluster_rules_valid": cluster_is_valid,
+                "incompatible_pairs": [[p[0], p[1]] for p in pairwise_incompatible],
+                "rule_evaluations": [r.model_dump(mode="python") for r in cluster_rule_evals],
+            }
+            click.echo(json.dumps(output, indent=2, default=str))
+        elif format == "yaml":
+            output = {
+                "item_ids": list(item_ids),
+                "is_valid": is_valid,
+                "pairwise_compatible": len(pairwise_incompatible) == 0,
+                "cluster_rules_valid": cluster_is_valid,
+                "incompatible_pairs": [[p[0], p[1]] for p in pairwise_incompatible],
+                "rule_evaluations": [r.model_dump(mode="python") for r in cluster_rule_evals],
+            }
+            click.echo(yaml.dump(output, default_flow_style=False))
+        else:
+            # Summary format
+            click.secho("\nCluster Validation", bold=True)
+            click.echo(f"Items: {', '.join(item_ids)}")
+            click.echo()
+
+            if is_valid:
+                click.secho("✓ Valid cluster", fg="green", bold=True)
+            else:
+                click.secho("✗ Invalid cluster", fg="red", bold=True)
+
+            click.echo()
+            click.secho("Pairwise Compatibility:", bold=True)
+            if len(pairwise_incompatible) == 0:
+                click.secho("  ✓ All pairs are compatible", fg="green")
+            else:
+                click.secho(f"  ✗ {len(pairwise_incompatible)} incompatible pair(s):", fg="red")
+                for p1, p2 in pairwise_incompatible:
+                    click.echo(f"    - {p1} <-> {p2}")
+
+            click.echo()
+            click.secho("Cluster Rules:", bold=True)
+            if cluster_is_valid:
+                click.secho("  ✓ All cluster rules passed", fg="green")
+            else:
+                click.secho("  ✗ Some cluster rules failed:", fg="red")
+
+            for rule_eval in cluster_rule_evals:
+                if rule_eval.passed:
+                    click.secho(f"  ✓ {rule_eval.rule_name}", fg="green")
+                else:
+                    click.secho(f"  ✗ {rule_eval.rule_name}: {rule_eval.reason}", fg="red")
+
+        sys.exit(0 if is_valid else 1)
+
+    except Exception as e:
+        click.secho("✗ Cluster validation failed:", fg="red", err=True)
         click.echo(f"  {str(e)}", err=True)
         sys.exit(1)
 
