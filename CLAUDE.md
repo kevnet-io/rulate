@@ -100,7 +100,7 @@ FastAPI backend with SQLite persistence for managing schemas, rulesets, and cata
 - `api/routers/` - Endpoint implementations (schemas, rulesets, catalogs, evaluation, clusters, import_export)
 - `api/models/schemas.py` - Pydantic request/response models (distinct from core models)
 - `api/database/connection.py` - Session management with `get_db()` dependency
-- `api/routers/clusters.py` - Cluster evaluation endpoint (`POST /evaluate/clusters`)
+- `api/routers/clusters.py` - Cluster builder endpoints (`POST /evaluate/cluster/validate`, `POST /evaluate/cluster/candidates`) and ClusterRuleSet CRUD
 - `api/routers/import_export.py` - Bulk import/export endpoints for data backup and migration
 
 **Important conversion pattern:**
@@ -135,7 +135,6 @@ SvelteKit 2.0 frontend with TypeScript providing interactive visualization and m
 - `web/src/routes/explore/+page.svelte` - Interactive compatibility explorer
 - `web/src/routes/matrix/+page.svelte` - Compatibility matrix visualization
 - `web/src/routes/cluster-builder/+page.svelte` - Interactive cluster builder with real-time validation and graph visualization
-- `web/src/routes/clusters/+page.svelte` - Cluster analysis and discovery
 - `web/src/routes/import-export/+page.svelte` - Bulk import/export page for data backup and migration
 
 **Important components:**

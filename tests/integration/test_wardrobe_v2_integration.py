@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 
-from rulate.engine.cluster_evaluator import find_clusters
 from rulate.engine.evaluator import evaluate_matrix, evaluate_pair
 from rulate.models.catalog import Catalog
 from rulate.models.cluster import ClusterRuleSet
@@ -251,42 +250,6 @@ class TestMatrixEvaluation:
         assert matrix is not None
         assert len(matrix.results) > 0
         assert matrix.catalog_name == "gender_agnostic_wardrobe_v2"
-
-
-class TestClusterEvaluation:
-    """Test cluster finding with v2 cluster rules."""
-
-    def test_find_business_outfit_cluster(self, catalog_v2, rules_v2, cluster_rules_v2, schema_v2):
-        """Test that cluster finding runs successfully."""
-        # find_clusters expects a Catalog object and returns ClusterAnalysis
-        analysis = find_clusters(catalog_v2, rules_v2, cluster_rules_v2, schema_v2)
-
-        # Should complete successfully and return an analysis
-        assert analysis is not None
-        assert analysis.catalog_name == "gender_agnostic_wardrobe_v2"
-        assert analysis.ruleset_name == "wardrobe_rules_v2"
-        assert analysis.cluster_ruleset_name == "wardrobe_cluster_rules_v2"
-
-    def test_formality_consistency_enforced(
-        self, catalog_v2, rules_v2, cluster_rules_v2, schema_v2
-    ):
-        """Test that formality consistency is enforced in clusters."""
-        # find_clusters on full catalog - formality_range should limit cluster sizes
-        analysis = find_clusters(catalog_v2, rules_v2, cluster_rules_v2, schema_v2)
-
-        # With formality_range max_diff: 1, items with formality 1 and 5 should not be together
-        # Check that no cluster contains items with formality difference > 1
-        for cluster in analysis.clusters:
-            formalities = [
-                item.get_attribute("formality")
-                for item in cluster.items
-                if item.get_attribute("formality") is not None
-            ]
-            if formalities:
-                formality_range = max(formalities) - min(formalities)
-                assert (
-                    formality_range <= 1
-                ), f"Cluster {cluster.cluster_id} has formality range {formality_range} > 1"
 
 
 class TestSpecificScenarios:

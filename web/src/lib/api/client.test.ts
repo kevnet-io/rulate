@@ -844,32 +844,6 @@ describe("API Client", () => {
         expect(result).toEqual(mockResults);
       });
     });
-
-    describe("evaluateClusters", () => {
-      it("evaluates clusters in a catalog", async () => {
-        const mockClusters = {
-          clusters: [],
-          relationships: [],
-        };
-
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockClusters,
-        });
-
-        const result = await apiClient.evaluateClusters(
-          "test_catalog",
-          "test_ruleset",
-          "test_cluster_ruleset",
-        );
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining("/evaluate/clusters"),
-          expect.any(Object),
-        );
-        expect(result).toEqual(mockClusters);
-      });
-    });
   });
 
   describe("Import/Export Endpoints", () => {

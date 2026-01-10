@@ -22,7 +22,6 @@ const navItems: NavItem[] = [
   { href: "/cluster-rulesets", label: "Cluster RuleSets" },
   { href: "/explore", label: "Explorer" },
   { href: "/matrix", label: "Matrix" },
-  { href: "/clusters", label: "Clusters" },
   { href: "/import-export", label: "Import/Export" },
 ];
 
@@ -36,7 +35,7 @@ function isActive(path: string, currentPathname: string): boolean {
 describe("Navigation Component", () => {
   describe("Navigation Items", () => {
     it("has all navigation items defined", () => {
-      expect(navItems.length).toBe(9);
+      expect(navItems.length).toBe(8);
     });
 
     it("includes home link", () => {
@@ -68,10 +67,6 @@ describe("Navigation Component", () => {
 
     it("includes matrix link", () => {
       expect(navItems).toContainEqual({ href: "/matrix", label: "Matrix" });
-    });
-
-    it("includes clusters link", () => {
-      expect(navItems).toContainEqual({ href: "/clusters", label: "Clusters" });
     });
 
     it("includes import-export link", () => {
@@ -185,22 +180,6 @@ describe("Navigation Component", () => {
 
       it("does not mark matrix as active on other routes", () => {
         expect(isActive("/matrix", "/explore")).toBe(false);
-        expect(isActive("/matrix", "/clusters")).toBe(false);
-      });
-    });
-
-    describe("Clusters route", () => {
-      it("marks clusters as active on /clusters", () => {
-        expect(isActive("/clusters", "/clusters")).toBe(true);
-      });
-
-      it("marks clusters as active on nested cluster routes", () => {
-        expect(isActive("/clusters", "/clusters/test")).toBe(true);
-      });
-
-      it("does not mark clusters as active on other routes", () => {
-        expect(isActive("/clusters", "/matrix")).toBe(false);
-        expect(isActive("/clusters", "/explore")).toBe(false);
       });
     });
 

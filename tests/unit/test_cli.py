@@ -599,75 +599,6 @@ class TestEvaluateItem:
         assert "✗ Item 'nonexistent' not found" in result.output
 
 
-class TestEvaluateClusters:
-    """Tests for 'evaluate clusters' command."""
-
-    def test_evaluates_clusters_summary_format(
-        self,
-        cli_runner,
-        sample_catalog_file,
-        sample_ruleset_file,
-        sample_cluster_ruleset_file,
-        sample_schema_file,
-    ):
-        """evaluate clusters command outputs summary format."""
-        result = cli_runner.invoke(
-            evaluate,
-            [
-                "clusters",
-                "--catalog",
-                sample_catalog_file,
-                "--rules",
-                sample_ruleset_file,
-                "--cluster-rules",
-                sample_cluster_ruleset_file,
-                "--schema",
-                sample_schema_file,
-                "--format",
-                "summary",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Cluster Analysis" in result.output
-        assert "Found" in result.output and "cluster(s)" in result.output
-
-    def test_evaluates_clusters_json_format(
-        self,
-        cli_runner,
-        sample_catalog_file,
-        sample_ruleset_file,
-        sample_cluster_ruleset_file,
-        sample_schema_file,
-        tmp_path,
-    ):
-        """evaluate clusters command outputs JSON format."""
-        output_file = tmp_path / "clusters_test.json"
-        result = cli_runner.invoke(
-            evaluate,
-            [
-                "clusters",
-                "--catalog",
-                sample_catalog_file,
-                "--rules",
-                sample_ruleset_file,
-                "--cluster-rules",
-                sample_cluster_ruleset_file,
-                "--schema",
-                sample_schema_file,
-                "--format",
-                "json",
-                "--output",
-                str(output_file),
-            ],
-        )
-        assert result.exit_code == 0
-        assert output_file.exists()
-        with open(output_file) as f:
-            data = json.load(f)
-        assert "total_clusters" in data
-        assert "clusters" in data
-
-
 # ============================================================================
 # SHOW COMMANDS TESTS
 # ============================================================================
@@ -771,7 +702,6 @@ class TestMainCLI:
         assert "pair" in result.output
         assert "matrix" in result.output
         assert "item" in result.output
-        assert "clusters" in result.output
 
     def test_show_help(self, cli_runner):
         """show command group shows help."""

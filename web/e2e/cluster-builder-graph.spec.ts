@@ -154,13 +154,24 @@ test.describe("Cluster Builder Graph Visualization", () => {
     // If graph is loaded, legend should be visible
     const nodesHeader = page.getByText("Nodes").first();
     if (await nodesHeader.isVisible()) {
-      // Verify legend items
-      await expect(page.getByText("Cluster Item")).toBeVisible();
-      await expect(page.getByText("Valid Candidate")).toBeVisible();
-      await expect(page.getByText("Invalid Candidate")).toBeVisible();
+      // Get the parent section containing both header and legend items
+      const nodesSection = nodesHeader.locator("xpath=..");
 
-      await expect(page.getByText("Edges").first()).toBeVisible();
-      await expect(page.getByText("Compatible")).toBeVisible();
+      // Verify legend items within the nodes section
+      await expect(nodesSection.getByText("Cluster Item")).toBeVisible();
+      await expect(
+        nodesSection.getByText("Valid Candidate", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        nodesSection.getByText("Invalid Candidate", { exact: true }),
+      ).toBeVisible();
+
+      // Verify edges section
+      const edgesHeader = page.getByText("Edges").first();
+      await expect(edgesHeader).toBeVisible();
+
+      const edgesSection = edgesHeader.locator("xpath=..");
+      await expect(edgesSection.getByText("Compatible")).toBeVisible();
     }
   });
 
@@ -196,9 +207,16 @@ test.describe("Cluster Builder Graph Visualization", () => {
     page,
   }) => {
     // Intercept the API call to delay it
+    let routeHandled = false;
     await page.route("**/api/v1/evaluate/matrix", async (route) => {
-      await page.waitForTimeout(1000); // Delay for 1 second
-      await route.continue();
+      if (!routeHandled) {
+        routeHandled = true;
+        // Delay to show loading state
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await route.continue();
+      } else {
+        await route.continue();
+      }
     });
 
     // Select catalog if available
@@ -218,6 +236,9 @@ test.describe("Cluster Builder Graph Visualization", () => {
     if (await loadingSkeleton.isVisible()) {
       await expect(loadingSkeleton).toBeVisible();
     }
+
+    // Clean up route handlers
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("should maintain graph state when collapsing and re-expanding", async ({

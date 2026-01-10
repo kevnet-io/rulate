@@ -80,8 +80,8 @@ Rulate is a generic, programmable rule-based comparison engine for evaluating an
 │  │ Validator       │ Evaluator        │ Evaluator        │  │
 │  │                 │                  │                  │  │
 │  │ - 6 dimension   │ - 9 operators    │ - 8 operators    │  │
-│  │   types         │ - Condition eval │ - Bron-Kerbosch  │  │
-│  │ - Type checking │ - Result gen     │ - Graph building │  │
+│  │   types         │ - Condition eval │ - Condition eval │  │
+│  │ - Type checking │ - Result gen     │ - Validation     │  │
 │  └─────────────────┴──────────────────┴──────────────────┘  │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │ Models: Schema, RuleSet, ClusterRuleSet, Catalog,    │   │
@@ -160,7 +160,7 @@ rulate/
 │   │   ├── condition_evaluator.py        # Pairwise condition parser
 │   │   ├── cluster_condition_evaluator.py # Cluster condition parser
 │   │   ├── evaluator.py     # Pairwise evaluation orchestrator
-│   │   └── cluster_evaluator.py          # Cluster finding (Bron-Kerbosch)
+│   │   └── cluster_evaluator.py          # Cluster validation
 │   ├── utils/               # Helper utilities
 │   │   ├── loaders.py       # YAML/JSON → Pydantic models
 │   │   └── exporters.py     # Pydantic models → YAML/JSON
@@ -906,16 +906,6 @@ PUT    /cluster-rulesets/{cluster_ruleset_name}
 DELETE /cluster-rulesets/{cluster_ruleset_name}
 ```
 
-### Clusters (1 endpoint)
-
-```
-POST   /evaluate/clusters
-  Body: {
-    "catalog_name": "string",
-    "cluster_ruleset_name": "string"
-  }
-```
-
 ### Import/Export (14 endpoints)
 
 **Export Endpoints (9):**
@@ -994,12 +984,6 @@ rulate evaluate item <item_id> \
   --catalog <file> \
   --rules <file> \
   [--format summary|json]
-
-# Find clusters
-rulate evaluate clusters \
-  --catalog <file> \
-  --cluster-rules <file> \
-  [--format summary|json]
 ```
 
 ### Show Commands
@@ -1044,7 +1028,7 @@ rulate show catalog <file>
 #### Cluster Features
 - `/cluster-rulesets` - ClusterRuleSet list
 - `/cluster-rulesets/{name}` - ClusterRuleSet detail
-- `/clusters` - Cluster visualization
+- `/cluster-builder` - Interactive cluster builder with validation and graph visualization
 
 #### Data Management
 - `/import-export` - Bulk import/export for backup and migration
@@ -1078,15 +1062,13 @@ rulate show catalog <file>
 
 **Important**: For exclusion rules, `RuleEvaluation.passed = not condition_result`
 
-**Cluster Finding** (`rulate/engine/cluster_evaluator.py`):
+**Cluster Validation** (`rulate/engine/cluster_evaluator.py`):
 
-1. Build compatibility graph using pairwise ruleset
-2. Find all maximal cliques using Bron-Kerbosch algorithm
-3. For each clique:
-   - Apply all cluster rules
-   - If all pass → valid cluster
-4. Detect relationships (subset, superset, overlapping)
-5. Return ClusterResult
+1. Accept a collection of items and a ClusterRuleSet
+2. Apply all cluster rules to the collection:
+   - Exclusion rules: If condition TRUE → cluster invalid
+   - Requirement rules: If condition FALSE → cluster invalid
+3. Return validation result with rule evaluations
 
 ### Database Schema
 
@@ -1114,7 +1096,7 @@ rulate show catalog <file>
   - `test_catalog.py` - Catalog and item models
   - `test_operators.py` - All 19 operators (pairwise and cluster)
   - `test_evaluator.py` - Pairwise evaluation logic
-  - `test_cluster_evaluator.py` - Cluster finding algorithm (Bron-Kerbosch)
+  - `test_cluster_evaluator.py` - Cluster validation logic
   - `test_condition_evaluator.py` - Condition parsing and evaluation
   - `test_evaluation.py` - Evaluation result models
   - `test_loaders.py` - YAML/JSON loading
@@ -1141,13 +1123,13 @@ rulate show catalog <file>
   - `test_api_evaluation.py` (25 tests) - Evaluation endpoints → 100% coverage
   - `test_api_import_export.py` (40 tests) - Import/Export endpoints → 90% coverage
   - `test_api_import_export_cluster_rulesets.py` (12 tests) - Cluster ruleset import/export → 90% coverage
-  - `test_api_clusters.py` (27 tests) - Cluster endpoints → 100% coverage
+  - `test_api_clusters.py` (13 tests) - Cluster builder endpoints → 100% coverage
 - **Coverage by Router**:
   - `api/routers/schemas.py`: 97% (58 stmts, 2 miss)
   - `api/routers/rulesets.py`: 100% (52 stmts)
   - `api/routers/catalogs.py`: 100% (99 stmts)
   - `api/routers/evaluation.py`: 100% (71 stmts)
-  - `api/routers/clusters.py`: 100% (88 stmts)
+  - `api/routers/clusters.py`: 100% (cluster builder endpoints)
   - `api/routers/import_export.py`: 90% (244 stmts, 24 miss)
   - `api/database/models.py`: 100% (92 stmts)
   - `api/models/schemas.py`: 100% (137 stmts)
@@ -1211,7 +1193,6 @@ npm run test:e2e:ui              # E2E tests with UI
 ### Performance Considerations
 
 - **Matrix evaluation**: Skips symmetric pairs (A-B same as B-A)
-- **Cluster finding**: Efficient Bron-Kerbosch with pivoting
 - **Database**: JSON fields for flexibility vs. normalized tables
 
 ---

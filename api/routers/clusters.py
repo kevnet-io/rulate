@@ -2,8 +2,6 @@
 API endpoints for cluster evaluation and ClusterRuleSet management.
 """
 
-from typing import Any
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,13 +14,12 @@ from api.models.schemas import (
     ClusterRuleSetUpdate,
     EvaluateCandidatesRequest,
     EvaluateCandidatesResponse,
-    EvaluateClustersRequest,
     MessageResponse,
     RuleEvaluationResponse,
     ValidateClusterRequest,
     ValidateClusterResponse,
 )
-from rulate.engine.cluster_evaluator import find_clusters, validate_cluster
+from rulate.engine.cluster_evaluator import validate_cluster
 from rulate.engine.evaluator import evaluate_pair
 from rulate.models.catalog import Catalog, Item
 from rulate.models.cluster import ClusterRuleSet
@@ -86,70 +83,6 @@ def db_to_rulate_catalog(db_catalog: CatalogDB) -> Catalog:
         created_at=db_catalog.created_at,
         updated_at=db_catalog.updated_at,
     )
-
-
-@router.post("/evaluate/clusters")
-def evaluate_clusters_endpoint(
-    request: EvaluateClustersRequest, db: Session = Depends(get_db)
-) -> dict[str, Any]:
-    """
-    Find all compatibility clusters in a catalog.
-
-    Args:
-        request: Evaluation request with catalog, rulesets, and parameters
-        db: Database session
-
-    Returns:
-        ClusterAnalysis with all clusters and relationships
-    """
-    # Find catalog
-    db_catalog = db.query(CatalogDB).filter(CatalogDB.name == request.catalog_name).first()
-    if not db_catalog:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Catalog '{request.catalog_name}' not found",
-        )
-
-    # Find pairwise ruleset
-    db_ruleset = db.query(RuleSetDB).filter(RuleSetDB.name == request.ruleset_name).first()
-    if not db_ruleset:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"RuleSet '{request.ruleset_name}' not found",
-        )
-
-    # Find cluster ruleset
-    db_cluster_ruleset = (
-        db.query(ClusterRuleSetDB)
-        .filter(ClusterRuleSetDB.name == request.cluster_ruleset_name)
-        .first()
-    )
-    if not db_cluster_ruleset:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ClusterRuleSet '{request.cluster_ruleset_name}' not found",
-        )
-
-    # Convert to Rulate models
-    schema = db_to_rulate_schema(db_catalog.schema)
-    ruleset = db_to_rulate_ruleset(db_ruleset)
-    cluster_ruleset = db_to_rulate_cluster_ruleset(db_cluster_ruleset)
-    catalog = db_to_rulate_catalog(db_catalog)
-
-    # Find clusters
-    analysis = find_clusters(
-        catalog,
-        ruleset,
-        cluster_ruleset,
-        schema,
-        min_cluster_size=request.min_cluster_size,
-        max_cluster_size=request.max_cluster_size,
-        max_clusters=request.max_clusters,
-    )
-
-    # Return as dict with additional metadata
-    result = analysis.model_dump(mode="python")
-    return result
 
 
 @router.post("/evaluate/cluster/validate", response_model=ValidateClusterResponse)

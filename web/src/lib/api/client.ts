@@ -124,21 +124,6 @@ export interface ClusterRelationship {
   overlap_size: number;
 }
 
-export interface ClusterAnalysis {
-  catalog_name: string;
-  ruleset_name: string;
-  cluster_ruleset_name: string;
-  schema_name: string;
-  clusters: Cluster[];
-  relationships: ClusterRelationship[];
-  evaluated_at: string;
-  total_clusters: number;
-  max_cluster_size: number;
-  min_cluster_size: number;
-  avg_cluster_size: number;
-  total_items_covered: number;
-}
-
 // Cluster Builder types
 export interface ValidateClusterRequest {
   catalog_name: string;
@@ -418,28 +403,6 @@ class ApiClient {
         item_id: itemId,
         catalog_name: catalogName,
         ruleset_name: rulesetName,
-      }),
-    });
-  }
-
-  // Cluster evaluation endpoints
-  async evaluateClusters(
-    catalogName: string,
-    rulesetName: string,
-    clusterRulesetName: string,
-    minClusterSize: number = 2,
-    maxClusterSize?: number,
-    maxClusters?: number,
-  ): Promise<ClusterAnalysis> {
-    return this.request<ClusterAnalysis>("/evaluate/clusters", {
-      method: "POST",
-      body: JSON.stringify({
-        catalog_name: catalogName,
-        ruleset_name: rulesetName,
-        cluster_ruleset_name: clusterRulesetName,
-        min_cluster_size: minClusterSize,
-        max_cluster_size: maxClusterSize,
-        max_clusters: maxClusters,
       }),
     });
   }
