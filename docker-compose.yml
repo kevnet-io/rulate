@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: rulate
+    pull_policy: build
     ports:
       - "${RULATE_EXPOSE_PORT:-8000}:8000"
     environment:
