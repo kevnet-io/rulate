@@ -38,7 +38,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
-    "@types/cytoscape": "^3.21.8",
+    "@types/cytoscape": "^3.31.0",
     "@types/eslint": "^9.6.0",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
