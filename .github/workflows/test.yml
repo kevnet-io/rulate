@@ -28,7 +28,7 @@ jobs:
       run: make check-backend
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         files: ./coverage.xml
         flags: backend
@@ -56,7 +56,7 @@ jobs:
       run: make check-frontend
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         files: ./web/coverage/coverage-final.json
         flags: frontend-unit
